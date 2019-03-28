@@ -1,0 +1,8 @@
+vendor/
+tests/
+var/
+node_modules/
+Dockerfile
+public/build
+docker-compose*
+dev*

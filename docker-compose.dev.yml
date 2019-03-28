@@ -1,0 +1,24 @@
+version: '3.0'
+
+services:
+  server:
+    build:
+      context: './dev'
+    working_dir: /var/www/bear-it
+    volumes:
+      - ./tmp/.composer:/home/bear-it/.composer
+      - .:/var/www/bear-it
+      - ./dev/vhost.conf:/etc/apache2/sites-available/000-default.conf
+      - ./dev/php.ini:/usr/local/etc/php/php.ini
+    ports:
+      - "80:80"
+    environment:
+      - APACHE_RUN_USER=bear-it
+      - APACHE_RUN_GROUP=bear-it
+  assets:
+    image: 'node:10.2'
+    working_dir: /usr/node/app
+    user: node
+    volumes:
+      - .:/usr/node/app
+    command: 'bash -c "yarn install && yarn watch"'
