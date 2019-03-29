@@ -1,0 +1,12 @@
+{
+  "name": "BearIT - Bear your Projects",
+  "short_name": "BearIT",
+  "orientation": "portrait",
+  "display": "standalone",
+  "start_url": "/",
+  "description": "Project management app",
+  "background_color": "#fff",
+  "theme_color": "#fff",
+  "theme-color": "#fff",
+  "scope": "."
+}
