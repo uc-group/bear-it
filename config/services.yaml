@@ -26,3 +26,12 @@ services:
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
+
+    App\Controller\DefaultController:
+        arguments:
+            $clientId: '%env(GITHUB_CLIENT_ID)%'
+
+    App\Security\GithubAuthenticator:
+        arguments:
+            $clientId: '%env(GITHUB_CLIENT_ID)%'
+            $clientSecret: '%env(GITHUB_CLIENT_SECRET)%'

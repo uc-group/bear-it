@@ -1,5 +1,22 @@
 {% extends 'base.html.twig' %}
 
 {% block body %}
-    <h1>Bear-it!</h1>
+    <div id="app" v-cloak data-config="{{ config|json_encode|e('html_attr') }}">
+        <v-app>
+            <v-navigation-drawer app v-if="$route.meta.drawer"></v-navigation-drawer>
+            <v-toolbar app>
+                <v-toolbar-title><v-icon>bear-it</v-icon> BearIT</v-toolbar-title>
+                <v-spacer></v-spacer>
+                <v-avatar v-if="loggedIn">
+                    <img :src="user.avatar" :alt="user.login" :title="user.name" />
+                </v-avatar>
+            </v-toolbar>
+            <v-content app v-show="loaded">
+                <v-container fluid  fill-height>
+                    <router-view></router-view>
+                </v-container>
+            </v-content>
+            <v-footer app></v-footer>
+        </v-app>
+    </div>
 {% endblock body %}

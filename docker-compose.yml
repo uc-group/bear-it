@@ -11,7 +11,7 @@ services:
       - ./dev/vhost.conf:/etc/apache2/sites-available/000-default.conf
       - ./dev/php.ini:/usr/local/etc/php/php.ini
     ports:
-      - "80:80"
+      - "3000:80"
     environment:
       - APACHE_RUN_USER=bear-it
       - APACHE_RUN_GROUP=bear-it

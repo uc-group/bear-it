@@ -1,0 +1,25 @@
+body {
+    background-color: lightgray;
+}
+
+[v-cloak] {
+    display: none;
+}
+
+.v-icon {
+    &.bear-it {
+        background-image: url('../images/logo2.png');
+        width: 24px;
+        height: 24px;
+        background-position: center center;
+        background-size: contain;
+    }
+}
+
+.btn-icon {
+    font-size: 24px;
+
+    &--left {
+        margin-right: 10px;
+    }
+}
