@@ -43,8 +43,8 @@ const store = new Vuex.Store({
     },
     actions: {
        login({ commit }) {
-           return fetch('/api/login').then((response) => {
-               return response.json();
+           return axios.get('/api/login').then((response) => {
+               return response.data;
            }).then((data) => {
                commit('SET_USER', data.authenticated ? data.userData : null)
            });
@@ -76,7 +76,8 @@ new Vue({
     el: '#app',
     data() {
         return {
-            loaded: false
+            loaded: false,
+            drawer: null
         }
     },
     computed: {
