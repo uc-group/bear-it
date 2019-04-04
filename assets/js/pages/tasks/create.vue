@@ -1,6 +1,8 @@
 <template>
   <v-layout>
-    <v-flex md12></v-flex>
+    <v-flex md12>
+      <h2>Create task</h2>
+    </v-flex>
   </v-layout>
 </template>
 
@@ -8,5 +10,5 @@
 import { Component, Vue } from 'vue-property-decorator'
 
 @Component
-export default class DashboardPage extends Vue {}
+export default class CreateTaskPage extends Vue {}
 </script>

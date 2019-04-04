@@ -1,0 +1,23 @@
+{
+  "compilerOptions": {
+    "types": ["@types/node", "vuetify", "vue"],
+    "target": "esnext",
+    "lib": ["dom", "es2015"],
+    "module": "esnext",
+    "moduleResolution": "node",
+    "experimentalDecorators": true,
+    "noImplicitAny": false,
+    "noImplicitThis": false,
+    "strictNullChecks": true,
+    "removeComments": true,
+    "suppressImplicitAnyIndexErrors": true,
+    "allowSyntheticDefaultImports": true,
+    "allowJs": true,
+    "baseUrl": ".",
+    "paths": {
+      "~/*": ["./*"],
+      "@pages/*": ["./pages/*"]
+    }
+  },
+  "include": ["assets/js"]
+}

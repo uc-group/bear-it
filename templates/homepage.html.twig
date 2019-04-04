@@ -3,7 +3,7 @@
 {% block body %}
     <div id="app" v-cloak data-config="{{ config|json_encode|e('html_attr') }}">
         <v-app>
-            <v-navigation-drawer app fixed clipped v-if="$route.meta.drawer" v-model="drawer">
+            <v-navigation-drawer app fixed clipped v-if="hasDrawer" v-model="drawer">
                 <v-list class="pt-0">
                     <v-list-tile to="/">
                         <v-list-tile-action>
@@ -12,6 +12,24 @@
 
                         <v-list-tile-content>
                             <v-list-tile-title>Dashboard</v-list-tile-title>
+                        </v-list-tile-content>
+                    </v-list-tile>
+                    <v-list-tile to="/timetracker">
+                        <v-list-tile-action>
+                            <v-icon>alarm</v-icon>
+                        </v-list-tile-action>
+
+                        <v-list-tile-content>
+                            <v-list-tile-title>Time tracker</v-list-tile-title>
+                        </v-list-tile-content>
+                    </v-list-tile>
+                    <v-list-tile to="/create-task">
+                        <v-list-tile-action>
+                            <v-icon>build</v-icon>
+                        </v-list-tile-action>
+
+                        <v-list-tile-content>
+                            <v-list-tile-title>New task</v-list-tile-title>
                         </v-list-tile-content>
                     </v-list-tile>
                 </v-list>

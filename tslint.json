@@ -1,0 +1,19 @@
+{
+  "defaultSeverity": "error",
+  "extends": ["tslint-config-standard"],
+  "rules": {
+    "prefer-const": true,
+    "space-before-function-paren": [
+      true,
+      {
+        "anonymous": "always",
+        "named": "never",
+        "asyncArrow": "always",
+        "method": "never",
+        "constructor": "never"
+      }
+    ],
+    "quotemark": [true, "single", "jsx-double"],
+    "semicolon": [true, "never"]
+  }
+}

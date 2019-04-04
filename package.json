@@ -27,6 +27,7 @@
         "build": "encore production --progress"
     },
     "dependencies": {
+        "@babel/polyfill": "^7.4.3",
         "axios": "^0.18.0",
         "core-js": "2",
         "vue-property-decorator": "^8.1.0",
