@@ -1,31 +1,15 @@
 import Vue from 'vue'
-import Vuex, { StoreOptions, MutationTree } from 'vuex'
+import Vuex from 'vuex'
 import axios from 'axios'
 
 Vue.use(Vuex)
 
-export interface Config {
-  githubClientId: string
-}
-
-export interface UserAuth {
-  id: string
-  login: string
-  avatar: string | null
-  name: string
-}
-
-export interface RootState {
-  user: UserAuth | null
-  config: Config
-}
-
 const appElement = document.getElementById('app')
-const config: Config = appElement
+const config = appElement
   ? JSON.parse(appElement.dataset.config || '{}')
   : {}
 
-const storeOptions: StoreOptions<RootState> = {
+const storeOptions = {
   state: {
     user: null,
     config: config

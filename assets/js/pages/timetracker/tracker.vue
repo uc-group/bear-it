@@ -61,96 +61,94 @@
   </v-layout>
 </template>
 
-<script lang="ts">
-import { Component, Vue } from 'vue-property-decorator'
-import { Task, TaskCategory } from '../../task'
-
-@Component
-export default class TrackerPage extends Vue {
-  currentRunning: string | null = 'task-3'
-  selectedTask: Task | null = null
-  taskCategories: TaskCategory[] = [
-    {
-      label: 'Today',
-      tasks: [
+<script>
+export default {
+  data() {
+    return {
+      currentRunning: 'task-3',
+      selectedTask: null,
+      taskCategories: [
         {
-          id: 'task-1',
-          title: 'My task one',
-          description: 'JUST DO IT, I know you can!'
+          label: 'Today',
+          tasks: [
+            {
+              id: 'task-1',
+              title: 'My task one',
+              description: 'JUST DO IT, I know you can!'
+            },
+            {
+              id: 'task-2',
+              title: 'My task two',
+              description: 'JUST DO IT, I know you can!'
+            },
+            {
+              id: 'task-3',
+              title: 'My task three',
+              description: 'JUST DO IT, I know you can!'
+            },
+            {
+              id: 'task-4',
+              title: 'My task four',
+              description: 'JUST DO IT, I know you can!'
+            },
+            {
+              id: 'task-5',
+              title: 'My task five',
+              description: 'JUST DO IT, I know you can!'
+            }
+          ]
         },
         {
-          id: 'task-2',
-          title: 'My task two',
-          description: 'JUST DO IT, I know you can!'
-        },
-        {
-          id: 'task-3',
-          title: 'My task three',
-          description: 'JUST DO IT, I know you can!'
-        },
-        {
-          id: 'task-4',
-          title: 'My task four',
-          description: 'JUST DO IT, I know you can!'
-        },
-        {
-          id: 'task-5',
-          title: 'My task five',
-          description: 'JUST DO IT, I know you can!'
-        }
-      ]
-    },
-    {
-      label: 'Recent',
-      tasks: [
-        {
-          id: 'task-6',
-          title: 'My task six',
-          description: 'JUST DO IT, I know you can!'
-        },
-        {
-          id: 'task-7',
-          title: 'My task seven',
-          description: 'JUST DO IT, I know you can!'
-        },
-        {
-          id: 'task-8',
-          title: 'My task eight',
-          description: 'JUST DO IT, I know you can!'
-        },
-        {
-          id: 'task-9',
-          title: 'My task nine',
-          description: 'JUST DO IT, I know you can!'
-        },
-        {
-          id: 'task-10',
-          title: 'My task ten',
-          description: 'JUST DO IT, I know you can!'
+          label: 'Recent',
+          tasks: [
+            {
+              id: 'task-6',
+              title: 'My task six',
+              description: 'JUST DO IT, I know you can!'
+            },
+            {
+              id: 'task-7',
+              title: 'My task seven',
+              description: 'JUST DO IT, I know you can!'
+            },
+            {
+              id: 'task-8',
+              title: 'My task eight',
+              description: 'JUST DO IT, I know you can!'
+            },
+            {
+              id: 'task-9',
+              title: 'My task nine',
+              description: 'JUST DO IT, I know you can!'
+            },
+            {
+              id: 'task-10',
+              title: 'My task ten',
+              description: 'JUST DO IT, I know you can!'
+            }
+          ]
         }
       ]
     }
-  ]
+  },
+  methods: {
+    selectTask(task) {
+      this.selectedTask = task
+    },
+    play(task) {
+      this.stop()
+      this.currentRunning = task.id
+    },
+    stop() {
+      if (!this.currentRunning) {
+        return
+      }
 
+      this.currentRunning = null
+    }
+  },
   created() {
     this.selectedTask = this.taskCategories[0].tasks[2]
-  }
-
-  selectTask(task) {
-    this.selectedTask = task
-  }
-
-  play(task) {
-    this.stop()
-    this.currentRunning = task.id
-  }
-
-  stop() {
-    if (!this.currentRunning) {
-      return
-    }
-
-    this.currentRunning = null
   }
 }
 </script>

@@ -4,5 +4,6 @@ var/
 node_modules/
 Dockerfile
 public/build
+public/sw.js
 docker-compose*
 dev*

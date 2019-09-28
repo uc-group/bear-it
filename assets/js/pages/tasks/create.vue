@@ -6,9 +6,6 @@
   </v-layout>
 </template>
 
-<script lang="ts">
-import { Component, Vue } from 'vue-property-decorator'
-
-@Component
-export default class CreateTaskPage extends Vue {}
+<script>
+export default {}
 </script>
