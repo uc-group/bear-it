@@ -18,7 +18,7 @@
 ###< symfony/web-server-bundle ###
 
 docker-compose.yml
-/dev/
+/dev
 ###> symfony/webpack-encore-bundle ###
 /node_modules/
 /public/build/
