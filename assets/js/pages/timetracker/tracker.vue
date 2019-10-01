@@ -7,12 +7,10 @@
           style="height: 200px; background-color: #ddd;"
           v-if="selectedTask"
         >
-          <div>
-            <h3 class="headline mb-0">{{ selectedTask.title }}</h3>
-            <div>{{ selectedTask.description }}</div>
-          </div>
+          <p>{{ selectedTask.title }}</p>
         </v-card-title>
         <v-card-text style="position: relative">
+          {{ selectedTask.description }}
           <v-btn
             absolute
             fab
@@ -34,22 +32,20 @@
             <v-subheader v-text="category.label" :key="`label-${index}`"></v-subheader>
             <template v-for="(task,taskIndex) in category.tasks">
               <v-divider v-if="taskIndex > 0" inset :key="`hr-${index}-${taskIndex}`"></v-divider>
-              <v-list-tile :key="`c${index}-${task.id}`" @click="selectTask(task)">
-                <v-layout>
-                  <v-list-tile-content>
-                    <v-list-tile-title v-text="task.title"></v-list-tile-title>
-                    <v-list-tile-sub-title v-text="task.description"></v-list-tile-sub-title>
-                  </v-list-tile-content>
-                  <div>
-                    <v-btn fab small flat v-if="task.id !== currentRunning" @click="play(task)">
-                      <v-icon color="green">play_arrow</v-icon>
-                    </v-btn>
-                    <v-btn fab small flat v-else @click="stop">
-                      <v-icon color="red">stop</v-icon>
-                    </v-btn>
-                  </div>
-                </v-layout>
-              </v-list-tile>
+              <v-list-item :key="`c${index}-${task.id}`" @click="selectTask(task)">
+                <v-list-item-content>
+                  <v-list-item-title v-text="task.title"></v-list-item-title>
+                  <v-list-item-subtitle v-text="task.description"></v-list-item-subtitle>
+                </v-list-item-content>
+                <v-list-item-action>
+                  <v-btn fab small text v-if="task.id !== currentRunning" @click.stop="play(task)" @mousedown.stop @touchstart.stop>
+                    <v-icon color="green">play_arrow</v-icon>
+                  </v-btn>
+                  <v-btn fab small text v-else @click.stop="stop" @mousedown.stop @touchstart.stop>
+                    <v-icon color="red">stop</v-icon>
+                  </v-btn>
+                </v-list-item-action>
+              </v-list-item>
             </template>
           </template>
         </v-list>
@@ -138,6 +134,7 @@ export default {
     play(task) {
       this.stop()
       this.currentRunning = task.id
+      this.selectedTask = task
     },
     stop() {
       if (!this.currentRunning) {

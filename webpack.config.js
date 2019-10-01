@@ -14,7 +14,12 @@ Encore.setOutputPath('public/build/')
   .enableBuildNotifications()
   .enableSourceMaps(!Encore.isProduction())
   .enableVersioning(Encore.isProduction())
-  .enableSassLoader()
+  .enableSassLoader(function (options) {
+      options.implementation = require('sass')
+      options.sassOptions = {
+          fiber: require('fibers')
+      }
+  })
   .enableVueLoader()
   .addPlugin(
     new InjectManifest({
