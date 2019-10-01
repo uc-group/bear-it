@@ -17,7 +17,7 @@
 /.web-server-pid
 ###< symfony/web-server-bundle ###
 
-/docker-compose.yml/
+docker-compose.yml
 /dev/
 ###> symfony/webpack-encore-bundle ###
 /node_modules/
