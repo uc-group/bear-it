@@ -24,22 +24,25 @@
   </v-layout>
 </template>
 
-<script lang="ts">
-import { Component, Vue } from 'vue-property-decorator'
+<script>
+  export default {
+    data() {
+      return {
+        loading: null
+      }
+    },
+    computed: {
+      config() {
+        return this.$store.state.config
+      }
+    },
+    methods: {
+      loginWithGithub() {
+        const authorizeUrl = 'https://github.com/login/oauth/authorize'
+        const clientId = this.config.githubClientId
 
-@Component
-export default class LoginPage extends Vue {
-  loading: string | null = null
-
-  get config() {
-    return this.$store.state.config
+        window.location.href = `${authorizeUrl}?client_id=${clientId}`
+      }
+    }
   }
-
-  loginWithGithub() {
-    const authorizeUrl = 'https://github.com/login/oauth/authorize'
-    const clientId = this.config.githubClientId
-
-    window.location.href = `${authorizeUrl}?client_id=${clientId}`
-  }
-}
 </script>

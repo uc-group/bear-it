@@ -4,7 +4,7 @@ const { InjectManifest } = require('workbox-webpack-plugin')
 
 Encore.setOutputPath('public/build/')
   .setPublicPath('/build')
-  .addEntry('app', './assets/js/app.ts')
+  .addEntry('app', './assets/js/app.js')
   .configureBabel(function(babelConfig) {
     babelConfig.presets[0][1].corejs = 2
   })
@@ -14,14 +14,13 @@ Encore.setOutputPath('public/build/')
   .enableBuildNotifications()
   .enableSourceMaps(!Encore.isProduction())
   .enableVersioning(Encore.isProduction())
-  .enableStylusLoader()
+  .enableSassLoader()
   .enableVueLoader()
-  .enableTypeScriptLoader()
   .addPlugin(
     new InjectManifest({
       swSrc: 'assets/js/sw.js',
-      swDest: '../sw.js',
-      dontCacheBustURLsMatching: /\.\w{8}\./
+      swDest: '../sw.js'
+      // dontCacheBustURLsMatching: /\.\w{8}\./
     })
   )
   .addAliases({

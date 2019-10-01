@@ -1,4 +1,4 @@
-import '../styles/app.style'
+import '../styles/app.scss'
 import 'vuetify/dist/vuetify.min.css'
 import '@babel/polyfill'
 
@@ -53,5 +53,5 @@ new Vue({
 })
 
 if ('serviceWorker' in navigator) {
-  //navigator.serviceWorker.register('/sw.js');
+  navigator.serviceWorker.register('/sw.js');
 }
