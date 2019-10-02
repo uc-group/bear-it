@@ -64,7 +64,10 @@ class User implements UserInterface
      */
     public static function createGithubUser(array $githubResponse): User
     {
-        $user = new self($githubResponse['login'] ?? null, $githubResponse['name'] ?? null);
+        $login = $githubResponse['login'] ?? null;
+        $name = $githubResponse['name'] ?? $login;
+
+        $user = new self($login, $name);
         $user->githubId = $githubResponse['id'] ?? null;
         if (!empty($githubResponse['avatar_url'] ?? '')) {
             $user->avatar = $githubResponse['avatar_url'];
