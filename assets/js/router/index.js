@@ -6,6 +6,9 @@ Vue.use(VueRouter)
 
 const router = new VueRouter({
   mode: 'history',
+  scrollBehavior () {
+    return { x: 0, y: 0 }
+  },
   routes: [
     {
       name: 'dashboard',
@@ -27,6 +30,11 @@ const router = new VueRouter({
       path: '/create-task',
       name: 'task_create',
       component: () => import('@pages/tasks/create.vue')
+    },
+    {
+      path: '/create-project',
+      name: 'project_create',
+      component: () => import('@pages/project/create.vue')
     }
   ]
 })

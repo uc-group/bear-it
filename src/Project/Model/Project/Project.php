@@ -22,20 +22,20 @@ class Project
     private $description;
 
     /**
-     * @var array
+     * @var Role[]
      */
     private $userRoles;
 
     /**
-     * @var bool
+     * @var string
      */
-    private $rolesChanged = false;
+    private $rolesHash;
 
     /**
      * @param ProjectId $projectId
      * @param string $name
      * @param string|null $description
-     * @param array $userRoles
+     * @param Role[] $userRoles
      */
     public function __construct(
         ProjectId $projectId,
@@ -47,6 +47,7 @@ class Project
         $this->name = $name;
         $this->description = $description;
         $this->userRoles = $userRoles;
+        $this->rolesHash = $this->calculateRolesHash();
     }
 
     /**
@@ -79,7 +80,6 @@ class Project
      */
     public function assignUserRole(User $user, Role $role)
     {
-        $this->rolesChanged = true;
         $this->userRoles[$user->getId()] = $role;
     }
 
@@ -88,7 +88,6 @@ class Project
      */
     public function removeUser(User $user)
     {
-        $this->rolesChanged = true;
         if (isset($this->userRoles[$user->getId()])) {
             unset($this->userRoles[$user->getId()]);
         }
@@ -130,6 +129,20 @@ class Project
      */
     public function rolesChanged()
     {
-        return $this->rolesChanged;
+        return $this->rolesHash !== $this->calculateRolesHash();
+    }
+
+    /**
+     * @return string
+     */
+    private function calculateRolesHash()
+    {
+        $roles = [];
+        foreach ($this->userRoles as $userId => $role) {
+            $roles[] = sprintf('%s;%s', $userId, $role->toString());
+        }
+        sort($roles);
+
+        return md5(implode('|', $roles));
     }
 }

@@ -37,6 +37,7 @@ class Project
      */
     public function __construct(string $id, string $name, string $description = null)
     {
+        $this->id = $id;
         $this->name = $name;
         $this->description = $description;
     }

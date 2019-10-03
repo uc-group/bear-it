@@ -93,6 +93,7 @@ class ProjectRepository implements ProjectRepositoryInterface
         $qb->setParameter('user', $user);
         $qb->setMaxResults($limit);
         $qb->setFirstResult($offset);
+        $qb->orderBy('p.name');
 
         $projectData = $qb->getQuery()->getArrayResult();
         $projectIds = array_column($projectData, 'id');
@@ -118,7 +119,7 @@ class ProjectRepository implements ProjectRepositoryInterface
     private function updateProjectEntity(Project $project): void
     {
         $repository = $this->entityManager->getRepository(ProjectEntity::class);
-        $projectEntity = $repository->find($project->id());
+        $projectEntity = $repository->find($project->id()->toString());
         if (!$projectEntity) {
             $projectEntity = new ProjectEntity(
                 $project->id()->toString(),
@@ -145,7 +146,7 @@ class ProjectRepository implements ProjectRepositoryInterface
         $qb->delete();
         $qb->from(ProjectUser::class, 'pu');
         $qb->where('pu.project = :project');
-        $qb->setParameter('project', $id);
+        $qb->setParameter('project', $id->toString());
         $qb->getQuery()->execute();
 
         /** @var ProjectEntity $project */
