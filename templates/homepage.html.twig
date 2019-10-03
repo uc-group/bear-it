@@ -35,7 +35,7 @@
                     </v-list>
                 </v-navigation-drawer>
                 <v-app-bar app>
-                    <v-app-bar-nav-icon @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
+                    <v-app-bar-nav-icon @click.stop="drawer = !drawer" v-if="hasDrawer"></v-app-bar-nav-icon>
                     <v-toolbar-title><v-icon>bear-it</v-icon> BearIT</v-toolbar-title>
                     <div class="flex-grow-1"></div>
                     <v-avatar v-if="loggedIn">
