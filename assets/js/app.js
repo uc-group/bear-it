@@ -26,6 +26,12 @@ new Vue({
       return this.$store.state.user
     },
     hasDrawer() {
+      if (this.loading) {
+        return false;
+      }
+      if (!this.loggedIn) {
+        return false;
+      }
       return (
         !this.$route.meta.hasOwnProperty('drawer') ||
         this.$route.meta.drawer === true
