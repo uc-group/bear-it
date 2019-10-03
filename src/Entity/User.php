@@ -2,8 +2,8 @@
 
 namespace App\Entity;
 
+use App\Utils\Id;
 use Doctrine\ORM\Mapping as ORM;
-use Ramsey\Uuid\Uuid;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
@@ -49,11 +49,7 @@ class User implements UserInterface
      */
     public function __construct(string $username, string $name)
     {
-        try {
-            $this->id = Uuid::uuid4();
-        } catch (\Exception $exception) {
-            $this->id = null;
-        }
+        $this->id = Id::generateUuid();
         $this->username = $username;
         $this->name = $name;
     }

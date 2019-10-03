@@ -35,3 +35,5 @@ services:
         arguments:
             $clientId: '%env(GITHUB_CLIENT_ID)%'
             $clientSecret: '%env(GITHUB_CLIENT_SECRET)%'
+
+    App\Project\Repository\ProjectRepositoryInterface: '@App\Doctrine\Repository\ProjectRepository'
