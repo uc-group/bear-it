@@ -41,6 +41,7 @@
                     <v-avatar v-if="loggedIn">
                         <img :src="user.avatar" :alt="user.login" :title="user.name" />
                     </v-avatar>
+                    <v-progress-linear :active="fetching" :indeterminate="fetching" absolute bottom></v-progress-linear>
                 </v-app-bar>
                 <v-content app v-show="loaded">
                     <v-container fluid fill-height>

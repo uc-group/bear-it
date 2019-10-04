@@ -55,6 +55,7 @@ class ProjectRepository implements ProjectRepositoryInterface
     public function load(ProjectId $projectId): Project
     {
         $qb = $this->entityManager->createQueryBuilder();
+        $qb->select('p');
         $qb->from(ProjectEntity::class, 'p');
         $qb->where('p.id = :id');
         $qb->setParameter('id', $projectId->toString());
@@ -64,7 +65,7 @@ class ProjectRepository implements ProjectRepositoryInterface
             if (!$result) {
                 throw ProjectNotFoundException::forId($projectId);
             }
-            $roles = $this->findRolesByProject($result['id']);
+            $roles = $this->findRolesByProject(ProjectId::fromString($result['id']));
 
             return new Project(
                 ProjectId::fromString($result['id']),

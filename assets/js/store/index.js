@@ -12,11 +12,15 @@ const config = appElement
 const storeOptions = {
   state: {
     user: null,
-    config: config
+    config: config,
+    fetching: false
   },
   mutations: {
     SET_USER(state, user) {
       state.user = user
+    },
+    SET_FETCHING_STATE(state, fetchingState) {
+      state.fetching = fetchingState
     }
   },
   actions: {
@@ -26,6 +30,12 @@ const storeOptions = {
         'SET_USER',
         response.data.authenticated ? response.data.userData : null
       )
+    },
+    startFetching({ commit }) {
+      commit('SET_FETCHING_STATE', true)
+    },
+    stopFetching({ commit }) {
+      commit('SET_FETCHING_STATE', false)
     }
   }
 }
