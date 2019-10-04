@@ -7,6 +7,7 @@ import vuetify from './plugins/vuetify'
 import Vue from 'vue'
 import router from './router'
 import store, { loader } from './store'
+import { mapState } from 'vuex'
 
 new Vue({
   vuetify,
@@ -36,7 +37,8 @@ new Vue({
         !this.$route.meta.hasOwnProperty('drawer') ||
         this.$route.meta.drawer === true
       )
-    }
+    },
+    ...mapState(['fetching'])
   },
   created() {
     loader.then(() => {
