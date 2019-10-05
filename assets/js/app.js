@@ -8,11 +8,15 @@ import Vue from 'vue'
 import router from './router'
 import store, { loader } from './store'
 import { mapState } from 'vuex'
+import ProfileMenu from './layout/components/ProfileMenu'
 
 new Vue({
   vuetify,
   router,
   store,
+  components: {
+    ProfileMenu
+  },
   data() {
     return {
       loaded: false,
@@ -22,9 +26,6 @@ new Vue({
   computed: {
     loggedIn() {
       return this.user !== null
-    },
-    user() {
-      return this.$store.state.user
     },
     hasDrawer() {
       if (this.loading) {
@@ -38,7 +39,7 @@ new Vue({
         this.$route.meta.drawer === true
       )
     },
-    ...mapState(['fetching'])
+    ...mapState(['user', 'fetching'])
   },
   created() {
     loader.then(() => {
