@@ -37,7 +37,7 @@
                                 <tbody>
                                 <tr v-for="member in project.members">
                                     <td>
-                                        <v-avatar>
+                                        <v-avatar size="24">
                                             <img :src="member.avatar" :alt="member.username" :title="member.username"/>
                                         </v-avatar>
                                         {{ member.name }}
