@@ -1,4 +1,4 @@
-import {client} from './'
+import {client, requestHandler} from './'
 
 export default {
     create(id, name, description) {
@@ -13,5 +13,10 @@ export default {
     },
     get(id) {
         return client.get(`/api/project/details/${id}`).then(response => response.data)
+    },
+    inviteUsers(id, usernames) {
+        return client.post(`/api/project/members/${id}/invite`, {
+            users: usernames
+        }).then(requestHandler)
     }
 }

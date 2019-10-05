@@ -27,25 +27,7 @@
                 <v-tab-item value="members">
                     <v-card flat tile>
                         <v-card-text>
-                            <v-simple-table>
-                                <thead>
-                                    <tr>
-                                        <th>Name</th>
-                                        <th>Role</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                <tr v-for="member in project.members">
-                                    <td>
-                                        <v-avatar size="24">
-                                            <img :src="member.avatar" :alt="member.username" :title="member.username"/>
-                                        </v-avatar>
-                                        {{ member.name }}
-                                    </td>
-                                    <td>{{ member.role }}</td>
-                                </tr>
-                                </tbody>
-                            </v-simple-table>
+                            <members :members.sync="members" :project-id="project.id"></members>
                         </v-card-text>
                     </v-card>
                 </v-tab-item>
@@ -55,14 +37,20 @@
 </template>
 
 <script>
-    import { validationMixin } from 'vuelidate'
-    import { required, maxLength, minLength } from 'vuelidate/lib/validators'
-    import api from '@api/project'
+    import Members from './members.vue'
 
     export default {
+        components: {
+            Members
+        },
         props: {
             project: Object,
             tab: String
+        },
+        data() {
+            return {
+                members: this.project.members
+            }
         },
         computed: {
             currentTab: {

@@ -10,7 +10,7 @@ export default [
     {
         path: '/project/:id/:tab?',
         name: 'project_details',
-        component: () => import('@pages/project/details.vue'),
+        component: () => import('@pages/project/details/index.vue'),
         props: true,
         async beforeEnter(to, from, next) {
             store.dispatch('startFetching')

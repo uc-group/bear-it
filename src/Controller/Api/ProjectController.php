@@ -1,8 +1,10 @@
 <?php
 
-namespace App\Controller;
+namespace App\Controller\Api;
 
 use App\Entity\User;
+use App\Http\Response\SuccessResponse;
+use App\JsonConverter\ProjectJsonConverter;
 use App\Project\Exception\ProjectNotFoundException;
 use App\Project\Model\Project\Project;
 use App\Project\Model\Project\ProjectId;
@@ -17,7 +19,7 @@ use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * @Route("/api/project")
-  */
+ */
 class ProjectController extends AbstractController
 {
     use ControllerTrait;
@@ -37,11 +39,8 @@ class ProjectController extends AbstractController
         $project->assignUserRole($this->getUser(), Role::owner());
         $repository->save($project);
 
-        return new JsonResponse([
-            'status' => 'OK',
-            'data' => [
-                'id' => $project->id()->toString()
-            ]
+        return new SuccessResponse([
+            'id' => $project->id()->toString()
         ]);
     }
 
@@ -61,55 +60,21 @@ class ProjectController extends AbstractController
             ];
         }
 
-        return new JsonResponse([
-            'status' => 'OK',
-            'data' => $projects
-        ]);
+        return new SuccessResponse($projects);
     }
 
     /**
      * @param string $id
      * @param ProjectRepositoryInterface $repository
+     * @param ProjectJsonConverter $converter
      * @return JsonResponse
      * @throws ProjectNotFoundException
      * @Route("/details/{id}")
      */
-    public function project(string $id, ProjectRepositoryInterface $repository)
+    public function project(string $id, ProjectRepositoryInterface $repository, ProjectJsonConverter $converter)
     {
         $project = $repository->load(ProjectId::fromString($id));
 
-        $userIds = [];
-        $members = [];
-        foreach ($project->roles() as $userId => $role) {
-            $userIds[] = $userId;
-            $members[$userId] = [
-                'role' => $role->toString()
-            ];
-        }
-
-        /** @var User[] $users */
-        $users = $this->getDoctrine()->getRepository(User::class)->findBy([
-            'id' => $userIds
-        ]);
-
-        $memberCollection = new KeyPrioritizedCollection('role', ['owner', 'admin', 'member']);
-        foreach ($users as $user) {
-            $member = &$members[$user->getId()];
-            $member['name'] = $user->getName();
-            $member['username'] = $user->getUsername();
-            $member['avatar'] = $user->getAvatar();
-            $memberCollection->add($member);
-        }
-        unset($member);
-
-        return new JsonResponse([
-            'status' => 'OK',
-            'data' => [
-                'id' => $project->id()->toString(),
-                'name' => $project->name(),
-                'description' => $project->description(),
-                'members' => $memberCollection->toSortedArray('name')
-            ]
-        ]);
+        return new SuccessResponse($converter->full($project));
     }
 }

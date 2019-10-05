@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\User\Model\User\Avatar;
 use App\Utils\Id;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -65,7 +66,7 @@ class User implements UserInterface
         if (!empty($githubResponse['avatar_url'] ?? '')) {
             $user->avatar = $githubResponse['avatar_url'];
         } else if (!empty($githubResponse['gravatar_id'] ?? '')) {
-            $user->avatar = sprintf('https://www.gravatar.com/avatar/%s', $githubResponse['gravatar_id']);
+            $user->avatar = Avatar::createRetroGravatar($githubResponse['gravatar_id'])->toString();
         }
 
         return $user;
@@ -90,9 +91,13 @@ class User implements UserInterface
     /**
      * @return string
      */
-    public function getAvatar(): ?string
+    public function getAvatar(): string
     {
-        return $this->avatar;
+        if (!$this->avatar || !preg_match('~^https?://~', $this->avatar)) {
+            return Avatar::createRetroGravatar(md5($this->username))->toString();
+        }
+
+        return $this->avatar ?? Avatar::createRetroGravatar(md5($this->username));
     }
 
     /**
