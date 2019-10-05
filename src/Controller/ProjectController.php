@@ -32,7 +32,8 @@ class ProjectController extends AbstractController
     {
         //TODO: validation
         $data = json_decode($request->getContent(), true);
-        $project = new Project(ProjectId::new(), $data['name'], $data['description']);
+        $id = ProjectId::fromString($data['id']);
+        $project = new Project($id, $data['name'], $data['description']);
         $project->assignUserRole($this->getUser(), Role::owner());
         $repository->save($project);
 
