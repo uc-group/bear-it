@@ -66,7 +66,7 @@
             }
         },
         mounted() {
-            this.$refs.nameField.focus()
+            this.$refs.idField.focus()
         },
         methods: {
             async createProject() {
