@@ -1,8 +1,9 @@
 import {client} from './'
 
 export default {
-    create(name, description) {
+    create(id, name, description) {
         return client.post('/api/project/create', {
+            id,
             name,
             description
         }).then(response => response.data)
