@@ -8,7 +8,7 @@
                     <v-form @submit.prevent="createProject">
                         <v-text-field
                                 v-model="project.id"
-                                label="Id"
+                                label="ID"
                                 ref="idField"
                                 :error-messages="idErrors"
                                 :counter="36"
@@ -78,7 +78,7 @@
             }
         },
         watch: {
-            'project.id': function (newValue, oldValue) {
+            'project.id': function (newValue) {
                 this.project.id = newValue.toUpperCase();
             }
         },
@@ -86,7 +86,7 @@
             idErrors() {
                 const errors = []
                 if (!this.$v.project.id.$dirty) return errors
-                !this.$v.project.id.maxLength && errors.push('Id must be at most 80 characters long')
+                !this.$v.project.id.maxLength && errors.push('Id must be at most 36 characters long')
                 !this.$v.project.id.minLength && errors.push('Id must be at least 3 characters long')
                 !this.$v.project.id.required && errors.push('Id is required')
                 !this.$v.project.id.idValidator && errors.push('Id can only contain uppercase alphanumeric values')
