@@ -37,3 +37,4 @@ services:
             $clientSecret: '%env(GITHUB_CLIENT_SECRET)%'
 
     App\Project\Repository\ProjectRepositoryInterface: '@App\Doctrine\Repository\ProjectRepository'
+    App\User\Service\UserFinderInterface: '@App\Doctrine\Service\UserFinder'
