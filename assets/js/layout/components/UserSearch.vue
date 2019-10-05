@@ -6,11 +6,13 @@
         label="Selected users"
         :loading="loading"
         :disabled="disabled"
+        :filter="filter"
         item-value="username"
         item-text="name"
         cache-items
         chips
         multiple
+        autocomplete="off"
     >
         <template v-slot:selection="data">
             <v-chip
@@ -98,6 +100,11 @@
                 if (index >= 0) {
                     this.selectedUsers.splice(index, 1)
                 }
+            },
+            filter(item, queryText) {
+                const searchText = [item.username, item.name].join(' ')
+
+                return searchText.toLocaleLowerCase().indexOf(queryText.toLocaleLowerCase()) > -1
             }
         }
     }

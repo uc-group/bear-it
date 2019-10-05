@@ -30,7 +30,7 @@ class User
      * @param string $username
      * @param string $name
      */
-    public function __construct(UserId $userId, string $username, string $name, Avatar $avatar = null)
+    public function __construct(UserId $userId, string $username, string $name = null, Avatar $avatar = null)
     {
         $this->userId = $userId;
         $this->username = $username;
@@ -49,7 +49,7 @@ class User
     /**
      * @return string
      */
-    public function name(): string
+    public function name(): ?string
     {
         return $this->name;
     }

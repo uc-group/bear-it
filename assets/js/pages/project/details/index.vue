@@ -49,7 +49,7 @@
         },
         data() {
             return {
-                members: this.project.members
+                members: JSON.parse(JSON.stringify(this.project.members))
             }
         },
         computed: {

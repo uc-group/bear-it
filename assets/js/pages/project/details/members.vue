@@ -13,7 +13,7 @@
                     <v-avatar size="24">
                         <img :src="member.avatar" :alt="member.username" :title="member.username"/>
                     </v-avatar>
-                    {{ member.name }}
+                    <user-name :user="member"></user-name>
                 </td>
                 <td>{{ member.role }}</td>
             </tr>
@@ -38,11 +38,13 @@
 
 <script>
     import UserSearch from '~/layout/components/UserSearch'
+    import UserName from '~/layout/components/UserName'
     import api from '@api/project'
 
     export default {
         components: {
-            UserSearch
+            UserSearch,
+            UserName
         },
         props: {
             members: Array,
@@ -59,7 +61,7 @@
                 return this.members.map(member => member.username)
             },
             userRole() {
-                const currentMember = this.members.find(member => member.username = this.$store.state.user.login)
+                const currentMember = this.members.find(member => member.username === this.$store.state.user.login)
                 if (currentMember) {
                     return currentMember.role
                 }
