@@ -25,6 +25,14 @@ body {
 }
 
 .user-name {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+
+    &__name {
+        white-space: nowrap;
+    }
+
     &__username {
         margin-left: 3px;
         color: rgba(#000, .54);

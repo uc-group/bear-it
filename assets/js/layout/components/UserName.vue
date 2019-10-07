@@ -14,7 +14,9 @@
             return h('span', {
                 class: 'user-name'
             }, [
-                user.name,
+                h('span', {
+                    class: 'user-name__name'
+                }, user.name),
                 h('span', {
                     class: 'user-name__username'
                 }, user.username)
