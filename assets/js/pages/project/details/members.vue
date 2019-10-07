@@ -10,10 +10,16 @@
             <tbody>
             <tr v-for="member in members">
                 <td>
-                    <v-avatar size="24">
-                        <img :src="member.avatar" :alt="member.username" :title="member.username"/>
-                    </v-avatar>
-                    <user-name :user="member"></user-name>
+                    <v-row class="align-center">
+                        <v-col class="flex-grow-0">
+                            <v-avatar size="24">
+                                <img :src="member.avatar" :alt="member.username" :title="member.username"/>
+                            </v-avatar>
+                        </v-col>
+                        <v-col>
+                            <user-name :user="member"></user-name>
+                        </v-col>
+                    </v-row>
                 </td>
                 <td>{{ member.role }}</td>
             </tr>
@@ -26,10 +32,12 @@
                     <h3>Invite users</h3>
                 </v-col>
             </v-row>
-            <v-row>
-                <v-col class="d-flex align-baseline">
+            <v-row class="align-baseline flex-wrap">
+                <v-col class="flex-md-grow-1" cols="12" md="auto">
                     <user-search :current-users="currentUsers" :selected.sync="newUsers" :disabled="updating"></user-search>
-                    <v-btn color="primary" class="ml-5" @click="addUsers" :disabled="!newUsers.length || updating">Add selected users</v-btn>
+                </v-col>
+                <v-col class="d-flex justify-end flex-md-grow-0" cols="12" md="auto">
+                    <v-btn color="primary" @click="addUsers" :disabled="!newUsers.length || updating">Add selected users</v-btn>
                 </v-col>
             </v-row>
         </template>
