@@ -31,7 +31,8 @@ Encore.setOutputPath('public/build/')
   .addAliases({
     '~': path.resolve(__dirname, 'assets/js'),
     '@pages': path.resolve(__dirname, 'assets/js/pages'),
-    '@api': path.resolve(__dirname, 'assets/js/api')
+    '@api': path.resolve(__dirname, 'assets/js/api'),
+    '@lib': path.resolve(__dirname, 'assets/js/lib')
   })
 
 module.exports = Encore.getWebpackConfig()

@@ -48,8 +48,13 @@
             tab: String
         },
         data() {
+            const members = JSON.parse(JSON.stringify(this.project.members));
+            members.forEach(member => {
+                member.removing = false;
+            })
+
             return {
-                members: JSON.parse(JSON.stringify(this.project.members))
+                members
             }
         },
         computed: {
