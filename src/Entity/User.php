@@ -47,7 +47,7 @@ class User implements UserInterface
      * @param string $username
      * @param string $name
      */
-    public function __construct(string $username, string $name)
+    public function __construct(string $username, string $name = null)
     {
         try {
             $this->id = Uuid::uuid4();
@@ -64,10 +64,7 @@ class User implements UserInterface
      */
     public static function createGithubUser(array $githubResponse): User
     {
-        $login = $githubResponse['login'] ?? null;
-        $name = $githubResponse['name'] ?? $login;
-
-        $user = new self($login, $name);
+        $user = new self($githubResponse['login'] ?? null, $githubResponse['name'] ?? null);
         $user->githubId = $githubResponse['id'] ?? null;
         if (!empty($githubResponse['avatar_url'] ?? '')) {
             $user->avatar = $githubResponse['avatar_url'];
