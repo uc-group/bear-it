@@ -28,6 +28,7 @@ class ProjectController extends AbstractController
      * @param Request $request
      * @param ProjectRepositoryInterface $repository
      * @return JsonResponse
+     * @throws \App\Project\Exception\InvalidProjectIdException
      * @Route("/create")
      */
     public function create(Request $request, ProjectRepositoryInterface $repository)
@@ -69,6 +70,7 @@ class ProjectController extends AbstractController
      * @param ProjectJsonConverter $converter
      * @return JsonResponse
      * @throws ProjectNotFoundException
+     * @throws \App\Project\Exception\InvalidProjectIdException
      * @Route("/details/{id}")
      */
     public function project(string $id, ProjectRepositoryInterface $repository, ProjectJsonConverter $converter)
@@ -76,5 +78,21 @@ class ProjectController extends AbstractController
         $project = $repository->load(ProjectId::fromString($id));
 
         return new SuccessResponse($converter->full($project));
+    }
+
+    /**
+     * @param string $id
+     * @param ProjectRepositoryInterface $repository
+     * @return SuccessResponse
+     * @throws \App\Project\Exception\InvalidProjectIdException
+     * @Route("/remove/{id}")
+     */
+    public function remove(string $id, ProjectRepositoryInterface $repository)
+    {
+        //TODO: some checks maybe?
+        $removed = $repository->remove(ProjectId::fromString($id));
+        $message = $removed ? 'Project successfully removed.' : 'Remove error.';
+
+        return new SuccessResponse(['message' => $message]);
     }
 }
