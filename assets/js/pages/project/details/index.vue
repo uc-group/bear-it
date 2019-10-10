@@ -27,7 +27,7 @@
                 <v-tab-item value="members">
                     <v-card flat tile>
                         <v-card-text>
-                            <members :members.sync="members" :project-id="project.id"></members>
+                            <members-tab></members-tab>
                         </v-card-text>
                     </v-card>
                 </v-tab-item>
@@ -37,25 +37,22 @@
 </template>
 
 <script>
-    import Members from './members.vue'
+    import MembersTab from './tabs/members.vue'
+    import projectStore from '~/store/modules/project'
 
     export default {
         components: {
-            Members
+            MembersTab
         },
         props: {
             project: Object,
             tab: String
         },
-        data() {
-            const members = JSON.parse(JSON.stringify(this.project.members));
-            members.forEach(member => {
-                member.removing = false;
-            })
-
-            return {
-                members
-            }
+        created() {
+            this.$store.registerModule('project', projectStore(this.project))
+        },
+        beforeDestroy() {
+            this.$store.unregisterModule('project')
         },
         computed: {
             currentTab: {
