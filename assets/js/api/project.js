@@ -19,6 +19,17 @@ export default {
             users: usernames
         }).then(requestHandler)
     },
+    changeMemberRole(id, username, newRole) {
+        return client.post(`/api/project/members/${id}/change-role`, {
+            member: username,
+            role: newRole
+        })
+    },
+    removeMember(id, username) {
+        return client.post(`/api/project/members/${id}/remove`, {
+            member: username
+        })
+    },
     remove(id) {
         return new Promise( (resolve, reject) => {
             alert('Implement me')
