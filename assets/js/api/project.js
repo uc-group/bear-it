@@ -9,7 +9,7 @@ export default {
         }).then(response => response.data)
     },
     userList() {
-        return client.get('/api/project/user-list').then(response => response.data)
+        return client.get('/api/project/user-list').then(requestHandler)
     },
     get(id) {
         return client.get(`/api/project/details/${id}`).then(response => response.data)
@@ -28,6 +28,12 @@ export default {
     removeMember(id, username) {
         return client.post(`/api/project/members/${id}/remove`, {
             member: username
+        })
+    },
+    remove(id) {
+        return new Promise( (resolve, reject) => {
+            alert('Implement me')
+            //return client.get('/api/project/remove').then(requestHandler)
         })
     }
 }

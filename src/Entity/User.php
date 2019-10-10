@@ -48,7 +48,7 @@ class User implements UserInterface
      * @param string $username
      * @param string $name
      */
-    public function __construct(string $username, string $name)
+    public function __construct(string $username, string $name = null)
     {
         $this->id = Id::generateUuid();
         $this->username = $username;
