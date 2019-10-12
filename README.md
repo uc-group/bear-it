@@ -43,3 +43,9 @@ Once you have you auth pair, user those and place in your local environment over
 GITHUB_CLIENT_ID=clientid
 GITHUB_CLIENT_SECRET=clientsecret
 ``` 
+
+## Read more
+
+### API
+
+[Request Validation](doc/api/validation.md)

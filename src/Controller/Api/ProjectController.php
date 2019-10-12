@@ -2,40 +2,33 @@
 
 namespace App\Controller\Api;
 
-use App\Entity\User;
 use App\Http\Response\SuccessResponse;
 use App\JsonConverter\ProjectJsonConverter;
+use App\Project\Exception\InvalidProjectIdException;
 use App\Project\Exception\ProjectNotFoundException;
 use App\Project\Model\Project\Project;
 use App\Project\Model\Project\ProjectId;
 use App\Project\Model\Project\Role;
 use App\Project\Repository\ProjectRepositoryInterface;
-use App\Utils\KeyPrioritizedCollection;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Bundle\FrameworkBundle\Controller\ControllerTrait;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * @Route("/api/project")
  */
 class ProjectController extends AbstractController
 {
-    use ControllerTrait;
-
     /**
-     * @param Request $request
      * @param ProjectRepositoryInterface $repository
+     * @param $apiData
      * @return JsonResponse
-     * @Route("/create")
+     * @throws InvalidProjectIdException
+     * @Route("/create", name="api_project_create")
      */
-    public function create(Request $request, ProjectRepositoryInterface $repository)
+    public function create(ProjectRepositoryInterface $repository, $apiData)
     {
-        //TODO: validation
-        $data = json_decode($request->getContent(), true);
-        $id = ProjectId::fromString($data['id']);
-        $project = new Project($id, $data['name'], $data['description']);
+        $id = ProjectId::fromString($apiData['id']);
+        $project = new Project($id, $apiData['name'], $apiData['description']);
         $project->assignUserRole($this->getUser(), Role::owner());
         $repository->save($project);
 
@@ -69,6 +62,7 @@ class ProjectController extends AbstractController
      * @param ProjectJsonConverter $converter
      * @return JsonResponse
      * @throws ProjectNotFoundException
+     * @throws InvalidProjectIdException
      * @Route("/details/{id}")
      */
     public function project(string $id, ProjectRepositoryInterface $repository, ProjectJsonConverter $converter)

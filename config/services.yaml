@@ -12,6 +12,10 @@ services:
         autowire: true      # Automatically injects dependencies in your services.
         autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
 
+    _instanceof:
+        App\Api\DataValidator\DataValidatorInterface:
+            tags: ['bearit.api_data_validator']
+
     # makes classes in src/ available to be used as services
     # this creates a service per class whose id is the fully-qualified class name
     App\:
@@ -38,3 +42,10 @@ services:
 
     App\Project\Repository\ProjectRepositoryInterface: '@App\Doctrine\Repository\ProjectRepository'
     App\User\Service\UserFinderInterface: '@App\Doctrine\Service\UserFinder'
+
+    app.api_data_validators:
+        class: Symfony\Component\DependencyInjection\ServiceLocator
+
+    App\EventListener\ApiValidatorSubscriber:
+        arguments:
+            $apiDataValidators: '@app.api_data_validators'

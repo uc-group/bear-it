@@ -13,21 +13,15 @@ use App\Project\Model\Project\ProjectId;
 use App\Project\Model\Project\Role;
 use App\Project\Repository\ProjectRepositoryInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Bundle\FrameworkBundle\Controller\ControllerTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Validator\Constraints;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * @Route("/api/project/members")
  */
 class ProjectMemberController extends AbstractController
 {
-    use ControllerTrait;
-
     /**
      * @var ProjectRepositoryInterface
      */
@@ -44,15 +38,14 @@ class ProjectMemberController extends AbstractController
     /**
      * @Route("/{projectId}/invite", methods={"POST"})
      * @param string $projectId
-     * @param Request $request
+     * @param $apiData
      * @param ProjectJsonConverter $converter
      * @return SuccessResponse
      */
-    public function invite(string $projectId, Request $request, ProjectJsonConverter $converter)
+    public function invite(string $projectId, $apiData, ProjectJsonConverter $converter)
     {
         $project = $this->loadProjectForManage($projectId);
-        $data = json_decode($request->getContent(), true);
-        $users = $data['users'] ?? [];
+        $users = $apiData['users'] ?? [];
 
         if (empty($users)) {
             return new SuccessResponse($converter->members($project));
@@ -70,66 +63,41 @@ class ProjectMemberController extends AbstractController
     }
 
     /**
-     * @Route("/{projectId}/change-role", methods={"POST"})
+     * @Route("/{projectId}/change-role", methods={"POST"}, name="api_project_member_change_role")
      * @param string $projectId
      * @param Request $request
-     * @param ValidatorInterface $validator
      * @return ValidationErrorResponse|SuccessResponse
      */
-    public function changeRole(string $projectId, Request $request, ValidatorInterface $validator) {
+    public function changeRole(string $projectId, Request $request) {
         $project = $this->loadProjectForManage($projectId);
 
-        $data = json_decode($request->getContent(), true);
-        $errors = $validator->validate($data, new Constraints\Collection([
-            'member' => [new Constraints\NotNull()],
-            'role' => [new Constraints\Choice([
-                'choices' => [
-                    Role::admin()->toString(),
-                    Role::member()->toString()
-                ]
-            ])]
-        ]));
-
-        if ($errors->count() > 0) {
-            return new ValidationErrorResponse($errors);
-        }
-
-        $user = $this->findUserEntity($data['member']);
+        $apiData = $request->attributes->get('apiData');
+        $user = $this->findUserEntity($apiData['member']);
         if ($project->getUserRole($user)->equals(Role::owner())) {
             throw $this->createAccessDeniedException();
         }
 
-        $project->assignUserRole($user, Role::fromString($data['role']));
+        $project->assignUserRole($user, Role::fromString($apiData['role']));
         $this->projectRepository->save($project);
 
         return new SuccessResponse();
     }
 
     /**
-     * @Route("/{projectId}/remove", methods={"POST"})
+     * @Route("/{projectId}/remove", methods={"POST"}, name="api_project_member_remove")
      * @param string $projectId
-     * @param Request $request
-     * @param ValidatorInterface $validator
+     * @param $apiData
      * @return ValidationErrorResponse|SuccessResponse
      */
-    public function remove(string $projectId, Request $request, ValidatorInterface $validator) {
+    public function remove(string $projectId, $apiData) {
         $project = $this->loadProjectForManage($projectId);
 
-        $data = json_decode($request->getContent(), true);
-        $errors = $validator->validate($data, new Constraints\Collection([
-            'member' => [new Constraints\NotNull()]
-        ]));
-
-        if ($errors->count() > 0) {
-            return new ValidationErrorResponse($errors);
-        }
-
-        $user = $this->findUserEntity($data['member']);
+        $user = $this->findUserEntity($apiData['member']);
         if ($project->getUserRole($user)->equals(Role::owner())) {
             throw $this->createAccessDeniedException();
         }
 
-        $project->removeUser($user, $user);
+        $project->removeUser($user);
         $this->projectRepository->save($project);
 
         return new SuccessResponse();

@@ -41,7 +41,7 @@ class DefaultController extends AbstractController
      * @Route("/", name="homepage")
      * @Route("/{vueRoute}", requirements={"vueRoute": "^(?!api|auth|logout).*"})
      */
-    public function homepage()
+    public function homepage(Request $request)
     {
         return $this->render('homepage.html.twig', [
             'config' => [
