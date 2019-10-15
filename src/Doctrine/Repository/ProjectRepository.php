@@ -85,7 +85,6 @@ class ProjectRepository implements ProjectRepositoryInterface
      */
     public function remove(ProjectId $projectId): bool
     {
-        //TODO: some validation before remove maybe?
         $qb = $this->entityManager->createQueryBuilder();
         $qb->delete();
         $qb->from(ProjectEntity::class, 'p');

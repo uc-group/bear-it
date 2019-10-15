@@ -20,8 +20,6 @@ export default {
         }).then(requestHandler)
     },
     remove(id) {
-        return new Promise( (resolve, reject) => {
-            return client.post(`/api/project/remove/${id}`).then(requestHandler)
-        })
+        return client.post(`/api/project/remove/${id}`).then(requestHandler)
     }
 }

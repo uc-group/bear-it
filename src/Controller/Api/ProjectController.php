@@ -84,12 +84,18 @@ class ProjectController extends AbstractController
      * @param string $id
      * @param ProjectRepositoryInterface $repository
      * @return SuccessResponse
+     * @throws ProjectNotFoundException
      * @throws \App\Project\Exception\InvalidProjectIdException
      * @Route("/remove/{id}")
      */
     public function remove(string $id, ProjectRepositoryInterface $repository)
     {
-        //TODO: some checks maybe?
+        $user = $this->getUser();
+        $project = $repository->load(ProjectId::fromString($id));
+        if (!$project->canRemove($user)) {
+            throw $this->createAccessDeniedException();
+        }
+
         $removed = $repository->remove(ProjectId::fromString($id));
         $message = $removed ? 'Project successfully removed.' : 'Remove error.';
 
