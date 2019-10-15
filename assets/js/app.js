@@ -7,7 +7,7 @@ import vuetify from './plugins/vuetify'
 import Vue from 'vue'
 import router from './router'
 import store, { loader } from './store'
-import { mapState } from 'vuex'
+import { mapState, mapGetters } from 'vuex'
 import ProfileMenu from './layout/components/ProfileMenu'
 
 new Vue({
@@ -39,7 +39,19 @@ new Vue({
         this.$route.meta.drawer === true
       )
     },
-    ...mapState(['user', 'fetching'])
+    showMessage: {
+      get(){
+        return this.$store.state.bearMessage.message
+      },
+      set(message){
+        if(message){
+          return;
+        }
+        this.$store.dispatch('bearMessage/setMessage', { message: null, type: 'success'})
+      }
+    },
+    ...mapState(['user', 'fetching']),
+    ...mapState({ message: state => state.bearMessage.message})
   },
   created() {
     loader.then(() => {

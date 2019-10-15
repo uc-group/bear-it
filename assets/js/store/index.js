@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 import axios from 'axios'
+import bearMessage from './modules/message'
 
 Vue.use(Vuex)
 
@@ -14,6 +15,9 @@ const storeOptions = {
     user: null,
     config: config,
     fetching: false
+  },
+  modules: {
+    bearMessage
   },
   mutations: {
     SET_USER(state, user) {

@@ -74,6 +74,7 @@
                 if (!this.$v.$invalid) {
                     await api.create(this.project.id, this.project.name, this.project.description)
                     this.$router.push('/')
+                    this.$store.dispatch("bearMessage/setMessage", { message: 'Project successfully created', type: 'success' })
                 }
             }
         },
