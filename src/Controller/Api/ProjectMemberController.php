@@ -2,6 +2,7 @@
 
 namespace App\Controller\Api;
 
+use App\Controller\Traits\ProjectUserTrait;
 use App\Entity\User;
 use App\Http\Response\SuccessResponse;
 use App\Http\Response\ValidationErrorResponse;
@@ -11,17 +12,20 @@ use App\Project\Exception\ProjectNotFoundException;
 use App\Project\Model\Project\Project;
 use App\Project\Model\Project\ProjectId;
 use App\Project\Model\Project\Role;
+use App\Project\Model\ProjectAccess\Policy\ManageUsersPolicy;
+use App\Project\Model\ProjectAccess\Policy\ProjectPolicy;
 use App\Project\Repository\ProjectRepositoryInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * @Route("/api/project/members")
  */
 class ProjectMemberController extends AbstractController
 {
+    use ProjectUserTrait;
+
     /**
      * @var ProjectRepositoryInterface
      */
@@ -36,7 +40,7 @@ class ProjectMemberController extends AbstractController
     }
 
     /**
-     * @Route("/{projectId}/invite", methods={"POST"})
+     * @Route("/{projectId}/invite", methods={"POST"}, name="api_project_member_invite")
      * @param string $projectId
      * @param $apiData
      * @param ProjectJsonConverter $converter
@@ -45,6 +49,9 @@ class ProjectMemberController extends AbstractController
     public function invite(string $projectId, $apiData, ProjectJsonConverter $converter)
     {
         $project = $this->loadProjectForManage($projectId);
+        $userAccess = $this->getUserAccess($project);
+        $this->throwAccessDeniedUnlessGranted($userAccess, ProjectPolicy::memberManageFunction(), $project);
+
         $users = $apiData['users'] ?? [];
 
         if (empty($users)) {
@@ -54,7 +61,10 @@ class ProjectMemberController extends AbstractController
         $userEntities = $this->findUserEntities($users);
 
         foreach ($userEntities as $userEntity) {
-            $project->addUser($userEntity);
+            $userId = $userEntity->getId();
+            if ($userAccess->isGranted(ManageUsersPolicy::inviteFunction(), $userId)) {
+                $project->addUser($userId);
+            }
         }
 
         $this->projectRepository->save($project);
@@ -70,14 +80,14 @@ class ProjectMemberController extends AbstractController
      */
     public function changeRole(string $projectId, Request $request) {
         $project = $this->loadProjectForManage($projectId);
+        $userAccess = $this->getUserAccess($project);
+        $this->throwAccessDeniedUnlessGranted($userAccess, ProjectPolicy::memberManageFunction(), $project);
 
         $apiData = $request->attributes->get('apiData');
         $user = $this->findUserEntity($apiData['member']);
-        if ($project->getUserRole($user)->equals(Role::owner())) {
-            throw $this->createAccessDeniedException();
-        }
-
-        $project->assignUserRole($user, Role::fromString($apiData['role']));
+        $userId = $user->getId();
+        $this->throwAccessDeniedUnlessGranted($userAccess, ManageUsersPolicy::changeRoleFunction(), $userId);
+        $project->assignUserRole($userId, Role::fromString($apiData['role']));
         $this->projectRepository->save($project);
 
         return new SuccessResponse();
@@ -91,13 +101,17 @@ class ProjectMemberController extends AbstractController
      */
     public function remove(string $projectId, $apiData) {
         $project = $this->loadProjectForManage($projectId);
+        $userAccess = $this->getUserAccess($project);
+        $this->throwAccessDeniedUnlessGranted($userAccess, ProjectPolicy::memberManageFunction(), $project);
 
         $user = $this->findUserEntity($apiData['member']);
-        if ($project->getUserRole($user)->equals(Role::owner())) {
-            throw $this->createAccessDeniedException();
+        if (!$user) {
+            throw $this->createNotFoundException();
         }
+        $userId = $user->getId();
+        $this->throwAccessDeniedUnlessGranted($userAccess, ManageUsersPolicy::removeFunction(), $userId);
 
-        $project->removeUser($user);
+        $project->removeUser($userId);
         $this->projectRepository->save($project);
 
         return new SuccessResponse();
@@ -106,8 +120,6 @@ class ProjectMemberController extends AbstractController
     /**
      * @param string $projectId
      * @return Project
-     * @throws NotFoundHttpException
-     * @throws AccessDeniedHttpException
      */
     private function loadProjectForManage(string $projectId)
     {
@@ -115,11 +127,6 @@ class ProjectMemberController extends AbstractController
             $project = $this->projectRepository->load(ProjectId::fromString($projectId));
         } catch (ProjectNotFoundException | InvalidProjectIdException $exception) {
             throw $this->createNotFoundException();
-        }
-
-        $user = $this->getUser();
-        if (!$project->canManageUsers($user)) {
-            throw $this->createAccessDeniedException();
         }
 
         return $project;
@@ -140,7 +147,7 @@ class ProjectMemberController extends AbstractController
 
     /**
      * @param string $username
-     * @return User|null
+     * @return User|object|null
      */
     private function findUserEntity(string $username)
     {

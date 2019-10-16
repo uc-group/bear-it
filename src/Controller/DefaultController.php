@@ -64,7 +64,7 @@ class DefaultController extends AbstractController
                 'login' => $user->getUsername(),
                 'avatar' => $user->getAvatar(),
                 'name' => $user->getName(),
-                'id' => $user->getId()
+                'id' => $user->getId()->toString()
             ] : null
         ]);
     }

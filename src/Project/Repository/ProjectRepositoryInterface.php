@@ -6,6 +6,7 @@ use App\Entity\User;
 use App\Project\Exception\ProjectNotFoundException;
 use App\Project\Model\Project\Project;
 use App\Project\Model\Project\ProjectId;
+use BearIt\User\Model\UserId;
 
 interface ProjectRepositoryInterface
 {
@@ -22,15 +23,15 @@ interface ProjectRepositoryInterface
     public function load(ProjectId $projectId): Project;
 
     /**
+     * @param UserId $userId
      * @param int $limit
      * @param int $offset
      * @return Project[]
      */
-    public function findByUser(User $user, int $limit, int $offset);
+    public function findByUser(UserId $userId, int $limit, int $offset);
 
     /**
      * @param ProjectId $projectId
-     * @return bool
      */
-    public function remove(ProjectId $projectId): bool;
+    public function remove(ProjectId $projectId): void;
 }

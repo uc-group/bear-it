@@ -5,11 +5,13 @@ namespace App\Doctrine\Repository;
 use App\Entity\Project as ProjectEntity;
 use App\Entity\ProjectUser;
 use App\Entity\User;
+use App\Project\Exception\InvalidProjectIdException;
 use App\Project\Exception\ProjectNotFoundException;
 use App\Project\Model\Project\Project;
 use App\Project\Model\Project\ProjectId;
 use App\Project\Model\Project\Role;
 use App\Project\Repository\ProjectRepositoryInterface;
+use BearIt\User\Model\UserId;
 use Doctrine\DBAL\ConnectionException;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\NonUniqueResultException;
@@ -83,7 +85,7 @@ class ProjectRepository implements ProjectRepositoryInterface
      * @param ProjectId $projectId
      * @return bool
      */
-    public function remove(ProjectId $projectId): bool
+    public function remove(ProjectId $projectId): void
     {
         $qb = $this->entityManager->createQueryBuilder();
         $qb->delete();
@@ -91,25 +93,23 @@ class ProjectRepository implements ProjectRepositoryInterface
         $qb->where('p.id = :id');
         $qb->setParameter('id', $projectId->toString());
         $qb->getQuery()->execute();
-
-        return true;
     }
 
     /**
-     * @param User $user
+     * @param UserId $user
      * @param int $limit
      * @param int $offset
      * @return Project[]
-     * @throws \App\Project\Exception\InvalidProjectIdException
+     * @throws InvalidProjectIdException
      */
-    public function findByUser(User $user, int $limit, int $offset)
+    public function findByUser(UserId $user, int $limit, int $offset)
     {
         $qb = $this->entityManager->createQueryBuilder();
         $qb->from(ProjectEntity::class, 'p');
         $qb->select('p.id', 'p.name', 'p.description');
         $qb->leftJoin(ProjectUser::class, 'pu', Join::WITH, 'pu.project = p.id');
         $qb->where('pu.user = :user');
-        $qb->setParameter('user', $user);
+        $qb->setParameter('user', $user->toString());
         $qb->setMaxResults($limit);
         $qb->setFirstResult($offset);
         $qb->orderBy('p.name');

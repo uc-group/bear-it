@@ -58,7 +58,7 @@ class ProjectJsonConverter
 
         $memberCollection = new KeyPrioritizedCollection('role', ['owner', 'admin', 'member']);
         foreach ($users as $user) {
-            $member = &$members[$user->getId()];
+            $member = &$members[$user->getId()->toString()];
             $member['name'] = $user->getName();
             $member['username'] = $user->getUsername();
             $member['avatar'] = $user->getAvatar();
