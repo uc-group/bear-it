@@ -12,6 +12,7 @@ use App\Project\Model\Project\Role;
 use App\Project\Repository\ProjectRepositoryInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * @Route("/api/project")
@@ -70,5 +71,27 @@ class ProjectController extends AbstractController
         $project = $repository->load(ProjectId::fromString($id));
 
         return new SuccessResponse($converter->full($project));
+    }
+
+    /**
+     * @param string $id
+     * @param ProjectRepositoryInterface $repository
+     * @return SuccessResponse
+     * @throws ProjectNotFoundException
+     * @throws InvalidProjectIdException
+     * @Route("/remove/{id}")
+     */
+    public function remove(string $id, ProjectRepositoryInterface $repository)
+    {
+        $user = $this->getUser();
+        $project = $repository->load(ProjectId::fromString($id));
+        if (!$project->canRemove($user)) {
+            throw $this->createAccessDeniedException();
+        }
+
+        $removed = $repository->remove(ProjectId::fromString($id));
+        $message = $removed ? 'Project successfully removed.' : 'Remove error.';
+
+        return new SuccessResponse(['message' => $message]);
     }
 }

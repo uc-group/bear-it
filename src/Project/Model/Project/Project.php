@@ -96,6 +96,17 @@ class Project
 
     /**
      * @param User $user
+     * @return bool
+     */
+    public function canRemove(User $user): bool
+    {
+        $role = $this->getUserRole($user);
+
+        return $role->equals(Role::admin()) || $role->equals(Role::owner());
+    }
+
+    /**
+     * @param User $user
      */
     public function addUser(User $user): void
     {

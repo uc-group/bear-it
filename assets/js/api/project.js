@@ -31,9 +31,6 @@ export default {
         })
     },
     remove(id) {
-        return new Promise( (resolve, reject) => {
-            alert('Implement me')
-            //return client.get('/api/project/remove').then(requestHandler)
-        })
+        return client.post(`/api/project/remove/${id}`).then(requestHandler)
     }
 }

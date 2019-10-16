@@ -51,6 +51,7 @@ class ProjectRepository implements ProjectRepositoryInterface
      * @param ProjectId $projectId
      * @return Project
      * @throws ProjectNotFoundException
+     * @throws \App\Project\Exception\InvalidProjectIdException
      */
     public function load(ProjectId $projectId): Project
     {
@@ -79,10 +80,27 @@ class ProjectRepository implements ProjectRepositoryInterface
     }
 
     /**
+     * @param ProjectId $projectId
+     * @return bool
+     */
+    public function remove(ProjectId $projectId): bool
+    {
+        $qb = $this->entityManager->createQueryBuilder();
+        $qb->delete();
+        $qb->from(ProjectEntity::class, 'p');
+        $qb->where('p.id = :id');
+        $qb->setParameter('id', $projectId->toString());
+        $qb->getQuery()->execute();
+
+        return true;
+    }
+
+    /**
      * @param User $user
      * @param int $limit
      * @param int $offset
      * @return Project[]
+     * @throws \App\Project\Exception\InvalidProjectIdException
      */
     public function findByUser(User $user, int $limit, int $offset)
     {

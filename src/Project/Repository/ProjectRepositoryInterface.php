@@ -27,4 +27,10 @@ interface ProjectRepositoryInterface
      * @return Project[]
      */
     public function findByUser(User $user, int $limit, int $offset);
+
+    /**
+     * @param ProjectId $projectId
+     * @return bool
+     */
+    public function remove(ProjectId $projectId): bool;
 }
