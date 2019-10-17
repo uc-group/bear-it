@@ -34,7 +34,7 @@ class User
         $this->userId = $userId;
     }
 
-    public function isGranted(AccessFunction $function, $subject)
+    public function isGranted(AccessFunction $function, $subject = null)
     {
         $accessMap = $this->getAccessMap();
 
@@ -46,11 +46,11 @@ class User
      * @param $subject
      * @return bool
      */
-    public function allGranted(array $accessFunctions, $subject)
+    public function allGranted(array $accessFunctions, $subject = null)
     {
         $accessMap = $this->getAccessMap();
         foreach ($accessFunctions as $function) {
-            if (!$accessMap->grantsAccess($function, $this->userId, $subject())) {
+            if (!$accessMap->grantsAccess($function, $this->userId, $subject)) {
                 return false;
             }
         }
@@ -63,11 +63,11 @@ class User
      * @param $subject
      * @return bool
      */
-    public function anyGranted(array $accessFunctions, $subject)
+    public function anyGranted(array $accessFunctions, $subject = null)
     {
         $accessMap = $this->getAccessMap();
         foreach ($accessFunctions as $function) {
-            if ($accessMap->grantsAccess($function, $this->userId, $subject())) {
+            if ($accessMap->grantsAccess($function, $this->userId, $subject)) {
                 return true;
             }
         }

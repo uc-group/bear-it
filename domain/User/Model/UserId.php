@@ -2,7 +2,9 @@
 
 namespace BearIt\User\Model;
 
-class UserId
+use BearIt\Core\ValueObject\ValueObjectInterface;
+
+class UserId implements ValueObjectInterface
 {
     private $id;
 

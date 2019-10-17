@@ -60,6 +60,7 @@ class LimitationCollection implements \Iterator
     {
         if ($this->isUnlimited() || $collection->isUnlimited()) {
             $this->limitations = [];
+            return;
         }
 
         foreach ($collection as $limitation) {

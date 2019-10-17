@@ -2,7 +2,9 @@
 
 namespace BearIt\Access\Model\AccessFunction;
 
-class AccessFunction
+use BearIt\Core\ValueObject\ValueObjectInterface;
+
+class AccessFunction implements ValueObjectInterface
 {
     /**
      * @var string
