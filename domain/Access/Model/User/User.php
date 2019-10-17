@@ -42,7 +42,7 @@ class User
     }
 
     /**
-     * @param array $accessFunctions
+     * @param AccessFunction[] $accessFunctions
      * @param $subject
      * @return bool
      */
