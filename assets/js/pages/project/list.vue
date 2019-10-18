@@ -26,40 +26,43 @@
 </template>
 
 <script>
-    import api from '@api/project'
+    import { createNamespacedHelpers } from 'vuex'
+    import storeProjectList from '~/store/modules/projectList'
+
+    const { mapState, mapActions } = createNamespacedHelpers('projectList')
 
     export default {
         created() {
-            api.userList().then( projects => {
-                projects.forEach( project => {
-                    project.removing = false
-                    this.projects.push(project)
-                })
-            })
+            this.$store.registerModule('projectList', storeProjectList)
+            this.loadList()
         },
         data() {
             return {
-                projects: [],
                 updating: false
             }
         },
+        computed: {
+            ...mapState({
+                'projects': 'cachedList'
+            })
+        },
         methods: {
+            ...mapActions(['loadList']),
             async remove(project) {
-                project.removing = true
                 this.updating = true
 
                 try {
-                    await api.remove(project.id)
-                    const index = this.projects.findIndex(p => project.id = p.id)
-                    if (index >= 0) {
-                        this.projects.splice(index, 1)
-                    }
+                    await this.$store.dispatch('projectList/remove', project.id)
                 } catch (e) {
                     //TODO: add snackbar
+                    console.error(e)
                     project.removing = false;
                 }
                 this.updating = false
             }
+        },
+        beforeDestroy() {
+            this.$store.unregisterModule('projectList')
         }
     }
 </script>

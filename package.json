@@ -8,7 +8,7 @@
         "@symfony/webpack-encore": "^0.28.0",
         "deepmerge": "^4.0.0",
         "fibers": "^4.0.1",
-        "idb": "^4.0.0",
+        "idb": "^4.0.5",
         "node-sass": "^4.12.0",
         "sass": "^1.22.12",
         "sass-loader": "^8.0.0",

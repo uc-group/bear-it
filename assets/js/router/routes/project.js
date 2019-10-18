@@ -5,12 +5,12 @@ export default [
     {
         path: '/create-project',
         name: 'project_create',
-        component: () => import('@pages/project/create.vue')
+        component: () => import(/* webpackChunkName: "project" */ '@pages/project/create.vue')
     },
     {
         path: '/project/:id/:tab?',
         name: 'project_details',
-        component: () => import('@pages/project/details/index.vue'),
+        component: () => import(/* webpackChunkName: "project" */ '@pages/project/details/index.vue'),
         props: true,
         async beforeEnter(to, from, next) {
             store.dispatch('startFetching')

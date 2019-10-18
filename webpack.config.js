@@ -24,15 +24,16 @@ Encore.setOutputPath('public/build/')
   .addPlugin(
     new InjectManifest({
       swSrc: 'assets/js/sw.js',
-      swDest: '../sw.js'
-      // dontCacheBustURLsMatching: /\.\w{8}\./
+      swDest: '../sw.js',
+      dontCacheBustURLsMatching: /\.\w{8}\./
     })
   )
   .addAliases({
     '~': path.resolve(__dirname, 'assets/js'),
     '@pages': path.resolve(__dirname, 'assets/js/pages'),
     '@api': path.resolve(__dirname, 'assets/js/api'),
-    '@lib': path.resolve(__dirname, 'assets/js/lib')
+    '@lib': path.resolve(__dirname, 'assets/js/lib'),
+    '@publiclib': path.resolve(__dirname, 'public/js/lib'),
   })
 
 module.exports = Encore.getWebpackConfig()

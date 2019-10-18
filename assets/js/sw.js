@@ -1,17 +1,58 @@
+importScripts('/js/lib/idb.js')
+importScripts('/js/lib/db-utils.js')
+
 workbox.core.skipWaiting()
 workbox.core.clientsClaim()
 workbox.precaching.precacheAndRoute(self.__precacheManifest || [])
+workbox.precaching.precacheAndRoute(['/', '/js/lib/idb.js', '/js/lib/db-utils.js'])
 
-// workbox.routing.registerRoute(
-//     '/',
-//     new workbox.strategies.StaleWhileRevalidate({
-//         cacheName: 'bear-it-runtime'
-//     })
-// )
+//workbox.routing.registerNavigationRoute('/')
 
 workbox.routing.registerRoute(
-    /\/.*$/,
-    new workbox.strategies.NetworkFirst()
+    '/favicon.ico',
+    new workbox.strategies.CacheFirst()
+)
+var routes = ['/']
+
+routes.forEach(function (route) {
+    workbox.routing.registerRoute(
+        route,
+        new workbox.strategies.NetworkFirst()
+    )
+})
+
+workbox.routing.registerRoute(
+    '/api/login',
+    ({ event }) => {
+        event.respondWith(
+            fetch(event.request).then(res => {
+                const clonedRes = res.clone()
+                clonedRes.json().then(data => {
+                    bearItDb.keyval.set('loggedUser', data)
+                })
+
+                return res
+            }).catch(() => bearItDb.keyval.get('loggedUser').then(user => new Response(JSON.stringify(user))))
+        )
+    }
+)
+
+workbox.routing.registerRoute(
+    '/api/project/user-list',
+    ({ event }) => {
+        event.respondWith(
+            fetch(event.request).then(res => {
+                const clonedRes = res.clone()
+                clonedRes.json().then(projectList => {
+                    bearItDb.updateProjectList(projectList.data)
+                })
+
+                return res
+            }).catch(() => {
+                bearItDb.getProjectList()
+            })
+        )
+    }
 )
 
 workbox.routing.registerRoute(
