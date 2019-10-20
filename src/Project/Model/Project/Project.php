@@ -22,6 +22,11 @@ class Project
     private $description;
 
     /**
+     * @var string
+     */
+    private $color;
+
+    /**
      * @var Role[]
      */
     private $userRoles;
@@ -35,17 +40,20 @@ class Project
      * @param ProjectId $projectId
      * @param string $name
      * @param string|null $description
+     * @param string|null $color
      * @param Role[] $userRoles
      */
     public function __construct(
         ProjectId $projectId,
         string $name,
         string $description = null,
+        string $color = null,
         array $userRoles = []
     ) {
         $this->projectId = $projectId;
         $this->name = $name;
         $this->description = $description;
+        $this->color = $color;
         $this->userRoles = $userRoles;
         $this->rolesHash = $this->calculateRolesHash();
     }
@@ -72,6 +80,14 @@ class Project
     public function description(): ?string
     {
         return $this->description;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function color(): ?string
+    {
+        return $this->color;
     }
 
     /**

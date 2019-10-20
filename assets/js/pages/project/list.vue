@@ -2,7 +2,7 @@
     <div class="projects">
         <v-row class="align-stretch">
             <v-col class="d-flex" cols="12" md="6" xl="4" v-for="project in projects" :key="project.id" v-show="!project.removing">
-                <v-card class="flex-grow-1 d-flex flex-column">
+                <v-card class="flex-grow-1 d-flex flex-column" :color="project.color">
                     <v-card-title>
                         <router-link :to="{name: 'project_details', params: {id: project.id}}">{{ project.name }}</router-link>
                     </v-card-title>

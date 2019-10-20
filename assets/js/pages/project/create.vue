@@ -30,6 +30,16 @@
                                 v-model="project.description"
                                 label="Description"
                         ></v-textarea>
+                        <div>
+                            <v-label>Color</v-label>
+                            <v-color-picker
+                                    :swatches="swatches"
+                                    :hide-mode-switch="true"
+                                    show-swatches
+                                    v-model="project.color"
+                                    @input="$v.project.color.$touch()"
+                            ></v-color-picker>
+                        </div>
                     </v-form>
                 </v-card-text>
                 <v-card-actions>
@@ -46,14 +56,24 @@
     import { required, maxLength, minLength, helpers } from 'vuelidate/lib/validators'
     import api from '@api/project'
 
+    const defaultSwatches = [
+        ['#50FFB1', '#3C896D', '#4D685A'],
+        ['#42F2F7', '#46ACC2', '#498C8A'],
+        ['#EE6055', '#ED9390', '#FF9B85'],
+        ['#483519', '#946E45', '#D4AA7D'],
+        ['#F5EDB1', '#FFF07C', '#E9CE2C']
+    ]
+    
     const idValidator = helpers.regex('idValidator', /^[A-Z][A-Z0-9]*$/)
+    const colorValidator = helpers.regex('colorValidator', /^#([0-9a-f]{3}|[0-9a-f]{6})$/i)
 
     export default {
         mixins: [validationMixin],
         validations: {
             project: {
                 id: { required, maxLength: maxLength(36), minLength: minLength(3), idValidator },
-                name: { required, maxLength: maxLength(80), minLength: minLength(3) }
+                name: { required, maxLength: maxLength(80), minLength: minLength(3) },
+                color: { maxLength: maxLength(7), colorValidator }
             }
         },
         data() {
@@ -61,8 +81,10 @@
                 project: {
                     id: '',
                     name: '',
-                    description: ''
-                }
+                    description: '',
+                    color: this.randomSwatch()
+                },
+                swatches: defaultSwatches
             }
         },
         mounted() {
@@ -72,9 +94,14 @@
             async createProject() {
                 this.$v.$touch()
                 if (!this.$v.$invalid) {
-                    await api.create(this.project.id, this.project.name, this.project.description)
+                    await api.create(this.project.id, this.project.name, this.project.description, this.project.color)
                     this.$router.push('/')
                 }
+            },
+            randomSwatch() {
+                let swatchGroup = defaultSwatches[Math.floor(Math.random() * defaultSwatches.length)]
+
+                return swatchGroup[Math.floor(Math.random() * swatchGroup.length)]
             }
         },
         watch: {
@@ -99,6 +126,13 @@
                 !this.$v.project.name.maxLength && errors.push('Name must be at most 80 characters long')
                 !this.$v.project.name.minLength && errors.push('Name must be at least 3 characters long')
                 !this.$v.project.name.required && errors.push('Name is required')
+
+                return errors
+            },
+            colorErrors() {
+                const errors = []
+                if (!this.$v.project.color.$dirty) return errors
+                !this.$v.project.color.colorValidator && errors.push('Color must be in hex format #FFF or #FFFFFF')
 
                 return errors
             }

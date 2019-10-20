@@ -29,7 +29,10 @@ class CreateDataValidator implements DataValidatorInterface
                 ])
                 // TODO: Add project unique name validator
             ],
-            'description' => []
+            'description' => [],
+            'color' => [
+                new Constraints\Regex('/#([0-9a-f]{3}|[0-9a-f]{6})$/i')
+            ]
         ]);
     }
 
