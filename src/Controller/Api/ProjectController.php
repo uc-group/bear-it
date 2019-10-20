@@ -29,7 +29,7 @@ class ProjectController extends AbstractController
     public function create(ProjectRepositoryInterface $repository, $apiData)
     {
         $id = ProjectId::fromString($apiData['id']);
-        $project = new Project($id, $apiData['name'], $apiData['description']);
+        $project = new Project($id, $apiData['name'], $apiData['description'], $apiData['color']);
         $project->assignUserRole($this->getUser(), Role::owner());
         $repository->save($project);
 
@@ -50,7 +50,8 @@ class ProjectController extends AbstractController
             $projects[] = [
                 'id' => $project->id()->toString(),
                 'name' => $project->name(),
-                'description' => $project->description()
+                'description' => $project->description(),
+                'color' => $project->color()
             ];
         }
 
