@@ -9,11 +9,15 @@ const config = appElement
   ? JSON.parse(appElement.dataset.config || '{}')
   : {}
 
+let offlineTimeout = null;
+
 const storeOptions = {
   state: {
     user: null,
     config: config,
-    fetching: false
+    fetching: false,
+    offline: !navigator.onLine,
+    connectAttempts: 0
   },
   mutations: {
     SET_USER(state, user) {
@@ -21,6 +25,18 @@ const storeOptions = {
     },
     SET_FETCHING_STATE(state, fetchingState) {
       state.fetching = fetchingState
+    },
+    OFFLINE(state) {
+      state.offline = true
+    },
+    ONLINE(state) {
+      state.offline = false
+    },
+    INC_CONNECT_ATTEMPTS(state) {
+      state.connectAttempts++;
+    },
+    RESET_CONNECT_ATTEMPTS(state) {
+      state.connectAttempts = 0;
     }
   },
   actions: {
@@ -36,11 +52,33 @@ const storeOptions = {
     },
     stopFetching({ commit }) {
       commit('SET_FETCHING_STATE', false)
+    },
+    checkOffline({ commit, dispatch, state }) {
+      clearTimeout(offlineTimeout);
+      fetch('/images/meOnlineWow.jpg').then(() => {
+        commit('ONLINE');
+        commit('RESET_CONNECT_ATTEMPTS');
+      }).catch(() => {
+        commit('OFFLINE');
+        commit('INC_CONNECT_ATTEMPTS');
+        offlineTimeout = setTimeout(() => {
+          dispatch('checkOffline')
+        }, Math.min(60000, 1000 * state.connectAttempts))
+      })
     }
   }
 }
 
 const store = new Vuex.Store(storeOptions)
+
+store.dispatch('checkOffline');
+
+document.body.addEventListener("offline", function () {
+  store.dispatch('checkOffline');
+}, false);
+document.body.addEventListener("online", function () {
+  store.dispatch('checkOffline');
+}, false);
 
 export default store
 

@@ -25,7 +25,7 @@ Encore.setOutputPath('public/build/')
     new InjectManifest({
       swSrc: 'assets/js/sw.js',
       swDest: '../sw.js',
-      dontCacheBustURLsMatching: /\.\w{8}\./
+      // dontCacheBustURLsMatching: /\.\w{8}\./ this should be cached by headers remove comment when server config set
     })
   )
   .addAliases({

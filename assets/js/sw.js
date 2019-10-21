@@ -6,13 +6,25 @@ workbox.core.clientsClaim()
 workbox.precaching.precacheAndRoute(self.__precacheManifest || [])
 workbox.precaching.precacheAndRoute(['/', '/js/lib/idb.js', '/js/lib/db-utils.js'])
 
-//workbox.routing.registerNavigationRoute('/')
+workbox.routing.registerNavigationRoute('/', {
+    blacklist: [
+        /sw.js/,
+        /.(json|ico)$/,
+        /^\/(images|build|js)\//,
+
+    ]
+})
+
+workbox.routing.registerRoute(
+    '/images/meOnlineWow.jpg',
+    new workbox.strategies.NetworkOnly()
+)
 
 workbox.routing.registerRoute(
     '/favicon.ico',
     new workbox.strategies.CacheFirst()
 )
-var routes = ['/']
+var routes = ['/', /\/api\/project\/details/]
 
 routes.forEach(function (route) {
     workbox.routing.registerRoute(
@@ -27,9 +39,11 @@ workbox.routing.registerRoute(
         event.respondWith(
             fetch(event.request).then(res => {
                 const clonedRes = res.clone()
-                clonedRes.json().then(data => {
-                    bearItDb.keyval.set('loggedUser', data)
-                })
+                try {
+                    clonedRes.json().then(data => {
+                        bearItDb.keyval.set('loggedUser', data)
+                    })
+                } catch (error) {}
 
                 return res
             }).catch(() => bearItDb.keyval.get('loggedUser').then(user => new Response(JSON.stringify(user))))

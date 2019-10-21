@@ -14,9 +14,14 @@ export default [
         props: true,
         async beforeEnter(to, from, next) {
             store.dispatch('startFetching')
-            to.params.project = await api.get(to.params.id).then(response => response.data)
-            store.dispatch('stopFetching')
-            next()
+            try {
+                to.params.project = await api.get(to.params.id).then(response => response.data)
+                store.dispatch('stopFetching')
+                next()
+            } catch (e) {
+                store.dispatch('stopFetching')
+                console.error(e)
+            }
         }
     }
 ]

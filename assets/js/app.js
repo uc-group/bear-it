@@ -39,7 +39,7 @@ new Vue({
         this.$route.meta.drawer === true
       )
     },
-    ...mapState(['user', 'fetching'])
+    ...mapState(['user', 'fetching', 'offline'])
   },
   created() {
     loader.then(() => {

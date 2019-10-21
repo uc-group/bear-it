@@ -23,7 +23,7 @@
                     </v-row>
                 </td>
                 <td class="members__col-role">
-                    <template v-if="access.members.changeRole(member)">
+                    <template v-if="access.members.changeRole(member) && !offline">
                         <v-select
                                 @input="value => changeRole(member.username, value)"
                                 :items="availableRoles"
@@ -48,6 +48,7 @@
                 </v-col>
             </v-row>
             <v-row class="align-baseline flex-wrap">
+                <template v-if="!offline">
                 <v-col class="flex-md-grow-1" cols="12" md="auto">
                     <user-search :current-users="currentUsers" :selected.sync="newUsers"
                                  :disabled="updating"></user-search>
@@ -57,6 +58,16 @@
                         Add selected users
                     </v-btn>
                 </v-col>
+                </template>
+                <template v-else>
+                    <v-col class="flex-md-grow-1" cols="12" md="auto">
+                        <v-alert type="info"
+                          dense
+                          icon="mdi-network-off-outline"
+                          prominent>Not available in offline mode.
+                        </v-alert>
+                    </v-col>
+                </template>
             </v-row>
         </template>
     </div>
@@ -108,6 +119,9 @@
             currentUsers() {
                 return this.members.map(member => member.username)
             },
+            offline() {
+                return this.$store.state.offline
+            }
         },
         methods: {
             ...mapActions({

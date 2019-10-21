@@ -48,8 +48,11 @@ export default {
         async remove({ commit, dispatch }, projectId) {
             dispatch('startFetching', null, {root: true})
             commit('PREPARE_REMOVING', projectId)
-            await api.remove(projectId)
-            commit('REMOVE', projectId)
+            try {
+                await api.remove(projectId)
+                commit('REMOVE', projectId)
+            } catch (e) { console.error(e) }
+
             dispatch('stopFetching', null, {root: true})
         }
     }

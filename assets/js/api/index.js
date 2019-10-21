@@ -1,7 +1,13 @@
 import axios from 'axios'
+import store from '../store'
 
 const instance = axios.create({})
 instance.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest'
+instance.interceptors.response.use(response => {
+    return response
+}, response => {
+    store.dispatch('checkOffline')
+})
 
 export const client = instance
 
