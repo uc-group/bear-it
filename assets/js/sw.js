@@ -12,7 +12,8 @@ workbox.routing.registerNavigationRoute('/', {
         /sw.js/,
         /.(json|ico)$/,
         /\/(images|build|js)\//,
-        /\/api\//
+        /\/api.*/,
+        /logout$/
     ]
 })
 
@@ -39,12 +40,16 @@ workbox.routing.registerRoute(
     ({ event }) => {
         event.respondWith(
             fetch(event.request).then(res => {
-                const clonedRes = res.clone()
+                const clonedRes = res.clone().text()
                 try {
-                    clonedRes.json().then(data => {
-                        bearItDb.keyval.set('loggedUser', data)
-                    })
-                } catch (error) {}
+                    clonedRes
+                        .then(data => JSON.parse(data))
+                        .then(json => {
+                            bearItDb.keyval.set('loggedUser', json)
+                        })
+                } catch (error) {
+                    console.log(error)
+                }
 
                 return res
             }).catch(() => bearItDb.keyval.get('loggedUser').then(user => new Response(JSON.stringify(user))))
