@@ -1,5 +1,6 @@
 import '../styles/app.scss'
 import '@babel/polyfill'
+import '~/offlineHandlers'
 
 import './plugins/fontawesome'
 import vuetify from './plugins/vuetify'

@@ -1,4 +1,5 @@
 import {client, requestHandler} from './'
+import { OfflineEvent } from '~/lib/offlineStorage'
 
 export default {
     create(id, name, description, color) {
@@ -7,13 +8,13 @@ export default {
             name,
             description,
             color
-        }).then(response => response.data)
+        }).then(requestHandler)
     },
     userList() {
         return client.get('/api/project/user-list').then(requestHandler)
     },
     get(id) {
-        return client.get(`/api/project/details/${id}`).then(response => response.data)
+        return client.get(`/api/project/details/${id}`).then(requestHandler)
     },
     inviteUsers(id, usernames) {
         return client.post(`/api/project/members/${id}/invite`, {

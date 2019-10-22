@@ -9,7 +9,8 @@
 }(typeof self !== 'undefined' ? self : this, function(idb) {
     const Stores = {
         PROJECTS: 'projects',
-        KEYVAL: 'keyval'
+        KEYVAL: 'keyval',
+        OFFLINE_STORAGE: 'offline-store'
     }
 
     const dbPromise = idb.openDB('bear-it-store', 1, {
@@ -18,9 +19,11 @@
                 const store = db.createObjectStore(Stores.PROJECTS, {keyPath: 'id'})
                 store.createIndex('version', 'version')
             }
-
             if (!db.objectStoreNames.contains(Stores.KEYVAL)) {
                 db.createObjectStore(Stores.KEYVAL)
+            }
+            if (!db.objectStoreNames.contains(Stores.OFFLINE_STORAGE)) {
+                db.createObjectStore(Stores.OFFLINE_STORAGE, {keyPath: 'id'})
             }
         }
     });
@@ -52,6 +55,14 @@
     }
 
     return {
+        db: {
+            write,
+            remove,
+            readAll,
+            find(storeName, key) {
+                return dbPromise.get(storeName, key)
+            }
+        },
         updateProjectList: function (currentList) {
             return dbPromise.then(db => {
                 return db.clear(Stores.PROJECTS)

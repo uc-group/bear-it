@@ -80,6 +80,7 @@
     import UserSearch from '~/layout/components/UserSearch'
     import UserName from '~/layout/components/UserName'
     import MemberActions from '../components/MemberActions'
+    import offlineMixin from '~/mixins/offline';
 
     const { mapState, mapGetters, mapActions } = createNamespacedHelpers('project')
 
@@ -93,6 +94,7 @@
     }
 
     export default {
+        mixins: [ offlineMixin ],
         filters: {
             roleLabel(value) {
                 return roleToLabel[value] || value
@@ -118,9 +120,6 @@
             ...mapGetters(['access']),
             currentUsers() {
                 return this.members.map(member => member.username)
-            },
-            offline() {
-                return this.$store.state.offline
             }
         },
         methods: {

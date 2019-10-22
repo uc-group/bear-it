@@ -55,6 +55,7 @@
     import { validationMixin } from 'vuelidate'
     import { required, maxLength, minLength, helpers } from 'vuelidate/lib/validators'
     import api from '@api/project'
+    import offlineMixin from '~/mixins/offline'
 
     const defaultSwatches = [
         ['#50FFB1', '#3C896D', '#4D685A'],
@@ -63,12 +64,12 @@
         ['#483519', '#946E45', '#D4AA7D'],
         ['#F5EDB1', '#FFF07C', '#E9CE2C']
     ]
-    
+
     const idValidator = helpers.regex('idValidator', /^[A-Z][A-Z0-9]*$/)
     const colorValidator = helpers.regex('colorValidator', /^#([0-9a-f]{3}|[0-9a-f]{6})$/i)
 
     export default {
-        mixins: [validationMixin],
+        mixins: [validationMixin, offlineMixin],
         validations: {
             project: {
                 id: { required, maxLength: maxLength(36), minLength: minLength(3), idValidator },
@@ -94,7 +95,17 @@
             async createProject() {
                 this.$v.$touch()
                 if (!this.$v.$invalid) {
-                    await api.create(this.project.id, this.project.name, this.project.description, this.project.color)
+                    try {
+                        await api.create(this.project.id, this.project.name, this.project.description)
+                    } catch (error) {
+                        if (error.offline || false) {
+                            this.putOfflineEvent('project_create', {
+                                id: this.project.id,
+                                name: this.project.name,
+                                description: this.project.description
+                            })
+                        }
+                    }
                     this.$router.push('/')
                 }
             },

@@ -8,10 +8,11 @@ workbox.precaching.precacheAndRoute(['/', '/js/lib/idb.js', '/js/lib/db-utils.js
 
 workbox.routing.registerNavigationRoute('/', {
     blacklist: [
+        /auth-.*/,
         /sw.js/,
         /.(json|ico)$/,
-        /^\/(images|build|js)\//,
-
+        /\/(images|build|js)\//,
+        /\/api\//
     ]
 })
 

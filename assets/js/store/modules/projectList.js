@@ -21,15 +21,15 @@ export default {
             state.cachedList = list
         },
         PREPARE_REMOVING(state, id) {
-            const project = state.cached.find(p => p.id === id)
+            const project = state.cachedList.find(p => p.id === id)
             if (project) {
                 project.removing = true;
             }
         },
         REMOVE(state, id) {
-            const index = state.cached.findIndex(p => p.id === id)
+            const index = state.cachedList.findIndex(p => p.id === id)
             if (index >= 0) {
-                state.cached.splice(index, 1)
+                state.cachedList.splice(index, 1)
                 bearItDb.removeProject(id)
             }
         }

@@ -15,7 +15,7 @@ export default [
         async beforeEnter(to, from, next) {
             store.dispatch('startFetching')
             try {
-                to.params.project = await api.get(to.params.id).then(response => response.data)
+                to.params.project = await api.get(to.params.id)
                 store.dispatch('stopFetching')
                 next()
             } catch (e) {

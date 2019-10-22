@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 import axios from 'axios'
+import offlineStorage from '~/lib/offlineStorage'
 
 Vue.use(Vuex)
 
@@ -55,10 +56,12 @@ const storeOptions = {
     },
     checkOffline({ commit, dispatch, state }) {
       clearTimeout(offlineTimeout);
-      fetch('/images/meOnlineWow.jpg').then(() => {
+      fetch('/images/meOnlineWow.jpg', {cache: "no-store"}).then(async () => {
         commit('ONLINE');
         commit('RESET_CONNECT_ATTEMPTS');
-      }).catch(() => {
+        (await offlineStorage).startHandling();
+      }).catch(async () => {
+        (await offlineStorage).stopHandling();
         commit('OFFLINE');
         commit('INC_CONNECT_ATTEMPTS');
         offlineTimeout = setTimeout(() => {
