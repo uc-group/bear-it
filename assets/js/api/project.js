@@ -1,11 +1,12 @@
 import {client, requestHandler} from './'
 
 export default {
-    create(id, name, description) {
+    create(id, name, description, color) {
         return client.post('/api/project/create', {
             id,
             name,
-            description
+            description,
+            color
         }).then(response => response.data)
     },
     userList() {

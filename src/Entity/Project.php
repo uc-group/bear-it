@@ -31,15 +31,23 @@ class Project
     private $description;
 
     /**
+     * @var string|null
+     * @ORM\Column(type="text", nullable=true, length=7)
+     */
+    private $color;
+
+    /**
      * @param string $id
      * @param string $name
      * @param string|null $description
+     * @param string|null $color
      */
-    public function __construct(string $id, string $name, string $description = null)
+    public function __construct(string $id, string $name, string $description = null, string $color = null)
     {
         $this->id = $id;
         $this->name = $name;
         $this->description = $description;
+        $this->color = $color;
     }
 
     /**
@@ -67,6 +75,14 @@ class Project
     }
 
     /**
+     * @return string|null
+     */
+    public function color(): ?string
+    {
+        return $this->color;
+    }
+
+    /**
      * @param string $name
      */
     public function rename(string $name)
@@ -80,5 +96,13 @@ class Project
     public function updateDescription(string $description = null)
     {
         $this->description = $description;
+    }
+
+    /**
+     * @param string|null $color
+     */
+    public function updateColor(string $color = null)
+    {
+        $this->color = $color;
     }
 }

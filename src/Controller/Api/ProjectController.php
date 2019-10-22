@@ -12,10 +12,7 @@ use App\Project\Model\Project\Project;
 use App\Project\Model\Project\ProjectId;
 use App\Project\Model\Project\Role;
 use App\Project\Model\ProjectAccess\Policy\ProjectPolicy;
-use App\Project\Model\ProjectAccess\Role\ProjectRole;
 use App\Project\Repository\ProjectRepositoryInterface;
-use BearIt\Access\Model\User\User as UserAccess;
-use BearIt\User\Model\UserId;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
@@ -38,7 +35,7 @@ class ProjectController extends AbstractController
     public function create(ProjectRepositoryInterface $repository, $apiData)
     {
         $id = ProjectId::fromString($apiData['id']);
-        $project = new Project($id, $apiData['name'], $apiData['description']);
+        $project = new Project($id, $apiData['name'], $apiData['description'], $apiData['color']);
         $project->assignUserRole($this->currentUserId(), Role::owner());
         $repository->save($project);
 
@@ -60,7 +57,8 @@ class ProjectController extends AbstractController
             $projects[] = [
                 'id' => $project->id()->toString(),
                 'name' => $project->name(),
-                'description' => $project->description()
+                'description' => $project->description(),
+                'color' => $project->color()
             ];
         }
 
@@ -105,9 +103,8 @@ class ProjectController extends AbstractController
             throw $this->createAccessDeniedException();
         }
 
-        $removed = $repository->remove($projectId);
-        $message = $removed ? 'Project successfully removed.' : 'Remove error.';
+        $repository->remove($projectId);
 
-        return new SuccessResponse(['message' => $message]);
+        return new SuccessResponse();
     }
 }
