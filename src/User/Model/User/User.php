@@ -2,10 +2,12 @@
 
 namespace App\User\Model\User;
 
+use BearIt\User\Model\UserId as DomainUserId;
+
 class User
 {
     /**
-     * @var UserId
+     * @var DomainUserId
      */
     private $userId;
 
@@ -26,11 +28,11 @@ class User
 
     /**
      * User constructor.
-     * @param UserId $userId
+     * @param DomainUserId $userId
      * @param string $username
      * @param string $name
      */
-    public function __construct(UserId $userId, string $username, string $name = null, Avatar $avatar = null)
+    public function __construct(DomainUserId $userId, string $username, string $name = null, Avatar $avatar = null)
     {
         $this->userId = $userId;
         $this->username = $username;
@@ -39,9 +41,9 @@ class User
     }
 
     /**
-     * @return UserId
+     * @return DomainUserId
      */
-    public function id(): UserId
+    public function id(): DomainUserId
     {
         return $this->userId;
     }

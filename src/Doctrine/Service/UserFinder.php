@@ -5,8 +5,8 @@ namespace App\Doctrine\Service;
 use App\Entity\User as UserEntity;
 use App\User\Model\User\Avatar;
 use App\User\Model\User\User;
-use App\User\Model\User\UserId;
 use App\User\Service\UserFinderInterface;
+use BearIt\User\Model\UserId;
 use Doctrine\ORM\EntityManagerInterface;
 
 class UserFinder implements UserFinderInterface

@@ -2,6 +2,8 @@
 
 namespace App\Controller\Api;
 
+use App\Controller\Traits\ProjectUserTrait;
+use App\Exception\UserNotLoggedInException;
 use App\Http\Response\SuccessResponse;
 use App\JsonConverter\ProjectJsonConverter;
 use App\Project\Exception\InvalidProjectIdException;
@@ -9,6 +11,7 @@ use App\Project\Exception\ProjectNotFoundException;
 use App\Project\Model\Project\Project;
 use App\Project\Model\Project\ProjectId;
 use App\Project\Model\Project\Role;
+use App\Project\Model\ProjectAccess\Policy\ProjectPolicy;
 use App\Project\Repository\ProjectRepositoryInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -19,18 +22,21 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class ProjectController extends AbstractController
 {
+    use ProjectUserTrait;
+
     /**
      * @param ProjectRepositoryInterface $repository
      * @param $apiData
      * @return JsonResponse
      * @throws InvalidProjectIdException
+     * @throws UserNotLoggedInException
      * @Route("/create", name="api_project_create")
      */
     public function create(ProjectRepositoryInterface $repository, $apiData)
     {
         $id = ProjectId::fromString($apiData['id']);
         $project = new Project($id, $apiData['name'], $apiData['description'], $apiData['color']);
-        $project->assignUserRole($this->getUser(), Role::owner());
+        $project->assignUserRole($this->currentUserId(), Role::owner());
         $repository->save($project);
 
         return new SuccessResponse([
@@ -42,11 +48,12 @@ class ProjectController extends AbstractController
      * @param ProjectRepositoryInterface $repository
      * @return JsonResponse
      * @Route("/user-list")
+     * @throws UserNotLoggedInException
      */
     public function userList(ProjectRepositoryInterface $repository)
     {
         $projects = [];
-        foreach ($repository->findByUser($this->getUser(), 100, 0) as $project) {
+        foreach ($repository->findByUser($this->currentUserId(), 100, 0) as $project) {
             $projects[] = [
                 'id' => $project->id()->toString(),
                 'name' => $project->name(),
@@ -78,21 +85,26 @@ class ProjectController extends AbstractController
      * @param string $id
      * @param ProjectRepositoryInterface $repository
      * @return SuccessResponse
-     * @throws ProjectNotFoundException
-     * @throws InvalidProjectIdException
+     * @throws UserNotLoggedInException
      * @Route("/remove/{id}")
      */
     public function remove(string $id, ProjectRepositoryInterface $repository)
     {
-        $user = $this->getUser();
-        $project = $repository->load(ProjectId::fromString($id));
-        if (!$project->canRemove($user)) {
+        try {
+            $projectId = ProjectId::fromString($id);
+            $project = $repository->load($projectId);
+        } catch (ProjectNotFoundException | InvalidProjectIdException $exception) {
+            throw $this->createNotFoundException();
+        }
+
+        $userAccess = $this->getUserAccess($project);
+
+        if (!$userAccess->isGranted(ProjectPolicy::removeFunction(), $project)) {
             throw $this->createAccessDeniedException();
         }
 
-        $removed = $repository->remove(ProjectId::fromString($id));
-        $message = $removed ? 'Project successfully removed.' : 'Remove error.';
+        $repository->remove($projectId);
 
-        return new SuccessResponse(['message' => $message]);
+        return new SuccessResponse();
     }
 }

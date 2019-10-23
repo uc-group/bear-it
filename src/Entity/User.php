@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use App\User\Model\User\Avatar;
 use App\Utils\Id;
+use BearIt\User\Model\UserId;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\UserInterface;
 
@@ -73,11 +74,11 @@ class User implements UserInterface
     }
 
     /**
-     * @return string
+     * @return UserId
      */
-    public function getId(): string
+    public function getId(): UserId
     {
-        return $this->id;
+        return UserId::fromString($this->id);
     }
 
     /**
