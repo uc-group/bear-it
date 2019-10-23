@@ -40,16 +40,11 @@ workbox.routing.registerRoute(
     ({ event }) => {
         event.respondWith(
             fetch(event.request).then(res => {
-                const clonedRes = res.clone().text()
-                try {
-                    clonedRes
-                        .then(data => JSON.parse(data))
-                        .then(json => {
-                            bearItDb.keyval.set('loggedUser', json)
-                        })
-                } catch (error) {
-                    console.log(error)
-                }
+                res.clone().text()
+                    .then(data => JSON.parse(data))
+                    .then(json => {
+                        bearItDb.keyval.set('loggedUser', json)
+                    }).catch(() => {})
 
                 return res
             }).catch(() => bearItDb.keyval.get('loggedUser').then(user => new Response(JSON.stringify(user))))

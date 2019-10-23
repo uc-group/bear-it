@@ -2,6 +2,7 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 import axios from 'axios'
 import offlineStorage from '~/lib/offlineStorage'
+import offlineProjects from './modules/offlineProjects'
 
 Vue.use(Vuex)
 
@@ -54,14 +55,14 @@ const storeOptions = {
     stopFetching({ commit }) {
       commit('SET_FETCHING_STATE', false)
     },
-    checkOffline({ commit, dispatch, state }) {
+    async checkOffline({ commit, dispatch, state }) {
       clearTimeout(offlineTimeout);
+      (await offlineStorage).stopHandling();
       fetch('/images/meOnlineWow.jpg', {cache: "no-store"}).then(async () => {
         commit('ONLINE');
         commit('RESET_CONNECT_ATTEMPTS');
         (await offlineStorage).startHandling();
       }).catch(async () => {
-        (await offlineStorage).stopHandling();
         commit('OFFLINE');
         commit('INC_CONNECT_ATTEMPTS');
         offlineTimeout = setTimeout(() => {
@@ -69,19 +70,25 @@ const storeOptions = {
         }, Math.min(60000, 1000 * state.connectAttempts))
       })
     }
+  },
+  modules: {
+    offlineProjects
   }
 }
 
-const store = new Vuex.Store(storeOptions)
+const store = new Vuex.Store(storeOptions);
 
-store.dispatch('checkOffline');
-
-document.body.addEventListener("offline", function () {
+(async function () {
+  await store.dispatch('offlineProjects/init')
   store.dispatch('checkOffline');
-}, false);
-document.body.addEventListener("online", function () {
-  store.dispatch('checkOffline');
-}, false);
+})().then(() => {
+  document.body.addEventListener("offline", function () {
+    store.dispatch('checkOffline');
+  }, false);
+  document.body.addEventListener("online", function () {
+    store.dispatch('checkOffline');
+  }, false);
+})
 
 export default store
 

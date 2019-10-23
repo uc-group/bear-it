@@ -3,7 +3,7 @@
         <v-container>
             <v-row>
                 <v-col>
-                    <h2>{{ project.name }}</h2>
+                    <h2>{{ project.name || '??' }}</h2>
                 </v-col>
             </v-row>
             <v-tabs v-model="currentTab" class="elevation-2">
@@ -60,11 +60,14 @@
                     return this.tab;
                 },
                 set(value) {
-                    this.$router.push({
+                    let method = !this.tab ? 'replace' : 'push';
+
+                    this.$router[method]({
                         to: 'project_details',
                         params: {
                             id: this.project.id,
-                            tab: value
+                            tab: value,
+                            project: this.project
                         }
                     })
                 }

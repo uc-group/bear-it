@@ -16,74 +16,117 @@ export class OfflineEvent {
     }
 }
 
-const optimizeEvents = function (events) {
-    let optimizedEvents = events
-    for (let name in optimizers) {
-        optimizedEvents = optimizers[name](JSON.parse(JSON.stringify(optimizedEvents)))
+class Storage {
+    constructor() {
+        this.handling = false
+        this.handlingInterval = null
+        this.handlers = []
+        this.optimizers = []
+        this.listeners = {
+            put: [],
+            remove: [],
+            beforeHandle: [],
+            afterHandle: []
+        }
     }
 
-    return optimizedEvents
-}
+    optimizeEvents(events) {
+        let optimizedEvents = events
+        for (let name in optimizers) {
+            optimizedEvents = optimizers[name](JSON.parse(JSON.stringify(optimizedEvents)))
+        }
 
-let handling = false;
-const handleEvents = async function () {
-    if (handling) {
-        return;
+        return optimizedEvents
     }
 
-    handling = true;
-    const events = optimizeEvents(eventStore)
-    const time = Date.now();
-    for (let i = 0; i < events.length; i++) {
-        if (Date.now() - time > 1000) {
-            break;
+    startHandling() {
+        this.handlingInterval = setInterval(async () => {
+            await this.handleEvents();
+        }, 2000)
+    }
+
+    stopHandling() {
+        clearInterval(this.handlingInterval);
+        this.handlingInterval = null;
+    }
+
+    async handleEvents() {
+        if (this.handling) {
+            return;
         }
 
-        const event = events[i];
-        if (!handlers[event.name]) {
-            continue;
+        const events = this.optimizeEvents(eventStore)
+        const time = Date.now();
+        for (let i = 0; i < events.length; i++) {
+            if (Date.now() - time > 1000) {
+                break;
+            }
+
+            const event = events[i];
+            if (!this.handlers[event.name]) {
+                continue;
+            }
+
+            this.notify('beforeHandle', [event])
+            const result = await this.handlers[event.name](event)
+            this.notify('afterHandle', [event, result])
+            if (result === false) {
+                continue;
+            }
+
+            bearItDb.db.remove(STORAGE_NAME, [event.id])
+            this.notify('remove', [event])
+            const index = eventStore.findIndex(e => e.id === event.id)
+            if (index >= 0) {
+                eventStore.splice(index, 1)
+            }
         }
 
-        const result = await handlers[event.name](event)
-        if (result === false) {
-            continue;
-        }
+        this.handling = false;
+    }
 
-        bearItDb.db.remove(STORAGE_NAME, [event.id])
-        const index = eventStore.findIndex(e => e.id === event.id)
+    notify(name, args) {
+        this.listeners[name].forEach(listener => {
+            listener(...args)
+        })
+    }
+
+    addListener(name, fn) {
+        this.listeners[name].push(fn);
+    }
+
+    removeListener(name, fn) {
+        const index = this.listeners[name].findIndex(listener => listener === fn);
         if (index >= 0) {
-            eventStore.splice(index, 1)
+            this.listeners[name].splice(index, 1)
         }
     }
-
-    handling = false;
 }
-let handlingInterval = null;
 
 export default (async function () {
     eventStore = await bearItDb.db.readAll(STORAGE_NAME);
+    const storage = new Storage();
 
     return {
         registerOptimizer(name, fn) {
-            optimizers[name] = fn
+            storage.optimizers[name] = fn
         },
         registerHandler(name, fn) {
-            handlers[name] = fn
+            storage.handlers[name] = fn
         },
         put(event) {
             eventStore.push(event)
-
+            storage.notify('put', [event])
             return bearItDb.db.write(STORAGE_NAME, [JSON.parse(JSON.stringify(event))])
         },
-        startHandling() {
-            this.stopHandling();
-            handlingInterval = setInterval(() => {
-                handleEvents();
-            }, 2000)
-        },
-        stopHandling() {
-            clearInterval(handlingInterval);
-            handlingInterval = null;
+        startHandling: storage.startHandling.bind(storage),
+        stopHandling: storage.stopHandling.bind(storage),
+        addListener: storage.addListener.bind(storage),
+        removeListener: storage.removeListener.bind(storage),
+        forEachEvent(fn) {
+            eventStore.forEach(event => {
+                fn(event)
+            })
         }
     }
 })()
