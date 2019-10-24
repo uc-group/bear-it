@@ -1,8 +1,8 @@
 <template>
   <v-layout>
     <v-container>
-      <h2>Dashboard</h2>
-      {{ $store.state.offlineProjects.createdProjects }}
+      <offline-projects></offline-projects>
+      <h2>Projects</h2>
       <project-list></project-list>
     </v-container>
   </v-layout>
@@ -10,9 +10,12 @@
 
 <script>
   import ProjectList from './project/list'
+  import OfflineProjects from './dashboard/components/OfflineProjects'
+
   export default {
     components: {
-      ProjectList
+      ProjectList,
+      OfflineProjects
     },
     props: {
       projects: Array

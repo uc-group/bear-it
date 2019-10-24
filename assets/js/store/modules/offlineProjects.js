@@ -1,5 +1,7 @@
 import offlineStorage from '~/lib/offlineStorage'
 
+let updateListTimeout = null;
+
 export default {
     namespaced: true,
     state: {
@@ -33,15 +35,15 @@ export default {
         RESET_STATE(state) {
             state.createdProjects = []
         },
-        SYNC_PROJECT(state, id) {
+        SYNC_PROJECT(state, {id, syncState}) {
             const project = state.createdProjects.find(project => project.id === id)
             if (project) {
-                project.sync = true
+                project.sync = syncState
             }
         }
     },
     actions: {
-        async init({commit}) {
+        async init({commit, dispatch}) {
             commit('RESET_STATE');
             const onPut = event => {
                 if (event.name === 'project_create') {
@@ -52,8 +54,12 @@ export default {
             }
 
             const onRemove = event => {
+                clearTimeout(updateListTimeout);
                 if (['project_create', 'project_create_sync_error'].includes(event.name)) {
                     commit('REMOVE_PROJECT', event.payload.id)
+                    updateListTimeout = setTimeout(() => {
+                        dispatch('projectList/loadList', null, {root: true})
+                    }, 1500)
                 }
             }
 
@@ -64,7 +70,12 @@ export default {
             storage.addListener('remove', onRemove)
             storage.addListener('beforeHandle', event => {
                 if (event.name === 'project_create') {
-                    commit('SYNC_PROJECT', event.payload.id)
+                    commit('SYNC_PROJECT', {id: event.payload.id, syncState: true})
+                }
+            })
+            storage.addListener('afterHandle', event => {
+                if (event.name === 'project_create') {
+                    commit('SYNC_PROJECT', {id: event.payload.id, syncState: false})
                 }
             })
         }

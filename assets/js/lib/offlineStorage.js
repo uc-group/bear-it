@@ -4,8 +4,6 @@ import uuid from 'uuid/v4';
 const STORAGE_NAME = 'offline-store';
 
 let eventStore = [];
-const optimizers = {};
-const handlers = {};
 
 export class OfflineEvent {
     constructor(name, payload) {
@@ -21,22 +19,12 @@ class Storage {
         this.handling = false
         this.handlingInterval = null
         this.handlers = []
-        this.optimizers = []
         this.listeners = {
             put: [],
             remove: [],
             beforeHandle: [],
             afterHandle: []
         }
-    }
-
-    optimizeEvents(events) {
-        let optimizedEvents = events
-        for (let name in optimizers) {
-            optimizedEvents = optimizers[name](JSON.parse(JSON.stringify(optimizedEvents)))
-        }
-
-        return optimizedEvents
     }
 
     startHandling() {
@@ -55,7 +43,7 @@ class Storage {
             return;
         }
 
-        const events = this.optimizeEvents(eventStore)
+        const events = JSON.parse(JSON.stringify(eventStore));
         const time = Date.now();
         for (let i = 0; i < events.length; i++) {
             if (Date.now() - time > 1000) {
@@ -108,9 +96,6 @@ export default (async function () {
     const storage = new Storage();
 
     return {
-        registerOptimizer(name, fn) {
-            storage.optimizers[name] = fn
-        },
         registerHandler(name, fn) {
             storage.handlers[name] = fn
         },

@@ -96,17 +96,21 @@
                 this.$v.$touch()
                 if (!this.$v.$invalid) {
                     try {
-                        await api.create(this.project.id, this.project.name, this.project.description)
+                        await api.create(this.project.id, this.project.name, this.project.description, this.project.color)
+                        this.$router.push('/')
                     } catch (error) {
                         if (error.offline || false) {
                             this.putOfflineEvent('project_create', {
                                 id: this.project.id,
                                 name: this.project.name,
-                                description: this.project.description
+                                description: this.project.description,
+                                color: this.project.color
                             })
+                            this.$router.push('/')
+                        } else {
+                            console.error(error.message)
                         }
                     }
-                    this.$router.push('/')
                 }
             },
             randomSwatch() {

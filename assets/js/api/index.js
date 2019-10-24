@@ -17,7 +17,7 @@ export const client = instance
 export const requestHandler = response => new Promise((resolve, reject) => {
     if (response.isAxiosError) {
         if (!response.response) {
-            reject({offline: true})
+            reject({offline: true, response})
         } else {
             reject(response)
         }
