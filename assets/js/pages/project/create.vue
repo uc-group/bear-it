@@ -34,7 +34,7 @@
                             <v-label>Color</v-label>
                             <v-color-picker
                                     :swatches="swatches"
-                                    :hide-mode-switch="true"
+                                    mode="hexa"
                                     show-swatches
                                     v-model="project.color"
                                     @input="$v.project.color.$touch()"
