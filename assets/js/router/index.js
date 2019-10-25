@@ -21,7 +21,7 @@ const router = new VueRouter({
         {
             name: 'login',
             path: '/login',
-            component: () => import('@pages/login.vue'),
+            component: () => import(/* webpackChunkName: "common" */ '@pages/login.vue'),
             meta: {auth: false, drawer: false}
         },
         {

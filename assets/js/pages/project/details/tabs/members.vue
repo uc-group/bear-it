@@ -23,7 +23,7 @@
                     </v-row>
                 </td>
                 <td class="members__col-role">
-                    <template v-if="access.members.changeRole(member)">
+                    <template v-if="access.members.changeRole(member) && !offline">
                         <v-select
                                 @input="value => changeRole(member.username, value)"
                                 :items="availableRoles"
@@ -48,6 +48,7 @@
                 </v-col>
             </v-row>
             <v-row class="align-baseline flex-wrap">
+                <template v-if="!offline">
                 <v-col class="flex-md-grow-1" cols="12" md="auto">
                     <user-search :current-users="currentUsers" :selected.sync="newUsers"
                                  :disabled="updating"></user-search>
@@ -57,6 +58,16 @@
                         Add selected users
                     </v-btn>
                 </v-col>
+                </template>
+                <template v-else>
+                    <v-col class="flex-md-grow-1" cols="12" md="auto">
+                        <v-alert type="info"
+                          dense
+                          icon="mdi-network-off-outline"
+                          prominent>Not available in offline mode.
+                        </v-alert>
+                    </v-col>
+                </template>
             </v-row>
         </template>
     </div>
@@ -69,6 +80,7 @@
     import UserSearch from '~/layout/components/UserSearch'
     import UserName from '~/layout/components/UserName'
     import MemberActions from '../components/MemberActions'
+    import offlineMixin from '~/mixins/offline';
 
     const { mapState, mapGetters, mapActions } = createNamespacedHelpers('project')
 
@@ -82,6 +94,7 @@
     }
 
     export default {
+        mixins: [ offlineMixin ],
         filters: {
             roleLabel(value) {
                 return roleToLabel[value] || value
@@ -107,7 +120,7 @@
             ...mapGetters(['access']),
             currentUsers() {
                 return this.members.map(member => member.username)
-            },
+            }
         },
         methods: {
             ...mapActions({

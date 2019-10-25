@@ -46,6 +46,14 @@
                 </v-app-bar>
 
                 <v-content app v-show="loaded">
+                    <v-alert
+                      color="blue-grey"
+                      dark
+                      dense
+                      icon="mdi-network-off-outline"
+                      prominent
+                      v-if="offline"
+                    >No connection with the server. You are now working in the offline mode</v-alert>
                     <v-container fluid fill-height>
                         <router-view></router-view>
                     </v-container>

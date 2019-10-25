@@ -18,11 +18,13 @@ class CreateDataValidator implements DataValidatorInterface
         return new Constraints\Collection([
             'id' => [
                 new Constraints\Regex('/^[A-Z][A-Z0-9]*$/'),
+                new Constraints\NotBlank(),
                 new Constraints\NotNull(),
                 // TODO: Add project unique id validator
             ],
             'name' => [
                 new Constraints\NotNull(),
+                new Constraints\NotBlank(),
                 new Constraints\Length([
                     'min' => 3,
                     'max' => 80

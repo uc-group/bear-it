@@ -1,17 +1,73 @@
+importScripts('/js/lib/idb.js')
+importScripts('/js/lib/db-utils.js')
+
 workbox.core.skipWaiting()
 workbox.core.clientsClaim()
 workbox.precaching.precacheAndRoute(self.__precacheManifest || [])
+workbox.precaching.precacheAndRoute(['/', '/js/lib/idb.js', '/js/lib/db-utils.js'])
 
-// workbox.routing.registerRoute(
-//     '/',
-//     new workbox.strategies.StaleWhileRevalidate({
-//         cacheName: 'bear-it-runtime'
-//     })
-// )
+workbox.routing.registerNavigationRoute('/', {
+    blacklist: [
+        /auth-.*/,
+        /sw.js/,
+        /.(json|ico)$/,
+        /\/(images|build|js)\//,
+        /\/api.*/,
+        /logout$/
+    ]
+})
 
 workbox.routing.registerRoute(
-    /\/.*$/,
-    new workbox.strategies.NetworkFirst()
+    '/images/meOnlineWow.jpg',
+    new workbox.strategies.NetworkOnly()
+)
+
+workbox.routing.registerRoute(
+    '/favicon.ico',
+    new workbox.strategies.CacheFirst()
+)
+var routes = ['/', /\/api\/project\/details/]
+
+routes.forEach(function (route) {
+    workbox.routing.registerRoute(
+        route,
+        new workbox.strategies.NetworkFirst()
+    )
+})
+
+workbox.routing.registerRoute(
+    '/api/login',
+    ({ event }) => {
+        event.respondWith(
+            fetch(event.request).then(res => {
+                res.clone().text()
+                    .then(data => JSON.parse(data))
+                    .then(json => {
+                        bearItDb.keyval.set('loggedUser', json)
+                    }).catch(() => {})
+
+                return res
+            }).catch(() => bearItDb.keyval.get('loggedUser').then(user => new Response(JSON.stringify(user))))
+        )
+    }
+)
+
+workbox.routing.registerRoute(
+    '/api/project/user-list',
+    ({ event }) => {
+        event.respondWith(
+            fetch(event.request).then(res => {
+                const clonedRes = res.clone()
+                clonedRes.json().then(projectList => {
+                    bearItDb.updateProjectList(projectList.data)
+                })
+
+                return res
+            }).catch(() => {
+                bearItDb.getProjectList()
+            })
+        )
+    }
 )
 
 workbox.routing.registerRoute(

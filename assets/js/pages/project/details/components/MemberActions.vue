@@ -14,7 +14,7 @@
                     Profile (@TODO)
                 </v-list-item-content>
             </v-list-item>
-            <v-list-item @click="removeMember(member.username)" v-if="access.members.remove(member.username)">
+            <v-list-item @click="removeMember(member.username)" v-if="access.members.remove(member.username)" :disabled="offline">
                 <v-list-item-icon>
                     <v-icon>mdi-account-remove</v-icon>
                 </v-list-item-icon>
@@ -28,10 +28,12 @@
 
 <script>
     import { createNamespacedHelpers } from 'vuex'
+    import offlineMixin from '~/mixins/offline'
 
     const { mapActions, mapGetters } = createNamespacedHelpers('project')
 
     export default {
+        mixins: [offlineMixin],
         props: {
             member: Object,
         },

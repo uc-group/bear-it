@@ -1,5 +1,6 @@
 import '../styles/app.scss'
 import '@babel/polyfill'
+import '~/offlineHandlers'
 
 import './plugins/fontawesome'
 import vuetify from './plugins/vuetify'
@@ -39,7 +40,7 @@ new Vue({
         this.$route.meta.drawer === true
       )
     },
-    ...mapState(['user', 'fetching'])
+    ...mapState(['user', 'fetching', 'offline'])
   },
   created() {
     loader.then(() => {
