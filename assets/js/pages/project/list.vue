@@ -18,9 +18,9 @@
             </v-col>
         </v-row>
         <v-row>
-            <v-col>
-                <v-btn class="float-right" color="primary" :to="{name: 'project_create'}">Create new project</v-btn>
-            </v-col>
+            <v-btn color="primary" fab fixed bottom right :to="{name: 'project_create'}">
+                <v-icon>mdi-plus</v-icon>
+            </v-btn>
         </v-row>
     </div>
 </template>
