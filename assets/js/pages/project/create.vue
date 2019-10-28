@@ -13,7 +13,7 @@
                                 :error-messages="idErrors"
                                 :counter="36"
                                 required
-                                @input="$v.project.id.$touch()"
+                                @input="fieldChanged('id')"
                                 @blur="$v.project.id.$touch()"
                         ></v-text-field>
                         <v-text-field
@@ -23,7 +23,7 @@
                                 :error-messages="nameErrors"
                                 :counter="80"
                                 required
-                                @input="$v.project.name.$touch()"
+                                @input="fieldChanged('name')"
                                 @blur="$v.project.name.$touch()"
                         ></v-text-field>
                         <v-textarea
@@ -44,7 +44,7 @@
                 </v-card-text>
                 <v-card-actions>
                     <div class="flex-grow-1"></div>
-                    <v-btn color="primary" @click="createProject">Create new project</v-btn>
+                    <v-btn color="primary" @click="createProject" :loading="submitting">Create new project</v-btn>
                 </v-card-actions>
             </v-card>
         </v-container>
@@ -85,7 +85,9 @@
                     description: '',
                     color: this.randomSwatch()
                 },
-                swatches: defaultSwatches
+                swatches: defaultSwatches,
+                serverErrors: {},
+                submitting: false
             }
         },
         mounted() {
@@ -96,6 +98,7 @@
                 this.$v.$touch()
                 if (!this.$v.$invalid) {
                     try {
+                        this.submitting = true
                         await api.create(this.project.id, this.project.name, this.project.description, this.project.color)
                         this.$router.push('/')
                     } catch (error) {
@@ -107,9 +110,13 @@
                                 color: this.project.color
                             })
                             this.$router.push('/')
+                        } else if (error.type && error.type === 'ERROR_VALIDATION') {
+                            this.serverErrors = error.errorMessages
                         } else {
                             console.error(error.message)
                         }
+                    } finally {
+                        this.submitting = false
                     }
                 }
             },
@@ -117,6 +124,12 @@
                 let swatchGroup = defaultSwatches[Math.floor(Math.random() * defaultSwatches.length)]
 
                 return swatchGroup[Math.floor(Math.random() * swatchGroup.length)]
+            },
+            fieldChanged(field) {
+                this.$v.project[field].$touch()
+                if (this.serverErrors.hasOwnProperty(field)) {
+                    this.serverErrors[field] = null
+                }
             }
         },
         watch: {
@@ -133,6 +146,10 @@
                 !this.$v.project.id.required && errors.push('Id is required')
                 !this.$v.project.id.idValidator && errors.push('Id can only contain uppercase alphanumeric values')
 
+                if (this.serverErrors.hasOwnProperty('id') && this.serverErrors.id) {
+                    errors.push(this.serverErrors.id)
+                }
+
                 return errors
             },
             nameErrors() {
@@ -141,6 +158,10 @@
                 !this.$v.project.name.maxLength && errors.push('Name must be at most 80 characters long')
                 !this.$v.project.name.minLength && errors.push('Name must be at least 3 characters long')
                 !this.$v.project.name.required && errors.push('Name is required')
+
+                if (this.serverErrors.hasOwnProperty('name') && this.serverErrors.name) {
+                    errors.push(this.serverErrors.name)
+                }
 
                 return errors
             },

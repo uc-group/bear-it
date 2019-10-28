@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div v-show="createdProjects.length">
         <h2>Not synchronized projects</h2>
         <v-simple-table>
             <thead>

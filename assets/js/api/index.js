@@ -18,6 +18,22 @@ export const requestHandler = response => new Promise((resolve, reject) => {
     if (response.isAxiosError) {
         if (!response.response) {
             reject({offline: true, response})
+        } else if (response.response.data.status === "ERROR_VALIDATION") {
+            const data = response.response.data
+
+            const errorMessages = {};
+            for (let field in data.errors) {
+                if (!data.errors.hasOwnProperty(field)) {
+                    continue
+                }
+                errorMessages[field.replace(/^\[(.*)]$/, '$1')] = data.errors[field]
+            }
+
+            reject({
+                type: 'ERROR_VALIDATION',
+                errorMessages,
+                error: response
+            })
         } else {
             reject(response)
         }

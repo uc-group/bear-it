@@ -3,6 +3,8 @@
 namespace App\Api\DataValidator\Project;
 
 use App\Api\DataValidator\DataValidatorInterface;
+use App\Entity\Project;
+use App\Validator\Constraint\UniqueField;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Constraints;
@@ -20,7 +22,10 @@ class CreateDataValidator implements DataValidatorInterface
                 new Constraints\Regex('/^[A-Z][A-Z0-9]*$/'),
                 new Constraints\NotBlank(),
                 new Constraints\NotNull(),
-                // TODO: Add project unique id validator
+                new UniqueField([
+                    'entityClass' => Project::class,
+                    'field' => 'id'
+                ])
             ],
             'name' => [
                 new Constraints\NotNull(),
@@ -28,8 +33,11 @@ class CreateDataValidator implements DataValidatorInterface
                 new Constraints\Length([
                     'min' => 3,
                     'max' => 80
+                ]),
+                new UniqueField([
+                    'entityClass' => Project::class,
+                    'field' => 'name'
                 ])
-                // TODO: Add project unique name validator
             ],
             'description' => [],
             'color' => [
