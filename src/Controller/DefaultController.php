@@ -39,7 +39,7 @@ class DefaultController extends AbstractController
 
     /**
      * @Route("/", name="homepage")
-     * @Route("/{vueRoute}", requirements={"vueRoute": "^(?!api|auth|logout).*"})
+     * @Route("/{vueRoute}", requirements={"vueRoute": "^(?!api|auth|logout|_).*"})
      */
     public function homepage(Request $request)
     {

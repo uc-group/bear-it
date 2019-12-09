@@ -13,7 +13,8 @@ workbox.routing.registerNavigationRoute('/', {
         /.(json|ico)$/,
         /\/(images|build|js)\//,
         /\/api.*/,
-        /logout$/
+        /logout$/,
+        /(_profiler|_wdt).*/
     ]
 })
 

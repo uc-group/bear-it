@@ -15,8 +15,6 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class UserController extends AbstractController
 {
-    use ControllerTrait;
-
     /**
      * @param Request $request
      * @param UserFinderInterface $finder
