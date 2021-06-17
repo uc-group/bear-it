@@ -16,7 +16,7 @@ services:
       - APACHE_RUN_USER=bear-it
       - APACHE_RUN_GROUP=bear-it
   assets:
-    image: 'node:10.2'
+    image: 'node:14.17'
     working_dir: /usr/node/app
     user: node
     volumes:
