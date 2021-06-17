@@ -6,7 +6,7 @@ use App\Api\DataValidator\DataValidatorInterface;
 use App\Http\Response\ValidationErrorResponse;
 use Symfony\Component\DependencyInjection\ServiceLocator;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use Symfony\Component\HttpKernel\Event\GetResponseEvent;
+use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
@@ -34,13 +34,13 @@ class ApiValidatorSubscriber implements EventSubscriberInterface
     }
 
     /**
-     * @param GetResponseEvent $event
+     * @param RequestEvent $event
      */
-    public function validateData(GetResponseEvent $event)
+    public function validateData(RequestEvent $event)
     {
         $request = $event->getRequest();
         $routeName = $request->attributes->get('_route');
-        if (!$this->apiDataValidators->has($routeName)) {
+        if (!$routeName || !$this->apiDataValidators->has($routeName)) {
             return;
         }
 
