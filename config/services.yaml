@@ -49,8 +49,6 @@ services:
 
     app.api_data_validators:
         class: Symfony\Component\DependencyInjection\ServiceLocator
-        arguments:
-            - ['@App\Api\DataValidator\DataValidatorInterface']
 
     App\EventListener\ApiValidatorSubscriber:
         arguments:
