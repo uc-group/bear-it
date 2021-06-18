@@ -661,6 +661,9 @@
     "webmozart/assert": {
         "version": "1.10.0"
     },
+    "youniverse-center/request-validation-bundle": {
+        "version": "0.1"
+    },
     "zendframework/zend-code": {
         "version": "3.3.1"
     },

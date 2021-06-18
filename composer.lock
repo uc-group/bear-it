@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "9675500baeb7e09ebf32eaca122b20af",
+    "content-hash": "3ed6f8a4cda492f256ee88b6a57c2b73",
     "packages": [
         {
             "name": "composer/package-versions-deprecated",
@@ -7943,6 +7943,51 @@
                 "source": "https://github.com/webmozarts/assert/tree/1.10.0"
             },
             "time": "2021-03-09T10:59:23+00:00"
+        },
+        {
+            "name": "youniverse-center/request-validation-bundle",
+            "version": "0.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/youniverse-center/request-validation-bundle.git",
+                "reference": "99e1138022dcfd9c362a76183e267a9614e9d20c"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/youniverse-center/request-validation-bundle/zipball/99e1138022dcfd9c362a76183e267a9614e9d20c",
+                "reference": "99e1138022dcfd9c362a76183e267a9614e9d20c",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^8.0",
+                "symfony/config": "^5.3",
+                "symfony/dependency-injection": "^5.3",
+                "symfony/event-dispatcher": "^5.3",
+                "symfony/http-kernel": "^5.3",
+                "symfony/validator": "^5.3"
+            },
+            "type": "symfony-bundle",
+            "autoload": {
+                "psr-4": {
+                    "Yc\\RequestValidationBundle\\": ""
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Grzegorz Balcewicz",
+                    "email": "grzegorz@balcewicz.pl"
+                }
+            ],
+            "description": "Symfony Bundle for automatic validation of data provided in the request.",
+            "support": {
+                "issues": "https://github.com/youniverse-center/request-validation-bundle/issues",
+                "source": "https://github.com/youniverse-center/request-validation-bundle/tree/0.1"
+            },
+            "time": "2021-06-18T12:56:12+00:00"
         }
     ],
     "packages-dev": [

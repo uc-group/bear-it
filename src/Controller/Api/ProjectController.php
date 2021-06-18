@@ -26,26 +26,6 @@ class ProjectController extends AbstractController
 
     /**
      * @param ProjectRepositoryInterface $repository
-     * @param $apiData
-     * @return JsonResponse
-     * @throws InvalidProjectIdException
-     * @throws UserNotLoggedInException
-     * @Route("/create", name="api_project_create")
-     */
-    public function create(ProjectRepositoryInterface $repository, $apiData)
-    {
-        $id = ProjectId::fromString($apiData['id']);
-        $project = new Project($id, $apiData['name'], $apiData['description'], $apiData['color']);
-        $project->assignUserRole($this->currentUserId(), Role::owner());
-        $repository->save($project);
-
-        return new SuccessResponse([
-            'id' => $project->id()->toString()
-        ]);
-    }
-
-    /**
-     * @param ProjectRepositoryInterface $repository
      * @return JsonResponse
      * @Route("/user-list")
      * @throws UserNotLoggedInException
