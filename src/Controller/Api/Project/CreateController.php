@@ -3,6 +3,7 @@
 namespace App\Controller\Api\Project;
 
 use App\Controller\Traits\ProjectUserTrait;
+use App\Exception\UserNotLoggedInException;
 use App\Http\Response\SuccessResponse;
 use App\Project\Model\Project\Project;
 use App\Project\Model\Project\Role;
@@ -23,6 +24,9 @@ class CreateController extends AbstractController
         private ProjectRepositoryInterface $repository
     ) {}
 
+    /**
+     * @throws UserNotLoggedInException
+     */
     public function __invoke(Project $project): JsonResponse
     {
         $project->assignUserRole($this->currentUserId(), Role::owner());
