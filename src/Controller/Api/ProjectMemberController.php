@@ -40,39 +40,6 @@ class ProjectMemberController extends AbstractController
     }
 
     /**
-     * @Route("/{projectId}/invite", methods={"POST"}, name="api_project_member_invite")
-     * @param string $projectId
-     * @param $apiData
-     * @param ProjectJsonConverter $converter
-     * @return SuccessResponse
-     */
-    public function invite(string $projectId, $apiData, ProjectJsonConverter $converter)
-    {
-        $project = $this->loadProjectForManage($projectId);
-        $userAccess = $this->getUserAccess($project);
-        $this->throwAccessDeniedUnlessGranted($userAccess, ProjectPolicy::memberManageFunction(), $project);
-
-        $users = $apiData['users'] ?? [];
-
-        if (empty($users)) {
-            return new SuccessResponse($converter->members($project));
-        }
-
-        $userEntities = $this->findUserEntities($users);
-
-        foreach ($userEntities as $userEntity) {
-            $userId = $userEntity->getId();
-            if ($userAccess->isGranted(ManageUsersPolicy::inviteFunction(), $userId)) {
-                $project->addUser($userId);
-            }
-        }
-
-        $this->projectRepository->save($project);
-
-        return new SuccessResponse($converter->members($project));
-    }
-
-    /**
      * @Route("/{projectId}/change-role", methods={"POST"}, name="api_project_member_change_role")
      * @param string $projectId
      * @param Request $request
