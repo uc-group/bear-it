@@ -45,7 +45,7 @@
                     <v-progress-linear :active="fetching" :indeterminate="fetching" absolute bottom></v-progress-linear>
                 </v-app-bar>
 
-                <v-content app v-show="loaded">
+                <v-main app v-show="loaded">
                     <v-alert
                       color="blue-grey"
                       dark
@@ -57,7 +57,7 @@
                     <v-container fluid fill-height>
                         <router-view></router-view>
                     </v-container>
-                </v-content>
+                </v-main>
                 <v-footer app></v-footer>
             </template>
         </v-app>

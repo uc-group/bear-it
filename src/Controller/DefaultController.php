@@ -12,29 +12,12 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class DefaultController extends AbstractController
 {
-    private $clientId;
+    private string $clientId;
 
     public function __construct($clientId)
     {
 
         $this->clientId = $clientId;
-    }
-
-    /**
-     * @Route("/auth-github", name="auth_github")
-     */
-    public function loginGithub()
-    {
-        // Handled by Authenticator
-        throw $this->createNotFoundException();
-    }
-
-    /**
-     * @Route("/logout", name="logout")
-     */
-    public function logout()
-    {
-        throw $this->createNotFoundException();
     }
 
     /**
@@ -61,7 +44,7 @@ class DefaultController extends AbstractController
         return new JsonResponse([
             'authenticated' => $user instanceof User,
             'userData' => $user instanceof User ? [
-                'login' => $user->getUsername(),
+                'login' => $user->getUserIdentifier(),
                 'avatar' => $user->getAvatar(),
                 'name' => $user->getName(),
                 'id' => $user->getId()->toString()

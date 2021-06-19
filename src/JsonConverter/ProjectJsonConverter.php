@@ -60,7 +60,7 @@ class ProjectJsonConverter
         foreach ($users as $user) {
             $member = &$members[$user->getId()->toString()];
             $member['name'] = $user->getName();
-            $member['username'] = $user->getUsername();
+            $member['username'] = $user->getUserIdentifier();
             $member['avatar'] = $user->getAvatar();
             $memberCollection->add($member);
         }

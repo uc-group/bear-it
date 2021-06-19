@@ -19,9 +19,8 @@ security:
                 lifetime: 604800 # 1 week in seconds
                 path:     /
                 always_remember_me: true
-            guard:
-                authenticators:
-                    - App\Security\GithubAuthenticator
+            custom_authenticators:
+                - App\Security\GithubAuthenticator
 
 
             # activate different ways to authenticate
@@ -33,5 +32,6 @@ security:
     # Easy way to control access for large sections of your site
     # Note: Only the *first* access control that matches will be used
     access_control:
+        - { path: /login, roles: PUBLIC_ACCESS }
         - { path: ^/api, roles: IS_AUTHENTICATED_FULLY }
         # - { path: ^/profile, roles: ROLE_USER }
