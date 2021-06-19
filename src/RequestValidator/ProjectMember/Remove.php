@@ -8,12 +8,12 @@ use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Constraints;
 use Yc\RequestValidationBundle\DataTransformer\DataTransformerInterface;
 
-class Invite extends AbstractRequestValidator implements DataTransformerInterface
+class Remove extends AbstractRequestValidator implements DataTransformerInterface
 {
     public function getConstraint(Request $request): array|Constraint
     {
         return new Constraints\Collection([
-            'users' => []
+            'member' => [new Constraints\NotNull()]
         ]);
     }
 
@@ -25,7 +25,7 @@ class Invite extends AbstractRequestValidator implements DataTransformerInterfac
     public function transformData(mixed $data): array
     {
         return [
-            'usernames' => $data['users'] ?? []
+            'username' => $data['member']
         ];
     }
 }

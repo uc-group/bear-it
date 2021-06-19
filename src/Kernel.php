@@ -37,9 +37,4 @@ class Kernel extends BaseKernel
             $routes->import('../config/{routes}.php');
         }
     }
-
-    protected function build(ContainerBuilder $container)
-    {
-        $container->addCompilerPass(new ApiDataValidatorCompilerPass());
-    }
 }

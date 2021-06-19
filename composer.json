@@ -28,7 +28,7 @@
         "symfony/web-link": "5.3.*",
         "symfony/webpack-encore-bundle": "^1.3",
         "symfony/yaml": "5.3.*",
-        "youniverse-center/request-validation-bundle": "^0.1.0"
+        "youniverse-center/request-validation-bundle": "^0.2"
     },
     "require-dev": {
         "symfony/debug-pack": "*",
