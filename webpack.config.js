@@ -23,9 +23,9 @@ Encore.setOutputPath('public/build/')
   .enableVueLoader()
   .addPlugin(
     new InjectManifest({
-      swSrc: 'assets/js/sw.js',
+      swSrc: './assets/js/sw.js',
       swDest: '../sw.js',
-      // dontCacheBustURLsMatching: /\.\w{8}\./ this should be cached by headers remove comment when server config set
+      dontCacheBustURLsMatching: /\.\w{8}\./
     })
   )
   .addAliases({
