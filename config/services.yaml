@@ -33,7 +33,7 @@ services:
 
     App\Controller\DefaultController:
         arguments:
-            $clientId: '%env(GITHUB_CLIENT_ID)%'
+            $githubClientId: '%env(GITHUB_CLIENT_ID)%'
 
     App\Security\GithubAuthenticator:
         arguments:
