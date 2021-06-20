@@ -1,5 +1,6 @@
 import '../styles/app.scss'
 import '@babel/polyfill'
+import '~/offlineHandlers'
 
 import './plugins/fontawesome'
 import vuetify from './plugins/vuetify'
@@ -51,7 +52,8 @@ new Vue({
       }
     },
     ...mapState(['user', 'fetching']),
-    ...mapState({ message: state => state.bearMessage.message})
+    ...mapState({ message: state => state.bearMessage.message}),
+    ...mapState(['user', 'fetching', 'offline'])
   },
   created() {
     loader.then(() => {

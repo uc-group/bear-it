@@ -43,3 +43,10 @@ Once you have you auth pair, user those and place in your local environment over
 GITHUB_CLIENT_ID=clientid
 GITHUB_CLIENT_SECRET=clientsecret
 ``` 
+
+## Read more
+
+### API
+
+* [Security - Roles, Policies and access functions](doc/security/index.md)
+* [Request Validation](doc/api/validation.md)

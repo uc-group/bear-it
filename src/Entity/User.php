@@ -4,11 +4,12 @@ namespace App\Entity;
 
 use App\User\Model\User\Avatar;
 use App\Utils\Id;
+use BearIt\User\Model\UserId;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass="App\Repository\UserRepository")
  * @ORM\Table(name="bi_user")
  */
 class User implements UserInterface
@@ -73,11 +74,11 @@ class User implements UserInterface
     }
 
     /**
-     * @return string
+     * @return UserId
      */
-    public function getId(): string
+    public function getId(): UserId
     {
-        return $this->id;
+        return UserId::fromString($this->id);
     }
 
     /**
@@ -97,7 +98,7 @@ class User implements UserInterface
             return Avatar::createRetroGravatar(md5($this->username))->toString();
         }
 
-        return $this->avatar ?? Avatar::createRetroGravatar(md5($this->username));
+        return $this->avatar ?? Avatar::createRetroGravatar(md5($this->username))->toString();
     }
 
     /**
@@ -134,8 +135,14 @@ class User implements UserInterface
 
     /**
      * @return string
+     * @deprecated
      */
     public function getUsername()
+    {
+        return $this->getUserIdentifier();
+    }
+
+    public function getUserIdentifier()
     {
         return $this->username;
     }

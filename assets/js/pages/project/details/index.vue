@@ -3,7 +3,7 @@
         <v-container>
             <v-row>
                 <v-col>
-                    <h2>{{ project.name }}</h2>
+                    <h2>{{ project.name || '??' }}</h2>
                 </v-col>
             </v-row>
             <v-tabs v-model="currentTab" class="elevation-2">
@@ -27,7 +27,7 @@
                 <v-tab-item value="members">
                     <v-card flat tile>
                         <v-card-text>
-                            <members :members.sync="members" :project-id="project.id"></members>
+                            <members-tab></members-tab>
                         </v-card-text>
                     </v-card>
                 </v-tab-item>
@@ -37,20 +37,22 @@
 </template>
 
 <script>
-    import Members from './members.vue'
+    import MembersTab from './tabs/members.vue'
+    import projectStore from '~/store/modules/project'
 
     export default {
         components: {
-            Members
+            MembersTab
         },
         props: {
             project: Object,
             tab: String
         },
-        data() {
-            return {
-                members: JSON.parse(JSON.stringify(this.project.members))
-            }
+        created() {
+            this.$store.registerModule('project', projectStore(this.project))
+        },
+        beforeDestroy() {
+            this.$store.unregisterModule('project')
         },
         computed: {
             currentTab: {
@@ -58,11 +60,14 @@
                     return this.tab;
                 },
                 set(value) {
-                    this.$router.push({
+                    let method = !this.tab ? 'replace' : 'push';
+
+                    this.$router[method]({
                         to: 'project_details',
                         params: {
                             id: this.project.id,
-                            tab: value
+                            tab: value,
+                            project: this.project
                         }
                     })
                 }

@@ -1,31 +1,37 @@
-
 ###> symfony/framework-bundle ###
 /.env.local
 /.env.local.php
 /.env.*.local
+/config/secrets/prod/prod.decrypt.private.php
 /public/bundles/
 /var/
 /vendor/
 ###< symfony/framework-bundle ###
 
 ###> symfony/phpunit-bridge ###
-.phpunit
+.phpunit.result.cache
 /phpunit.xml
 ###< symfony/phpunit-bridge ###
 
-###> symfony/web-server-bundle ###
-/.web-server-pid
-###< symfony/web-server-bundle ###
-
-docker-compose.yml
-/dev
 ###> symfony/webpack-encore-bundle ###
 /node_modules/
 /public/build/
-/public/sw.js
 npm-debug.log
 yarn-error.log
 ###< symfony/webpack-encore-bundle ###
 
 .idea
 /tmp
+/dev
+docker-compose.yml
+/public/sw.js
+
+###> phpunit/phpunit ###
+/phpunit.xml
+.phpunit.result.cache
+###< phpunit/phpunit ###
+
+
+## docker-sync
+docker-sync.yml
+/.docker-sync

@@ -2,7 +2,7 @@
 
 namespace App\Project\Model\Project;
 
-use App\Entity\User;
+use BearIt\User\Model\UserId;
 
 class Project
 {
@@ -22,9 +22,9 @@ class Project
     private $description;
 
     /**
-     * @var Role[]
+     * @var string
      */
-    private $userRoles;
+    private $color;
 
     /**
      * @var string
@@ -32,20 +32,28 @@ class Project
     private $rolesHash;
 
     /**
+     * @var Role[]
+     */
+    private $userRoles;
+
+    /**
      * @param ProjectId $projectId
      * @param string $name
      * @param string|null $description
+     * @param string|null $color
      * @param Role[] $userRoles
      */
     public function __construct(
         ProjectId $projectId,
         string $name,
         string $description = null,
+        string $color = null,
         array $userRoles = []
     ) {
         $this->projectId = $projectId;
         $this->name = $name;
         $this->description = $description;
+        $this->color = $color;
         $this->userRoles = $userRoles;
         $this->rolesHash = $this->calculateRolesHash();
     }
@@ -75,42 +83,28 @@ class Project
     }
 
     /**
-     * @param User $user
+     * @return string|null
+     */
+    public function color(): ?string
+    {
+        return $this->color;
+    }
+
+    /**
+     * @param UserId $user
      * @param Role $role
      */
-    public function assignUserRole(User $user, Role $role)
+    public function assignUserRole(UserId $user, Role $role)
     {
-        $this->userRoles[$user->getId()] = $role;
+        $this->userRoles[$user->toString()] = $role;
     }
 
     /**
-     * @param User $user
-     * @return bool
+     * @param UserId $user
      */
-    public function canManageUsers(User $user): bool
+    public function addUser(UserId $user): void
     {
-        $role = $this->getUserRole($user);
-
-        return $role->equals(Role::admin()) || $role->equals(Role::owner());
-    }
-
-    /**
-     * @param User $user
-     * @return bool
-     */
-    public function canRemove(User $user): bool
-    {
-        $role = $this->getUserRole($user);
-
-        return $role->equals(Role::admin()) || $role->equals(Role::owner());
-    }
-
-    /**
-     * @param User $user
-     */
-    public function addUser(User $user): void
-    {
-        if (isset($this->userRoles[$user->getId()])) {
+        if (isset($this->userRoles[$user->toString()])) {
             return;
         }
 
@@ -118,31 +112,40 @@ class Project
     }
 
     /**
-     * @param User $user
+     * @param UserId $user
      */
-    public function removeUser(User $user)
+    public function removeUser(UserId $user)
     {
-        if (isset($this->userRoles[$user->getId()])) {
-            unset($this->userRoles[$user->getId()]);
+        if (isset($this->userRoles[$user->toString()])) {
+            unset($this->userRoles[$user->toString()]);
         }
     }
 
     /**
-     * @param User $user
+     * @param UserId $user
      * @return bool
      */
-    public function isUserAssigned(User $user)
+    public function isUserAssigned(UserId $user)
     {
-        return isset($this->userRoles[$user->getId()]);
+        return isset($this->userRoles[$user->toString()]);
     }
 
     /**
-     * @param User $user
+     * @param UserId $user
      * @return Role
      */
-    public function getUserRole(User $user): Role
+    public function getUserRole(UserId $user): Role
     {
-        return $this->userRoles[$user->getId()] ?? Role::none();
+        return $this->userRoles[$user->toString()] ?? Role::none();
+    }
+
+    /**
+     * @param UserId $userId
+     * @return bool
+     */
+    public function isOwner(UserId $userId): bool
+    {
+        return $this->userRoles[$userId->toString()]->equals(Role::owner());
     }
 
     /**
@@ -153,6 +156,9 @@ class Project
         return array_keys($this->userRoles);
     }
 
+    /**
+     * @return Role[]|array
+     */
     public function roles()
     {
         return $this->userRoles;

@@ -1,9 +1,9 @@
-FROM php:7.2 AS php-build
+FROM php:8.0 AS php-build
 WORKDIR /usr/src/bear-it
 RUN DEBIAN_FRONTEND=noninteractive apt-get -y update && apt-get -y install zlib1g-dev zip curl
 RUN docker-php-ext-install zip
 COPY composer.json composer.lock ./
-COPY --from=composer:1.7 /usr/bin/composer /usr/bin/composer
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 RUN composer install  --no-scripts --no-autoloader
 COPY . .
 RUN composer dump-autoload --optimize && composer run-script post-install-cmd
@@ -14,7 +14,7 @@ COPY assets assets
 COPY package.json yarn.lock webpack.config.js ./
 RUN mkdir -p /home/node/app/public && yarn install --no-cache && yarn build
 
-FROM php:7.2-apache-stretch
+FROM php:8.0-apache-buster
 WORKDIR /var/www/bear-it
 RUN DEBIAN_FRONTEND=noninteractive apt-get -y update && apt-get -y install zlib1g-dev zip curl && a2enmod rewrite
 RUN docker-php-ext-install zip

@@ -1,29 +1,21 @@
 <?php
 
-namespace App\Controller\Api;
+namespace App\Controller\Api\User;
 
 use App\Http\Response\SuccessResponse;
-use App\User\Model\User\Avatar;
 use App\User\Service\UserFinderInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Bundle\FrameworkBundle\Controller\ControllerTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
-/**
- * @Route("/api/user")
- */
-class UserController extends AbstractController
+#[Route('/api/user/find')]
+class FindController extends AbstractController
 {
-    use ControllerTrait;
+    public function __construct(
+        private UserFinderInterface $finder
+    ) {}
 
-    /**
-     * @param Request $request
-     * @param UserFinderInterface $finder
-     * @return SuccessResponse
-     * @Route("/find")
-     */
-    public function find(Request $request, UserFinderInterface $finder)
+    public function __invoke(Request $request)
     {
         $data = json_decode($request->getContent(), true);
         $term = trim($data['term'] ?? '');
@@ -32,7 +24,7 @@ class UserController extends AbstractController
         }
 
         $result = [];
-        foreach ($finder->findByTerm($term) as $user) {
+        foreach ($this->finder->findByTerm($term) as $user) {
             $result[] = [
                 'username' => $user->username(),
                 'name' => $user->name() ?? $user->username(),

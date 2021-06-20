@@ -4,107 +4,75 @@ namespace App\Security;
 
 use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
-use GuzzleHttp\Client;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
-use Symfony\Component\Security\Core\User\UserInterface;
-use Symfony\Component\Security\Core\User\UserProviderInterface;
-use Symfony\Component\Security\Guard\AbstractGuardAuthenticator;
+use Symfony\Component\Security\Core\Exception\CustomUserMessageAuthenticationException;
+use Symfony\Component\Security\Http\Authenticator\AbstractAuthenticator;
+use Symfony\Component\Security\Http\Authenticator\Passport\Badge\UserBadge;
+use Symfony\Component\Security\Http\Authenticator\Passport\PassportInterface;
+use Symfony\Component\Security\Http\Authenticator\Passport\SelfValidatingPassport;
+use Symfony\Contracts\HttpClient\HttpClientInterface;
 
-class GithubAuthenticator extends AbstractGuardAuthenticator
+class GithubAuthenticator extends AbstractAuthenticator
 {
-    /**
-     * @var EntityManagerInterface
-     */
-    private $entityManager;
+    public function __construct(
+        private HttpClientInterface $httpClient,
+        private EntityManagerInterface $entityManager,
+        private string $clientId,
+        private string $clientSecret
+    ) {}
 
-    /**
-     * @var string
-     */
-    private $clientId;
-
-    /**
-     * @var string
-     */
-    private $clientSecret;
-
-    /**
-     * @param EntityManagerInterface $entityManager
-     */
-    public function __construct(EntityManagerInterface $entityManager, string $clientId, string $clientSecret)
-    {
-        $this->entityManager = $entityManager;
-        $this->clientId = $clientId;
-        $this->clientSecret = $clientSecret;
-    }
-
-    /**
-     * @param Request $request
-     * @return bool
-     */
-    public function supports(Request $request)
+    public function supports(Request $request): ?bool
     {
         return $request->attributes->get('_route') === 'auth_github';
     }
 
-    /**
-     * @param Request $request
-     * @return array|mixed
-     */
-    public function getCredentials(Request $request)
+    public function authenticate(Request $request): PassportInterface
     {
-        return [
-            'code' => $request->query->get('code')
-        ];
-    }
-
-    /**
-     * @param mixed $credentials
-     * @param UserProviderInterface $userProvider
-     * @return UserInterface|void|null
-     */
-    public function getUser($credentials, UserProviderInterface $userProvider)
-    {
-        $client = new Client();
-
-        if (($credentials['code'] ?? null) === null) {
-            return;
+        $code = $request->query->get('code');
+        if (!$code) {
+            throw new CustomUserMessageAuthenticationException('No code provided');
         }
 
-        $response = $client->post('https://github.com/login/oauth/access_token', [
-            'json' => [
-                'client_id' => $this->clientId,
-                'client_secret' => $this->clientSecret,
-                'code' => $credentials['code']
-            ],
-            'headers' => [
-                'Accept' => 'application/json'
+        $response = ($this->httpClient->request(
+            'POST',
+            'https://github.com/login/oauth/access_token',
+            [
+                'json' => [
+                    'client_id' => $this->clientId,
+                    'client_secret' => $this->clientSecret,
+                    'code' => $code
+                ],
+                'headers' => [
+                    'Accept' => 'application/json'
+                ]
             ]
-        ]);
+        ))->toArray();
 
-        $responseJson = json_decode((string)$response->getBody(), true);
-        if (!isset($responseJson['access_token'])) {
-            return;
+
+        $accessToken = $response['access_token'] ?? null;
+        if (!$accessToken) {
+            throw new CustomUserMessageAuthenticationException('Invalid access token');
         }
 
-        $response = $client->get('https://api.github.com/user', [
+        $userData = ($this->httpClient->request('GET', 'https://api.github.com/user', [
             'headers' => [
-                'Authorization' => sprintf('token %s', $responseJson['access_token']),
+                'Authorization' => sprintf('token %s', $accessToken),
                 'Accept' => 'application/json'
             ]
-        ]);
+        ]))->toArray();
 
-        $userData = json_decode((string)$response->getBody(), true);
-        if (!isset($userData['id'])) {
-            return;
+        $userId = $userData['id'] ?? null;
+        if (!$userId) {
+            throw new CustomUserMessageAuthenticationException('User not found');
         }
 
         $user = $this->entityManager->getRepository(User::class)->findOneBy([
-            'githubId' => $userData['id']
+            'githubId' => $userId
         ]);
 
         if (!$user instanceof User) {
@@ -113,55 +81,16 @@ class GithubAuthenticator extends AbstractGuardAuthenticator
             $this->entityManager->flush();
         }
 
-        return $user;
+        return new SelfValidatingPassport(new UserBadge($user->getUserIdentifier()));
     }
 
-    /**
-     * @param mixed $credentials
-     * @param UserInterface $user
-     * @return bool
-     */
-    public function checkCredentials($credentials, UserInterface $user)
-    {
-        return true;
-    }
-
-    /**
-     * @param Request $request
-     * @param AuthenticationException $exception
-     * @return JsonResponse|Response|null
-     */
-    public function onAuthenticationFailure(Request $request, AuthenticationException $exception)
+    public function onAuthenticationFailure(Request $request, AuthenticationException $exception): ?Response
     {
         return new JsonResponse();
     }
 
-    /**
-     * @param Request $request
-     * @param TokenInterface $token
-     * @param string $providerKey
-     * @return RedirectResponse|Response|null
-     */
-    public function onAuthenticationSuccess(Request $request, TokenInterface $token, $providerKey)
+    public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $firewallName): ?Response
     {
         return new RedirectResponse('/');
-    }
-
-    /**
-     * @return bool
-     */
-    public function supportsRememberMe()
-    {
-        return true;
-    }
-
-    /**
-     * @param Request $request
-     * @param AuthenticationException|null $authException
-     * @return RedirectResponse|Response
-     */
-    public function start(Request $request, AuthenticationException $authException = null)
-    {
-        return new RedirectResponse('/login');
     }
 }

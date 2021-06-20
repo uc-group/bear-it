@@ -1,9 +1,11 @@
 <template>
     <div class="projects">
         <v-row class="align-stretch">
-            <v-col class="d-flex" cols="12" md="6" xl="4" v-for="project in projects" :key="project.id">
-                <v-card class="flex-grow-1 d-flex flex-column">
-                    <v-card-title>{{ project.name }}</v-card-title>
+            <v-col class="d-flex" cols="12" md="6" xl="4" v-for="project in projects" :key="project.id" v-show="!project.removing">
+                <v-card class="flex-grow-1 d-flex flex-column" :style="tileStyles(project)">
+                    <v-card-title>
+                        <router-link :to="{name: 'project_details', params: {id: project.id}}">{{ project.name }}</router-link>
+                    </v-card-title>
                     <v-card-text class="flex-grow-1">{{ project.description }}</v-card-text>
                     <v-card-actions>
                         <v-btn text :to="{name: 'project_details', params: {id: project.id}}">Details</v-btn>
@@ -16,50 +18,49 @@
             </v-col>
         </v-row>
         <v-row>
-            <v-col>
-                <v-btn class="float-right" color="primary" :to="{name: 'project_create'}">Create new project</v-btn>
-            </v-col>
+            <v-btn color="primary" fab fixed bottom right :to="{name: 'project_create'}">
+                <v-icon>mdi-plus</v-icon>
+            </v-btn>
         </v-row>
     </div>
 </template>
 
 <script>
-    import api from '@api/project'
+    import { createNamespacedHelpers } from 'vuex'
+    import storeProjectList from '~/store/modules/projectList'
+
+    const { mapState, mapActions } = createNamespacedHelpers('projectList')
 
     export default {
         created() {
-            api.userList().then( projects => {
-                projects.forEach( project => {
-                    project.removing = false
-                    this.projects.push(project)
-                })
-            })
+            this.$store.registerModule('projectList', storeProjectList)
+            this.loadList()
         },
         data() {
             return {
-                projects: [],
                 updating: false
             }
         },
+        computed: {
+            ...mapState({
+                'projects': 'cachedList'
+            })
+        },
         methods: {
+            ...mapActions(['loadList']),
             async remove(project) {
-                project.removing = true
                 this.updating = true
-
-                try {
-                    await api.remove(project.id)
-                    const index = this.projects.findIndex(p => project.id = p.id)
-                    if (index >= 0) {
-                        this.projects.splice(index, 1)
-                    }
-                    this.$store.dispatch("bearMessage/setMessage", { message: 'Project successfully removed', type: 'success' })
-
-                } catch (e) {
-                    this.$store.dispatch("bearMessage/setMessage", { message: 'Error during project remove...', type:  'error' })
-                    project.removing = false;
-                }
+                await this.$store.dispatch('projectList/remove', project.id)
                 this.updating = false
+            },
+            tileStyles(project) {
+                return {
+                    'border-left': `5px solid ${project.color}`
+                }
             }
+        },
+        beforeDestroy() {
+            this.$store.unregisterModule('projectList')
         }
     }
 </script>
