@@ -2,59 +2,25 @@
 
 namespace App\Project\Model\Project;
 
+use App\Project\Model\Component\ComponentId;
 use BearIt\User\Model\UserId;
 
 class Project
 {
-    /**
-     * @var ProjectId
-     */
-    private $projectId;
+    private string $rolesHash;
 
     /**
-     * @var string
-     */
-    private $name;
-
-    /**
-     * @var string
-     */
-    private $description;
-
-    /**
-     * @var string
-     */
-    private $color;
-
-    /**
-     * @var string
-     */
-    private $rolesHash;
-
-    /**
-     * @var Role[]
-     */
-    private $userRoles;
-
-    /**
-     * @param ProjectId $projectId
-     * @param string $name
-     * @param string|null $description
-     * @param string|null $color
      * @param Role[] $userRoles
+     * @param ComponentId[] $components
      */
     public function __construct(
-        ProjectId $projectId,
-        string $name,
-        string $description = null,
-        string $color = null,
-        array $userRoles = []
+        private ProjectId $projectId,
+        private string $name,
+        private ?string $description = null,
+        private ?string $color = null,
+        private array $userRoles = [],
+        private array $components = []
     ) {
-        $this->projectId = $projectId;
-        $this->name = $name;
-        $this->description = $description;
-        $this->color = $color;
-        $this->userRoles = $userRoles;
         $this->rolesHash = $this->calculateRolesHash();
     }
 
@@ -170,6 +136,19 @@ class Project
     public function rolesChanged()
     {
         return $this->rolesHash !== $this->calculateRolesHash();
+    }
+
+    public function assignComponent(ComponentId $component): void
+    {
+        $this->components[] = $component;
+    }
+
+    /**
+     * @return ComponentId[]
+     */
+    public function components(): array
+    {
+        return $this->components;
     }
 
     /**
