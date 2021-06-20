@@ -20,6 +20,17 @@
         <v-list-item-title>General</v-list-item-title>
       </v-list-item-content>
     </v-list-item>
+
+    <v-list-item link :to="menuItem.link"
+                 v-for="menuItem in menuList" :key="`${menuItem.label}_${menuItem.link}`">
+      <v-list-item-icon v-if="menuItem.icon">
+        <v-icon>{{ menuItem.icon }}</v-icon>
+      </v-list-item-icon>
+      <v-list-item-content>
+        <v-list-item-title>{{ menuItem.label }}</v-list-item-title>
+      </v-list-item-content>
+    </v-list-item>
+
     <v-list-item link :to="{ name: 'project_settings', params: { id: project.id } }">
       <v-list-item-icon>
         <v-icon>mdi-cogs</v-icon>
@@ -33,11 +44,16 @@
 
 <script>
 
+import { mapState, mapGetters } from 'vuex'
+
 export default {
   computed: {
-    project() {
-      return this.$route.params.project
-    },
+    ...mapState({
+      project: state => state.project,
+    }),
+    ...mapGetters('project', {
+      menuList: 'componentMenuItems'
+    }),
     inProjectContext() {
       return this.project
     }

@@ -21,18 +21,25 @@ export default [
         component: () => import(/* webpackChunkName: "project" */ '@pages/project/create.vue')
     },
     {
-        path: '/project/:id/settings',
-        name: 'project_settings',
-        component: () => import(/* webpackChunkName: "project" */ '@pages/project/settings/index.vue'),
-        props: true,
-        beforeEnter: loadProjectBeforeEnter
-    },
-    ...getRoutes(),
-    {
-        path: '/project/:id/:tab?',
-        name: 'project_details',
+        path: '/project/:id',
+        name: 'project',
         component: () => import(/* webpackChunkName: "project" */ '@pages/project/details/index.vue'),
         props: true,
-        beforeEnter: loadProjectBeforeEnter
+        beforeEnter: loadProjectBeforeEnter,
+        children: [
+            {
+                path: 'settings',
+                name: 'project_settings',
+                props: true,
+                component: () => import(/* webpackChunkName: "project" */ '@pages/project/details/settings/index.vue'),
+            },
+            ...getRoutes(),
+            {
+                path: ':tab?',
+                name: 'project_details',
+                component: () => import(/* webpackChunkName: "project" */ '@pages/project/details/tabs.vue'),
+                props: true
+            }
+        ]
     }
 ]

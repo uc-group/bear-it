@@ -9,7 +9,9 @@ use App\Project\Model\Project\ProjectId;
 use App\Project\Repository\ProjectRepositoryInterface;
 use App\RequestValidator\Project\CategoryManage;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\EventDispatcher\GenericEvent;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Yc\RequestValidationBundle\Attributes\RequestValidator;
 
 #[Route('/api/project/components/{id}/remove')]
@@ -17,7 +19,8 @@ use Yc\RequestValidationBundle\Attributes\RequestValidator;
 class RemoveController extends AbstractController
 {
     public function __construct(
-        private ProjectRepositoryInterface $projectRepository
+        private ProjectRepositoryInterface $projectRepository,
+        private EventDispatcherInterface $eventDispatcher
     ) {}
 
     public function __invoke(string $id, string $component)
@@ -31,6 +34,9 @@ class RemoveController extends AbstractController
         $project->removeComponent($component);
 
         $this->projectRepository->save($project);
+        $this->eventDispatcher->dispatch(new GenericEvent($project->id(), [
+            'component' => $component
+        ]), 'bearit.project.component_removed');
 
         return new SuccessResponse($project->components());
     }

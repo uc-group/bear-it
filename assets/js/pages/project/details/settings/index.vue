@@ -44,9 +44,10 @@
 </template>
 
 <script>
-import ProjectComponent from '../details/components/ProjectComponent'
-import { getProjectComponents } from '../../../plugins/projectComponents'
+import ProjectComponent from '../components/ProjectComponent'
+import { getProjectComponents } from '../../../../plugins/projectComponents'
 import api from '@api/project'
+import { mapActions, mapState } from 'vuex'
 
 export default {
   components: {ProjectComponent},
@@ -56,28 +57,36 @@ export default {
   data() {
     return {
       components: getProjectComponents(),
-      projectComponents: JSON.parse(JSON.stringify(this.project.components)),
       changingComponents: false
     }
   },
+  computed: {
+    ...mapState('project', {
+      projectComponents: (state) => state.components || []
+    })
+  },
   methods: {
+    ...mapActions('alerts', {
+      addAlert: 'addMessage'
+    }),
+    ...mapActions('project', ['updateComponents']),
     hasComponent(id) {
       return this.projectComponents.includes(id)
     },
     async addComponent(component) {
       try {
-        this.projectComponents = await api.addComponent(this.project.id, component.id)
-        this.$store.dispatch('alerts/addMessage', { text: `Component "${component.name}" has been added to the project`, type: 'success' })
+        this.updateComponents(await api.addComponent(this.project.id, component.id))
+        this.addAlert({ text: `Component "${component.name}" has been added to the project`, type: 'success' })
       } catch (e) {
-        this.$store.dispatch('alerts/addMessage', { text: `Adding component "${component.name}" to the project has failed :(`, type: 'error' })
+        this.addAlert({ text: `Adding component "${component.name}" to the project has failed :(`, type: 'error' })
       }
     },
     async removeComponent(component) {
       try {
-        this.projectComponents = await api.removeComponent(this.project.id, component.id)
-        this.$store.dispatch('alerts/addMessage', { text: `Component "${component.name}" has been removed to the project`, type: 'success' })
+        this.updateComponents(await api.removeComponent(this.project.id, component.id))
+        this.addAlert({ text: `Component "${component.name}" has been removed to the project`, type: 'success' })
       } catch (e) {
-        this.$store.dispatch('alerts/addMessage', { text: `Removing component "${component.name}" to the project has failed :(`, type: 'error' })
+        this.addAlert({ text: `Removing component "${component.name}" to the project has failed :(`, type: 'error' })
       }
     }
   }

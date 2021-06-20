@@ -1,4 +1,5 @@
 import api from '@api/project'
+import { getProjectComponents } from '../../plugins/projectComponents'
 
 export default project => {
     const members = JSON.parse(JSON.stringify(project.members));
@@ -12,7 +13,8 @@ export default project => {
             id: project.id,
             name: project.name,
             description: project.description,
-            members
+            members,
+            components: project.components
         },
         getters: {
             currentMember: (state, getters, rootState) => project.members.find(member => member.username === rootState.user.login),
@@ -30,6 +32,24 @@ export default project => {
                         changeRole: manageAndIsNotCurrentMember
                     }
                 }
+            },
+            componentMenuItems: (state) => {
+                const stateClone = JSON.parse(JSON.stringify(state));
+                return Object.values(getProjectComponents())
+                  .filter((component) => state.components.includes(component.id))
+                  .map((component) => component.menu).reduce((acc, menuList) => {
+                      menuList.forEach((menuItem) => {
+                          let {label, link, icon} = menuItem
+
+                          if (typeof menuItem.link === 'function') {
+                            link = menuItem.link(stateClone)
+                          }
+
+                          acc.push({label, link, icon});
+                      })
+
+                      return acc
+                  }, [])
             }
         },
         mutations: {
@@ -67,6 +87,9 @@ export default project => {
                 } else {
                     state.members[memberIndex].removing = false
                 }
+            },
+            UPDATE_COMPONENTS(state, components) {
+                state.components = components
             }
         },
         actions: {
@@ -105,6 +128,9 @@ export default project => {
 
                     throw e
                 }
+            },
+            updateComponents({commit}, components) {
+                commit('UPDATE_COMPONENTS', components)
             }
         }
     }
