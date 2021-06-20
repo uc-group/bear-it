@@ -12,8 +12,7 @@
 .phpunit.result.cache
 /phpunit.xml
 ###< symfony/phpunit-bridge ###
-docker-compose.yml
-/dev
+
 ###> symfony/webpack-encore-bundle ###
 /node_modules/
 /public/build/
@@ -23,6 +22,9 @@ yarn-error.log
 
 .idea
 /tmp
+/dev
+docker-compose.yml
+/public/sw.js
 
 ###> phpunit/phpunit ###
 /phpunit.xml
