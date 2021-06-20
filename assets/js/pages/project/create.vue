@@ -100,8 +100,8 @@
                     try {
                         this.submitting = true
                         await api.create(this.project.id, this.project.name, this.project.description, this.project.color)
-                        this.$store.dispatch("bearMessage/setMessage", { message: 'Project successfully created', type: 'success' })
-                        this.$router.push('/')
+                        this.$store.dispatch('alerts/addMessage', { text: `Project "${this.project.name}" successfully created`, type: 'success' })
+                        this.$router.push({ name: 'project_details', params: { id: this.project.id } })
                     } catch (error) {
                         if (error.offline) {
                             this.putOfflineEvent('project_create', {

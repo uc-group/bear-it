@@ -1,7 +1,7 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 import axios from 'axios'
-import bearMessage from './modules/message'
+import alerts from './modules/alerts'
 import offlineStorage from '~/lib/offlineStorage'
 import offlineProjects from './modules/offlineProjects'
 
@@ -74,7 +74,7 @@ const storeOptions = {
   },
   modules: {
     offlineProjects,
-    bearMessage,
+    alerts,
   }
 }
 

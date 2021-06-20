@@ -10,13 +10,15 @@ import router from './router'
 import store, { loader } from './store'
 import { mapState, mapGetters } from 'vuex'
 import ProfileMenu from './layout/components/ProfileMenu'
+import AlertList from './layout/components/AlertList'
 
 new Vue({
   vuetify,
   router,
   store,
   components: {
-    ProfileMenu
+    ProfileMenu,
+    AlertList
   },
   data() {
     return {
@@ -40,19 +42,7 @@ new Vue({
         this.$route.meta.drawer === true
       )
     },
-    showMessage: {
-      get(){
-        return this.$store.state.bearMessage.message
-      },
-      set(message){
-        if(message){
-          return;
-        }
-        this.$store.dispatch('bearMessage/setMessage', { message: null, type: 'success'})
-      }
-    },
     ...mapState(['user', 'fetching']),
-    ...mapState({ message: state => state.bearMessage.message}),
     ...mapState(['user', 'fetching', 'offline'])
   },
   created() {

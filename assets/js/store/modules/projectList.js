@@ -51,18 +51,19 @@ export default {
             } catch (e) {}
             dispatch('stopFetching', null, {root: true})
         },
-        async remove({ commit, dispatch }, projectId) {
+        async remove({ commit, dispatch, state }, projectId) {
+            const name = state.cachedList.find(p => p.id === projectId).name || ''
             dispatch('startFetching', null, {root: true})
             commit('PREPARE_REMOVING', projectId)
             try {
                 await api.remove(projectId)
                 commit('REMOVE', projectId)
-                dispatch('bearMessage/setMessage', { message: 'Project successfully removed', type: 'success' }, {
+                dispatch('alerts/addMessage', { text: `Project "${name}" successfully removed`, type: 'success' }, {
                     root: true
                 })
             } catch (e) {
                 commit('CANCEL_REMOVING')
-                dispatch("bearMessage/setMessage", { message: 'Error during project remove...', type:  'error' }, {
+                dispatch("alerts/addMessage", { text: `Cannot remove project "${name}"`, type:  'error' }, {
                     root: true
                 })
             }
