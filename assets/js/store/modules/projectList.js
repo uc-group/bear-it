@@ -26,6 +26,12 @@ export default {
                 project.removing = true;
             }
         },
+        CANCEL_REMOVING(state, id) {
+            const project = state.cachedList.find(p => p.id === id)
+            if (project) {
+                project.removing = false;
+            }
+        },
         REMOVE(state, id) {
             const index = state.cachedList.findIndex(p => p.id === id)
             if (index >= 0) {
@@ -45,13 +51,22 @@ export default {
             } catch (e) {}
             dispatch('stopFetching', null, {root: true})
         },
-        async remove({ commit, dispatch }, projectId) {
+        async remove({ commit, dispatch, state }, projectId) {
+            const name = state.cachedList.find(p => p.id === projectId).name || ''
             dispatch('startFetching', null, {root: true})
             commit('PREPARE_REMOVING', projectId)
             try {
                 await api.remove(projectId)
                 commit('REMOVE', projectId)
-            } catch (e) { console.error(e) }
+                dispatch('alerts/addMessage', { text: `Project "${name}" successfully removed`, type: 'success' }, {
+                    root: true
+                })
+            } catch (e) {
+                commit('CANCEL_REMOVING')
+                dispatch("alerts/addMessage", { text: `Cannot remove project "${name}"`, type:  'error' }, {
+                    root: true
+                })
+            }
 
             dispatch('stopFetching', null, {root: true})
         }

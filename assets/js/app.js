@@ -8,15 +8,17 @@ import vuetify from './plugins/vuetify'
 import Vue from 'vue'
 import router from './router'
 import store, { loader } from './store'
-import { mapState } from 'vuex'
+import { mapState, mapGetters } from 'vuex'
 import ProfileMenu from './layout/components/ProfileMenu'
+import AlertList from './layout/components/AlertList'
 
 new Vue({
   vuetify,
   router,
   store,
   components: {
-    ProfileMenu
+    ProfileMenu,
+    AlertList
   },
   data() {
     return {
@@ -40,6 +42,7 @@ new Vue({
         this.$route.meta.drawer === true
       )
     },
+    ...mapState(['user', 'fetching']),
     ...mapState(['user', 'fetching', 'offline'])
   },
   created() {

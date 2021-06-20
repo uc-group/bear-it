@@ -4,6 +4,7 @@
     <div id="app" v-cloak data-config="{{ config|json_encode|e('html_attr') }}">
         {% verbatim %}
         <v-app>
+            <alert-list></alert-list>
             <template v-if="loaded">
                 <v-navigation-drawer app v-if="hasDrawer" v-model="drawer">
                     <v-list dense nav>

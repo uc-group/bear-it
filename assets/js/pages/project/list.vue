@@ -50,14 +50,7 @@
             ...mapActions(['loadList']),
             async remove(project) {
                 this.updating = true
-
-                try {
-                    await this.$store.dispatch('projectList/remove', project.id)
-                } catch (e) {
-                    //TODO: add snackbar
-                    console.error(e)
-                    project.removing = false;
-                }
+                await this.$store.dispatch('projectList/remove', project.id)
                 this.updating = false
             },
             tileStyles(project) {
