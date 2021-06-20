@@ -21,13 +21,13 @@ Encore.setOutputPath('public/build/')
       }
   })
   .enableVueLoader()
-  .addPlugin(
-    new InjectManifest({
-      swSrc: './assets/js/sw.js',
-      swDest: '../sw.js',
-      dontCacheBustURLsMatching: /\.\w{8}\./
-    })
-  )
+  // .addPlugin(
+  //   new InjectManifest({
+  //     swSrc: './assets/js/sw.js',
+  //     swDest: '../sw.js',
+  //     dontCacheBustURLsMatching: /\.\w{8}\./
+  //   })
+  // )
   .addAliases({
     '~': path.resolve(__dirname, 'assets/js'),
     '@pages': path.resolve(__dirname, 'assets/js/pages'),
