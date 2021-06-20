@@ -33,7 +33,8 @@ class ProjectJsonConverter
             'id' => $project->id()->toString(),
             'name' => $project->name(),
             'description' => $project->description(),
-            'members' => $this->members($project)
+            'members' => $this->members($project),
+            'components' => $project->components()
         ];
     }
 
@@ -44,11 +45,16 @@ class ProjectJsonConverter
     public function members(Project $project)
     {
         $members = [];
+        $userIds = [];
         foreach ($project->roles() as $userId => $role) {
             $userIds[] = $userId;
             $members[$userId] = [
                 'role' => $role->toString()
             ];
+        }
+
+        if (empty($userIds)) {
+            return [];
         }
 
         /** @var User[] $users */

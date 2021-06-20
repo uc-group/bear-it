@@ -8,9 +8,10 @@ import vuetify from './plugins/vuetify'
 import Vue from 'vue'
 import router from './router'
 import store, { loader } from './store'
-import { mapState, mapGetters } from 'vuex'
+import { mapState } from 'vuex'
 import ProfileMenu from './layout/components/ProfileMenu'
 import AlertList from './layout/components/AlertList'
+import ProjectMenu from './layout/components/ProjectMenu'
 
 new Vue({
   vuetify,
@@ -18,7 +19,8 @@ new Vue({
   store,
   components: {
     ProfileMenu,
-    AlertList
+    AlertList,
+    ProjectMenu
   },
   data() {
     return {

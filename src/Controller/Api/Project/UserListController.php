@@ -30,7 +30,8 @@ class UserListController extends AbstractController
                 'id' => $project->id()->toString(),
                 'name' => $project->name(),
                 'description' => $project->description(),
-                'color' => $project->color()
+                'color' => $project->color(),
+                'components' => $project->components()
             ];
         }
 

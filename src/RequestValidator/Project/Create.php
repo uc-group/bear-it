@@ -45,11 +45,6 @@ class Create extends AbstractRequestValidator implements DataTransformerInterfac
         ]);
     }
 
-    public function getGroups(Request $request): array
-    {
-        return [];
-    }
-
     public function transformData(mixed $data): array
     {
         $id = ProjectId::fromString($data['id']);

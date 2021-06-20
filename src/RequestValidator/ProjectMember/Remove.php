@@ -17,11 +17,6 @@ class Remove extends AbstractRequestValidator implements DataTransformerInterfac
         ]);
     }
 
-    public function getGroups(Request $request): array
-    {
-        return [];
-    }
-
     public function transformData(mixed $data): array
     {
         return [

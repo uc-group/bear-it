@@ -29,7 +29,14 @@ const router = new VueRouter({
             name: 'task_create',
             component: () => import('@pages/tasks/create.vue')
         },
-        ...projectRoutes
+        ...projectRoutes,
+        {
+            path: '*',
+            name: 'not_found',
+            component: {
+                template: '<h1>Page not found</h1>'
+            }
+        }
     ]
 })
 

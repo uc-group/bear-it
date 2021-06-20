@@ -24,11 +24,6 @@ class ChangeRole extends AbstractRequestValidator implements DataTransformerInte
         ]);
     }
 
-    public function getGroups(Request $request): array
-    {
-        return [];
-    }
-
     public function transformData(mixed $data): array
     {
         return [

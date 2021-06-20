@@ -34,5 +34,15 @@ export default {
     },
     remove(id) {
         return client.post(`/api/project/remove/${id}`).then(requestHandler)
+    },
+    addComponent(id, component) {
+        return client.post(`/api/project/components/${id}/add`, {
+            component
+        }).then(requestHandler)
+    },
+    removeComponent(id, component) {
+        return client.post(`/api/project/components/${id}/remove`, {
+            component
+        }).then(requestHandler)
     }
 }

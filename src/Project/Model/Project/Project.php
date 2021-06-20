@@ -11,7 +11,7 @@ class Project
 
     /**
      * @param Role[] $userRoles
-     * @param ComponentId[] $components
+     * @param string[] $components
      */
     public function __construct(
         private ProjectId $projectId,
@@ -138,13 +138,19 @@ class Project
         return $this->rolesHash !== $this->calculateRolesHash();
     }
 
-    public function assignComponent(ComponentId $component): void
+    public function assignComponent(string $component): void
     {
         $this->components[] = $component;
+        $this->components = array_values(array_unique($this->components));
+    }
+
+    public function removeComponent(string $component): void
+    {
+        $this->components = array_values(array_diff($this->components, [$component]));
     }
 
     /**
-     * @return ComponentId[]
+     * @return string[]
      */
     public function components(): array
     {

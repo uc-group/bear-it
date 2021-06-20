@@ -20,7 +20,6 @@ export default {
 .alert-list {
   right: 0;
   position: fixed;
-  height: 100vh;
   z-index: 1000;
   padding: 65px 10px;
 }

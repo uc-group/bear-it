@@ -75,7 +75,8 @@ class ProjectRepository implements ProjectRepositoryInterface
                 $result['name'],
                 $result['description'],
                 $result['color'],
-                $roles
+                $roles,
+                $result['components']
             );
         } catch (NonUniqueResultException $exception) {
             throw ProjectNotFoundException::forId($projectId);
@@ -107,7 +108,7 @@ class ProjectRepository implements ProjectRepositoryInterface
     {
         $qb = $this->entityManager->createQueryBuilder();
         $qb->from(ProjectEntity::class, 'p');
-        $qb->select('p.id', 'p.name', 'p.description', 'p.color');
+        $qb->select('p.id', 'p.name', 'p.description', 'p.color', 'p.components');
         $qb->leftJoin(ProjectUser::class, 'pu', Join::WITH, 'pu.project = p.id');
         $qb->where('pu.user = :user');
         $qb->setParameter('user', $user->toString());
@@ -127,7 +128,8 @@ class ProjectRepository implements ProjectRepositoryInterface
                 $row['name'],
                 $row['description'],
                 $row['color'],
-                $roles[$id] ?? []
+                $roles[$id] ?? [],
+                $row['components']
             );
         }
 
@@ -153,6 +155,7 @@ class ProjectRepository implements ProjectRepositoryInterface
             $projectEntity->updateDescription($project->description());
             $projectEntity->updateColor($project->color());
         }
+        $projectEntity->components = $project->components();
 
         $this->entityManager->persist($projectEntity);
         $this->entityManager->flush();

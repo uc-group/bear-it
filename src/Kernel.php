@@ -3,6 +3,7 @@
 namespace App;
 
 use App\DependencyInjection\CompilerPass\ApiDataValidatorCompilerPass;
+use App\DependencyInjection\CompilerPass\ComponentCompilerPass;
 use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
@@ -36,5 +37,10 @@ class Kernel extends BaseKernel
         } else {
             $routes->import('../config/{routes}.php');
         }
+    }
+
+    protected function build(ContainerBuilder $container)
+    {
+        $container->addCompilerPass(new ComponentCompilerPass());
     }
 }

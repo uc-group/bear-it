@@ -19,6 +19,11 @@ abstract class AbstractRequestValidator implements RequestValidatorInterface, Da
         $this->dataReceiver = new JsonContentDataReceiver();
     }
 
+    public function getGroups(Request $request): array
+    {
+        return [];
+    }
+
     public function getData(Request $request): mixed
     {
         return $this->dataReceiver->getData($request);

@@ -5,6 +5,8 @@
                 <v-card class="flex-grow-1 d-flex flex-column" :style="tileStyles(project)">
                     <v-card-title>
                         <router-link :to="{name: 'project_details', params: {id: project.id}}">{{ project.name }}</router-link>
+                        <div class="flex-grow-1"></div>
+                        <v-icon v-for="component in project.components">{{ component.icon }}</v-icon>
                     </v-card-title>
                     <v-card-text class="flex-grow-1">{{ project.description }}</v-card-text>
                     <v-card-actions>

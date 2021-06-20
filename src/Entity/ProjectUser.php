@@ -5,39 +5,23 @@ namespace App\Entity;
 use App\Project\Model\Project\Role;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity
- * @ORM\Table(name="bi_project_user")
- */
+#[ORM\Entity]
+#[ORM\Table(name: 'bi_project_user')]
 class ProjectUser
 {
-    /**
-     * @var User
-     * @ORM\Id
-     * @ORM\ManyToOne(targetEntity="User")
-     * @ORM\JoinColumn(name="user_id", referencedColumnName="id", onDelete="CASCADE")
-     */
-    private $user;
+    #[ORM\Id]
+    #[ORM\ManyToOne(targetEntity: User::class)]
+    #[ORM\JoinColumn(name: 'user_id', referencedColumnName: 'id', onDelete: 'CASCADE')]
+    private User $user;
 
-    /**
-     * @var Project
-     * @ORM\Id
-     * @ORM\ManyToOne(targetEntity="Project")
-     * @ORM\JoinColumn(name="project_id", referencedColumnName="id", onDelete="CASCADE")
-     */
-    private $project;
+    #[ORM\Id]
+    #[ORM\ManyToOne(targetEntity: Project::class)]
+    #[ORM\JoinColumn(name: 'project_id', referencedColumnName: 'id', onDelete: 'CASCADE')]
+    private Project $project;
 
-    /**
-     * @var string
-     * @ORM\Column(type="string", length=20)
-     */
-    private $role;
+    #[ORM\Column(type: 'string', length: 20)]
+    private string $role;
 
-    /**
-     * @param User $user
-     * @param Project $project
-     * @param Role $role
-     */
     public function __construct(User $user, Project $project, Role $role)
     {
         $this->user = $user;
