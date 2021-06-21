@@ -3,6 +3,6 @@ export default {
   description: 'Let\'s talk about thingz',
   icon: 'mdi-chat',
   menu: [
-    { label: 'Chat', link: '/', icon: 'mdi-chat' }
+    { label: 'Chat', link: { name: 'chat_index' } , icon: 'mdi-chat' }
   ]
 }

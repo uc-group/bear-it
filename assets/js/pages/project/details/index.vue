@@ -3,7 +3,7 @@
         <v-container>
             <v-row>
                 <v-col>
-                    <h2></h2>
+                    <h2>{{ currentProject.name }}</h2>
                 </v-col>
             </v-row>
             <router-view :project="currentProject"></router-view>
@@ -26,7 +26,7 @@
         },
       computed: {
           currentProject() {
-            return this.project || this.$store.state.project
+            return this.$store.state.project
           }
       }
     }
