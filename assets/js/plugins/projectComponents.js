@@ -1,6 +1,4 @@
 import store from '~/store'
-import api from '@api/project'
-
 const components = {};
 const routes = [];
 
@@ -22,6 +20,12 @@ const configureRoutes = (r) => {
       route.beforeEnter = async (to, from, next) => {
         store.dispatch('startFetching')
         try {
+          const project = to.params.project || store.state.project
+          if (!project || !(project.components || []).includes(to.meta.moduleName)) {
+            store.dispatch('stopFetching')
+            next({name: 'not_found'})
+            return;
+          }
           if (moduleBeforeEnter) {
             await moduleBeforeEnter(to, from, next)
           }
