@@ -10,7 +10,7 @@ const configureRoutes = (r) => {
     const moduleName = key.split('/')[1]
 
     moduleRoutes.forEach((route) => {
-      route.path = `/project/:projectId/${moduleName}${route.path}`
+      route.path = `${moduleName}${route.path}`
       if (route.name) {
         route.name = `${moduleName}_${route.name}`
       }
@@ -22,12 +22,6 @@ const configureRoutes = (r) => {
       route.beforeEnter = async (to, from, next) => {
         store.dispatch('startFetching')
         try {
-          to.params.project = await api.get(to.params.projectId)
-          if (!(to.params.project.components || []).includes(to.meta.moduleName)) {
-            store.dispatch('stopFetching')
-            next({name: 'not_found'})
-            return;
-          }
           if (moduleBeforeEnter) {
             await moduleBeforeEnter(to, from, next)
           }
