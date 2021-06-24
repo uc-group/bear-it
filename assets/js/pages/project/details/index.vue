@@ -1,6 +1,6 @@
 <template>
     <v-layout>
-        <v-container>
+        <v-container class="pa-0 pa-md-3">
             <v-row>
                 <v-col>
                     <h2>{{ currentProject.name }}</h2>

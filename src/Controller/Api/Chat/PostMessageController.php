@@ -26,7 +26,7 @@ class PostMessageController extends AbstractController
                 $row['id'] ?? Uuid::uuid4()->toString(),
                 $this->entityManager->getReference(User::class, $row['author']),
                 $row['content'],
-                $row['date'],
+                $row['postedAt'],
                 $row['room']
             );
             $this->entityManager->persist($message);

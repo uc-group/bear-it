@@ -10,7 +10,8 @@
           <user-name v-if="user" class="chat-message__user" :user="user" short :style="{color: projectColor}"></user-name>
           <div class="chat-message__date">{{ formatDate(postedAt) }}</div>
         </div>
-        <div class="chat-message__content" v-html="parsedContent">
+        <div class="chat-message__content">
+          <slot></slot>
         </div>
       </div>
     </div>
@@ -41,14 +42,10 @@ export default {
   },
   methods: {
     formatDate(timestamp) {
-
       return moment(timestamp).format('HH:mm:ss YYYY-MM-DD');
     }
   },
   computed: {
-    parsedContent() {
-      return this.content.replace(/\n/g, '<br />');
-    },
     projectColor() {
       return this.$store.state.project.color;
     }
@@ -61,7 +58,7 @@ export default {
   margin: 0;
   padding: 5px;
   display: flex;
-  min-height: 90px;
+  min-height: 65px;
 
   &:nth-child(even) {
     background-color: #f6f6f6;
@@ -84,6 +81,7 @@ export default {
 
   &__user {
     font-weight: 600;
+    font-size: 0.9em;
   }
 
   &__content {
