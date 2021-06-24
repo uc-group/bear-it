@@ -18,7 +18,7 @@
         <meta name="msapplication-TileImage" content="{{ asset('images/icons/icon-144x144.png') }}">
         <meta name="msapplication-TileColor" content="#fff">
     </head>
-    <body>
+    <body data-js-config="{{ jsConfig.config|json_encode|e('html_attr') }}">
         {% block body %}{% endblock %}
         {% block javascripts %}
             {{ encore_entry_script_tags('app') }}

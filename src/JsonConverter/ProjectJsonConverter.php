@@ -34,7 +34,8 @@ class ProjectJsonConverter
             'name' => $project->name(),
             'description' => $project->description(),
             'members' => $this->members($project),
-            'components' => $project->components()
+            'components' => $project->components(),
+            'color' => $project->color()
         ];
     }
 

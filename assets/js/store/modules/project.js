@@ -14,7 +14,8 @@ export default project => {
             name: project.name,
             description: project.description,
             members,
-            components: project.components
+            components: project.components,
+            color: project.color
         },
         getters: {
             currentMember: (state, getters, rootState) => project.members.find(member => member.username === rootState.user.login),
