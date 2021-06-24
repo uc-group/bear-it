@@ -7,5 +7,4 @@ public/build
 public/sw.js
 docker-compose*
 dev*
-.env.local
-
+.env.local*

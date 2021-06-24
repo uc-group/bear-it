@@ -46,3 +46,7 @@ services:
     App\Repository\UserRepository:
         factory: ['@doctrine.orm.entity_manager', getRepository]
         arguments: [App\Entity\User]
+
+    App\Utils\JsConfig:
+        arguments:
+            $wsUrl: '%env(APP_WS_URL)%'
