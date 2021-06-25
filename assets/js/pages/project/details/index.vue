@@ -20,8 +20,10 @@
         },
         created() {
             this.$store.registerModule('project', projectStore(this.project))
+            document.title = this.currentProject.name;
         },
         beforeDestroy() {
+            document.title = 'Bear-IT';
             this.$store.unregisterModule('project')
         },
       computed: {

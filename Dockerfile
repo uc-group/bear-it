@@ -25,4 +25,4 @@ COPY --from=php-build /usr/src/bear-it/vendor vendor
 COPY --from=assets-build /home/node/app/public/build public/build
 #COPY --from=assets-build /home/node/app/public/sw.js public/sw.js
 COPY . .
-RUN mkdir var && chown -R www-data:www-data var
+RUN mkdir var && chown -R www-data:www-data var public

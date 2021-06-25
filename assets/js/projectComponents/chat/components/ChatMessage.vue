@@ -86,6 +86,7 @@ export default {
 
   &__content {
     margin-top: 5px;
+    word-break: break-word;
   }
 
   &__date {
