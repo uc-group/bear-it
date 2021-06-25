@@ -15,9 +15,10 @@ import {debounce} from 'lodash'
 export default {
   data() {
     return {
-      autoScrolling: false,
+      autoScrolling: true,
       scrolling: false,
-      hasScroll: false
+      hasScroll: false,
+      noSmooth: true,
     }
   },
   created() {
@@ -46,6 +47,9 @@ export default {
       ob.disconnect();
       this.$refs.viewport.removeEventListener('scroll', scrollEvent);
     });
+    setTimeout(() => {
+      this.noSmooth = false
+    }, 1000)
   },
   methods: {
     shouldScrollDown() {
@@ -63,10 +67,12 @@ export default {
 
         this.scrolling = true;
         let t = Date.now();
-        const maxScrollTop = this.$refs.viewport.scrollHeight - this.$refs.viewport.getBoundingClientRect().height;
+        let maxScrollTop = this.$refs.viewport.scrollHeight - this.$refs.viewport.getBoundingClientRect().height;
         const d = (maxScrollTop - this.$refs.viewport.scrollTop);
         const smoothScroll = () => {
-          if (maxScrollTop - this.$refs.viewport.scrollTop === 0) {
+          maxScrollTop = this.$refs.viewport.scrollHeight - this.$refs.viewport.getBoundingClientRect().height;
+          if (maxScrollTop - this.$refs.viewport.scrollTop <= 0) {
+            this.$refs.viewport.scrollTop =  this.$refs.viewport.scrollHeight;
             this.thandler = null;
             this.scrolling = false;
             resolve();
@@ -77,7 +83,7 @@ export default {
           }
         }
 
-        if (d > 3000) {
+        if (this.noSmooth || d > 1000) {
           this.$refs.viewport.scrollTop = maxScrollTop;
           this.scrolling = false;
           resolve();
