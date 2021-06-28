@@ -1,7 +1,10 @@
 <template>
     <div class="projects">
-        <button @click="browsingMode='card'">Card mode</button>
-        <button @click="browsingMode='table'">Table mode</button>
+        <v-col class="text-right">
+            <v-btn class="ma-2" color="blue" dark @click="toggleBrowsingMode">
+                <v-icon dark>{{ browsingModeIcon }}</v-icon>
+            </v-btn>
+        </v-col>
         <project-browser :mode="browsingMode" @remove="remove"></project-browser>
         <v-row>
             <v-btn color="primary" fab fixed bottom right :to="{name: 'project_create'}">
@@ -30,12 +33,26 @@ export default {
             browsingMode: 'card'
         }
     },
+    computed: {
+        browsingModes() {
+            return {
+                'card': 'mdi-cards-variant',
+                'table': 'mdi-table'
+            }
+        },
+        browsingModeIcon() {
+            return this.browsingModes[this.browsingMode === 'card' ? 'table' : 'card']
+        }
+    },
     methods: {
         ...mapActions(['loadList']),
         async remove(project) {
             this.updating = true
             await this.$store.dispatch('projectList/remove', project.id)
             this.updating = false
+        },
+        toggleBrowsingMode() {
+            this.browsingMode = this.browsingMode === 'card' ? 'table' : 'card'
         }
     },
     beforeDestroy() {
