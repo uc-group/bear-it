@@ -29,7 +29,10 @@ export default {
   joinProject: (projectId, callback) => {
     socket.emit('join-room', { roomId: `chat/${projectId}` }, callback);
   },
-  leaveProject: (projectId) => {
-    socket.emit('leave-room', { roomId: `chat/${projectId}` });
+  leaveProject: (projectId, callback) => {
+    socket.emit('leave-room', { roomId: `chat/${projectId}` }, callback);
+  },
+  loadOlderMessages(projectId, postedAt) {
+    return client.get(`/api/chat/messages?room=chat/${projectId}&before=${postedAt}`).then(requestHandler)
   }
 }

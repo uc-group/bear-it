@@ -3,9 +3,10 @@
 namespace App\Entity\Chat;
 
 use App\Entity\User;
+use App\Repository\MessageRepository;
 use Doctrine\ORM\Mapping as ORM;
 
-#[ORM\Entity]
+#[ORM\Entity(repositoryClass: MessageRepository::class)]
 #[ORM\Table(name: 'bi_chat_message')]
 #[ORM\Index(columns: ['room_id'], name: 'room_id_idx')]
 class Message

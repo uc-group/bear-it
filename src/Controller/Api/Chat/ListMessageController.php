@@ -23,15 +23,22 @@ class ListMessageController extends AbstractController
     public function __invoke(Request $request)
     {
         $room = $request->query->get('room');
+
         if (!$room) {
             throw $this->createNotFoundException();
         }
 
-        $messages = $this->entityManager->getRepository(Message::class)->findBy([
-            'roomId' => $room
-        ], [
-            'postedAt' => 'DESC'
-        ], self::LIMIT);
+        if ($request->query->has('before')) {
+            $before = $request->query->get('before');
+            $messages = $this->entityManager->getRepository(Message::class)
+                ->findBeforeTimestamp($room, $before, self::LIMIT);
+        } else {
+            $messages = $this->entityManager->getRepository(Message::class)->findBy([
+                'roomId' => $room
+            ], [
+                'postedAt' => 'DESC'
+            ], self::LIMIT);
+        }
 
         return new SuccessResponse(array_map(function (Message $message) {
             return $message->toArray();

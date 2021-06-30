@@ -3,7 +3,9 @@
     <v-container class="chat__container pa-0 pa-md-3">
       <v-row>
         <v-col cols="12" md="10" class="chat__content-container">
-          <scroll-window class="chat__content" ref="scrollWindow">
+          <scroll-window class="chat__content" ref="scrollWindow"
+                         :scroll-to-top-boundary="300"
+                         @entered-top-boundary="loadOlderMessages">
             <template v-slot:scroll-down="{ scrollToBottom, autoScrolling, hasScroll }">
               <div class="chat__scroll-down" v-show="hasScroll && !autoScrolling && ready" @click="scrollToBottom()">Scroll down</div>
             </template>
@@ -20,7 +22,7 @@
       </v-row>
       <v-row class="chat__form">
         <v-col cols="12" class="chat__form-col pa-4 pa-md-0">
-          <template v-if="!connected" class="chat__connecting">
+          <template v-if="!connected || !joinedRoom" class="chat__connecting">
             <v-progress-circular indeterminate color="primary"></v-progress-circular> Connecting...
           </template>
           <textarea v-else class="chat__textarea" v-model="message" @keyup.enter="sendMessage" placeholder="Enter your message here..."></textarea>
@@ -46,11 +48,14 @@ export default {
   data() {
     return {
       connected: false,
+      joinedRoom: false,
       message: '',
       messages: [],
       users: [],
       firstInit: true,
       ready: false,
+      hasOlderMessages: true,
+      currentOldestMessageDate: null,
     }
   },
   created() {
@@ -79,13 +84,31 @@ export default {
         socket.off('disconnect', onDisconnect);
         socket.off(`chat/${this.project.id}/message`, this.addMessage);
         socket.off(`chat/${this.project.id}/user-list`, this.updateUserList);
-        api.leaveProject(this.project.id);
+        api.leaveProject(this.project.id, () => {
+          this.joinedRoom = false;
+        });
       })
 
       this.socket = socket;
     })();
   },
   methods: {
+    async loadOlderMessages() {
+      if (!this.currentOldestMessageDate) {
+        return;
+      }
+
+      const height = this.$refs.scrollWindow.getContentHeight();
+      const olderMessages = await api.loadOlderMessages(this.project.id, this.currentOldestMessageDate);
+      this.hasOlderMessages = olderMessages.length < 100;
+      this.messages = this.mergeMessages(olderMessages);
+      if (this.messages.length) {
+        this.currentOldestMessageDate = this.messages[0].postedAt;
+      }
+      this.$nextTick(() => {
+        this.$refs.scrollWindow.scrollToDiff(this.$refs.scrollWindow.getContentHeight() - height);
+      })
+    },
     init({chat}) {
       if (chat) {
         this.users = chat.users
@@ -94,11 +117,19 @@ export default {
           this.$nextTick(async () => {
             if (this.$refs.scrollWindow) {
               await this.$refs.scrollWindow.scrollToBottom();
+              if (this.messages.length < 100) {
+                this.hasOlderMessages = false;
+              }
+
               this.ready = true;
             }
           });
         }
+        if (this.messages.length) {
+          this.currentOldestMessageDate = this.messages[0].postedAt;
+        }
         this.firstInit = false;
+        this.joinedRoom = true;
       }
     },
     addMessage(message) {

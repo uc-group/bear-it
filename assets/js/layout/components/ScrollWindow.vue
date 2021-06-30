@@ -13,25 +13,30 @@
 import {debounce} from 'lodash'
 
 export default {
+  props: {
+    scrollToTopBoundary: Number
+  },
   data() {
     return {
       autoScrolling: true,
       scrolling: false,
       hasScroll: false,
       noSmooth: true,
+      inTopBoundary: false,
     }
   },
   created() {
     this.thandler = null;
   },
   mounted() {
-    const ob = new ResizeObserver((e) => {
-      this.hasScroll = this.$refs.viewport.scrollHeight > this.$refs.viewport.getBoundingClientRect().height;
+    const ob = new ResizeObserver(async (e) => {
+      this.$emit('resized')
+      this.hasScroll = this.getContentHeight() > this.getViewportHeight();
       if (!this.autoScrolling) {
         return;
       }
 
-      this.scrollToBottom();
+      await this.scrollToBottom();
     })
     ob.observe(this.$refs.wrapper)
 
@@ -39,6 +44,16 @@ export default {
       if (!this.scrolling) {
         this.autoScrolling = this.shouldScrollDown();
       }
+
+      const scrollY = this.$refs.viewport.scrollTop;
+      if (!this.inTopBoundary && scrollY <= this.scrollToTopBoundary) {
+          this.inTopBoundary = true;
+          this.$emit('entered-top-boundary');
+      } else if (this.inTopBoundary && scrollY > this.scrollToTopBoundary) {
+        this.inTopBoundary = false;
+        this.$emit('left-top-boundary');
+      }
+
     }, 60);
 
     this.$refs.viewport.addEventListener('scroll', scrollEvent);
@@ -53,8 +68,8 @@ export default {
   },
   methods: {
     shouldScrollDown() {
-      const distanceFromBottom = this.$refs.viewport.scrollHeight
-          - this.$refs.viewport.getBoundingClientRect().height - this.$refs.viewport.scrollTop;
+      const distanceFromBottom = this.getContentHeight()
+          - this.getViewportHeight() - this.$refs.viewport.scrollTop;
 
       return distanceFromBottom < 50;
     },
@@ -67,12 +82,12 @@ export default {
 
         this.scrolling = true;
         let t = Date.now();
-        let maxScrollTop = this.$refs.viewport.scrollHeight - this.$refs.viewport.getBoundingClientRect().height;
+        let maxScrollTop = this.getContentHeight() - this.getViewportHeight();
         const d = (maxScrollTop - this.$refs.viewport.scrollTop);
         const smoothScroll = () => {
-          maxScrollTop = this.$refs.viewport.scrollHeight - this.$refs.viewport.getBoundingClientRect().height;
+          maxScrollTop = this.getContentHeight() - this.getViewportHeight();
           if (maxScrollTop - this.$refs.viewport.scrollTop <= 0) {
-            this.$refs.viewport.scrollTop =  this.$refs.viewport.scrollHeight;
+            this.$refs.viewport.scrollTop = this.getContentHeight();
             this.thandler = null;
             this.scrolling = false;
             resolve();
@@ -92,6 +107,18 @@ export default {
         }
       })
     },
+    scrollTo(top) {
+      this.$refs.viewport.scrollTop = top;
+    },
+    scrollToDiff(diff) {
+      this.scrollTo(this.$refs.viewport.scrollTop + diff);
+    },
+    getViewportHeight() {
+      return this.$refs.viewport.getBoundingClientRect().height;
+    },
+    getContentHeight() {
+      return this.$refs.viewport.scrollHeight;
+    }
   }
 }
 </script>
