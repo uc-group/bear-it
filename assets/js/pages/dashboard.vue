@@ -2,7 +2,6 @@
   <v-layout>
     <v-container>
       <offline-projects></offline-projects>
-      <h2>Projects</h2>
       <project-list></project-list>
     </v-container>
   </v-layout>
