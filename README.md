@@ -46,7 +46,6 @@ GITHUB_CLIENT_SECRET=clientsecret
 
 ## Read more
 
-### API
-
 * [Security - Roles, Policies and access functions](doc/security/index.md)
 * [Request Validation](doc/api/validation.md)
+* [Project components](doc/project-components.md)
