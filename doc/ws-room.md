@@ -37,3 +37,12 @@ Example: We want to join chat room `chat/awesome-app`.
 In the `ws-room` component we can register messages we want to listen to and specify handler.
 the real message we will listen is combined with the room name. In given example it will be
 `chat/awesome-app/message` and `chat/awesome-app/user-list`.
+
+Sending messages to the server is simple as calling method on the ws-room component.
+That is why we want to keep a ref for it.
+
+```js
+// in some component method
+this.$refs.wsRoom.sendMessage('my-message', {my: 'data'});
+// it will send the message with room name: chat/awesome-app/my-message
+```
