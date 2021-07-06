@@ -1,35 +1,47 @@
 <template>
-  <v-layout class="chat">
-    <v-container class="chat__container pa-0 pa-md-3">
-      <v-row>
-        <v-col cols="12" md="10" class="chat__content-container">
-          <scroll-window class="chat__content" ref="scrollWindow"
-                         :scroll-to-top-boundary="300"
-                         @entered-top-boundary="loadOlderMessages">
-            <template v-slot:scroll-down="{ scrollToBottom, autoScrolling, hasScroll }">
-              <div class="chat__scroll-down" v-show="hasScroll && !autoScrolling && ready" @click="scrollToBottom()">Scroll down</div>
+  <div>
+    <ws-room ref="room"
+             :name="`chat/${this.project.id}`"
+             @joined="init"
+             @left="joinedRoom = false"
+             @connected="connected = true"
+             @disconnected="connected = false"
+    >
+      <ws-room-message name="message" :handler="addMessage"></ws-room-message>
+      <ws-room-message name="user-list" :handler="updateUserList"></ws-room-message>
+    </ws-room>
+    <v-layout class="chat">
+      <v-container class="chat__container pa-0 pa-md-3">
+        <v-row>
+          <v-col cols="12" md="10" class="chat__content-container">
+            <scroll-window class="chat__content" ref="scrollWindow"
+                           :scroll-to-top-boundary="300"
+                           @entered-top-boundary="loadOlderMessages">
+              <template v-slot:scroll-down="{ scrollToBottom, autoScrolling, hasScroll }">
+                <div class="chat__scroll-down" v-show="hasScroll && !autoScrolling && ready" @click="scrollToBottom()">Scroll down</div>
+              </template>
+              <message-grouper :messages="messages">
+                  <template v-slot="group">
+                    <message-group v-bind="group"></message-group>
+                  </template>
+              </message-grouper>
+            </scroll-window>
+          </v-col>
+          <v-col cols="12" md="2" class="hidden-sm-and-down">
+            <user-list :users="users"></user-list>
+          </v-col>
+        </v-row>
+        <v-row class="chat__form">
+          <v-col cols="12" class="chat__form-col pa-4 pa-md-0">
+            <template v-if="!connected || !joinedRoom" class="chat__connecting">
+              <v-progress-circular indeterminate color="primary"></v-progress-circular> Connecting...
             </template>
-            <message-grouper :messages="messages">
-                <template v-slot="group">
-                  <message-group v-bind="group"></message-group>
-                </template>
-            </message-grouper>
-          </scroll-window>
-        </v-col>
-        <v-col cols="12" md="2" class="hidden-sm-and-down">
-          <user-list :users="users"></user-list>
-        </v-col>
-      </v-row>
-      <v-row class="chat__form">
-        <v-col cols="12" class="chat__form-col pa-4 pa-md-0">
-          <template v-if="!connected || !joinedRoom" class="chat__connecting">
-            <v-progress-circular indeterminate color="primary"></v-progress-circular> Connecting...
-          </template>
-          <textarea v-else class="chat__textarea" v-model="message" @keyup.enter="sendMessage" placeholder="Enter your message here..."></textarea>
-        </v-col>
-      </v-row>
-    </v-container>
-  </v-layout>
+            <textarea v-else class="chat__textarea" v-model="message" @keyup.enter="sendMessage" placeholder="Enter your message here..."></textarea>
+          </v-col>
+        </v-row>
+      </v-container>
+    </v-layout>
+  </div>
 </template>
 
 <script>
@@ -39,9 +51,12 @@ import ScrollWindow from '~/layout/components/ScrollWindow'
 import MessageGrouper from '../components/MessageGrouper'
 import moment from 'moment'
 import MessageGroup from '../components/MessageGroup'
+import WsRoom from '../../../components/WsRoom'
+import WsRoomMessage from '../../../components/WsRoomMessage'
 
 export default {
-  components: {MessageGroup, UserList, ScrollWindow, MessageGrouper},
+  name: 'chat-page-index',
+  components: {MessageGroup, UserList, ScrollWindow, MessageGrouper, WsRoom, WsRoomMessage},
   props: {
     project: Object
   },
@@ -57,40 +72,6 @@ export default {
       hasOlderMessages: true,
       currentOldestMessageDate: null,
     }
-  },
-  created() {
-    (async () => {
-      const socket = await api.connection();
-      const onConnect = () => {
-          api.joinProject(this.project.id, this.init)
-          this.connected = true
-      }
-      const onDisconnect = () => {
-        this.connected = false
-      }
-
-      if (socket.connected) {
-        api.joinProject(this.project.id, this.init)
-        this.connected = true;
-      }
-
-      socket.on('connection-ready', onConnect);
-      socket.on('disconnect', onDisconnect);
-      socket.on(`chat/${this.project.id}/message`, this.addMessage);
-      socket.on(`chat/${this.project.id}/user-list`, this.updateUserList);
-
-      this.$on('hook:beforeDestroy', () => {
-        socket.off('connection-ready', onConnect);
-        socket.off('disconnect', onDisconnect);
-        socket.off(`chat/${this.project.id}/message`, this.addMessage);
-        socket.off(`chat/${this.project.id}/user-list`, this.updateUserList);
-        api.leaveProject(this.project.id, () => {
-          this.joinedRoom = false;
-        });
-      })
-
-      this.socket = socket;
-    })();
   },
   methods: {
     async loadOlderMessages() {
@@ -110,6 +91,7 @@ export default {
       })
     },
     init({chat}) {
+      this.joinedRoom = true;
       if (chat) {
         this.users = chat.users
         this.messages = this.mergeMessages(chat.messages || [])
@@ -129,7 +111,6 @@ export default {
           this.currentOldestMessageDate = this.messages[0].postedAt;
         }
         this.firstInit = false;
-        this.joinedRoom = true;
       }
     },
     addMessage(message) {
@@ -144,17 +125,13 @@ export default {
         return;
       }
 
-      if (!this.socket) {
-        return;
-      }
-
       const content = this.message.replace(/^\s+|\s+$/, '');
       if (!content) {
         this.message = '';
         return;
       }
 
-      this.socket.emit(`chat/${this.project.id}/message`, { roomId: this.project.id, content })
+      this.$refs.room.sendMessage('message', { roomId: this.project.id, content })
       this.message = '';
     },
     updateUserList(users) {
