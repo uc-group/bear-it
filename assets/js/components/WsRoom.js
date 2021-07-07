@@ -29,16 +29,19 @@ export default {
         });
       }
 
-      socket.on('connection-ready', () => {
+      const onConnectionReady = () => {
         this.$emit('connected');
         joinRoom();
-      })
+      };
 
-      socket.on('disconnect', () => {
+      const onDisconnect = () => {
         this.joinedRoom = false
         this.$emit('left');
         this.$emit('disconnected')
-      })
+      }
+
+      socket.on('connection-ready', onConnectionReady);
+      socket.on('disconnect', onDisconnect)
 
       if (socket.connected) {
         this.$emit('connected');
@@ -51,6 +54,8 @@ export default {
       this.$on('hook:beforeDestroy', () => {
         this.joinedRoom = false;
         socket.emit('leave-room', { roomId: this.name });
+        socket.off('connection-ready', onConnectionReady);
+        socket.off('disconnect', onDisconnect);
       })
     })();
   },

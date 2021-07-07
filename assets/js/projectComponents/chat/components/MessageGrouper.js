@@ -70,8 +70,6 @@ export default {
       maxTimeToPreviousPost: props.maxTimeToPreviousPost
     });
 
-    console.log()
-
     return groups.map((group) => (
       scopedSlots ?
         scopedSlots.default({
