@@ -20,7 +20,8 @@
                 </v-card-actions>
             </v-card>
         </v-col>
-        <v-col v-if="projects.length === 0">You don't have any projects yet.</v-col>
+        <v-col v-show="!fetching && projects.length === 0">You don't have any projects yet.</v-col>
+        <v-col v-show="fetching">Loading project list...</v-col>
     </v-row>
 </template>
 
@@ -39,6 +40,7 @@ export default {
     },
     computed: {
         ...mapState({
+            fetching: state => state.fetching,
             projects: state => state.projectList.cachedList
         })
     },
