@@ -108,16 +108,18 @@ export default {
       })
     },
     scrollTo(top) {
-      this.$refs.viewport.scrollTop = top;
+      if (this.$refs.viewport) {
+        this.$refs.viewport.scrollTop = top;
+      }
     },
     scrollToDiff(diff) {
-      this.scrollTo(this.$refs.viewport.scrollTop + diff);
+      this.scrollTo(this.$refs.viewport?.scrollTop + diff);
     },
     getViewportHeight() {
-      return this.$refs.viewport.getBoundingClientRect().height;
+      return this.$refs.viewport?.getBoundingClientRect().height;
     },
     getContentHeight() {
-      return this.$refs.viewport.scrollHeight;
+      return this.$refs.viewport?.scrollHeight;
     }
   }
 }

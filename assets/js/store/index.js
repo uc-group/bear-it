@@ -20,7 +20,8 @@ const storeOptions = {
     config: config,
     fetching: false,
     offline: !navigator.onLine,
-    connectAttempts: 0
+    connectAttempts: 0,
+    subtitles: []
   },
   mutations: {
     SET_USER(state, user) {
@@ -40,6 +41,23 @@ const storeOptions = {
     },
     RESET_CONNECT_ATTEMPTS(state) {
       state.connectAttempts = 0;
+    },
+    PUSH_SUBTITLE(state, subtitle) {
+      state.subtitles.push(subtitle);
+    },
+    POP_SUBTITLE(state) {
+      state.subtitles.pop();
+    },
+    REPLACE_SUBTITLE(state, subtitle) {
+      state.subtitles.splice(state.subtitles.length - 1, 1, subtitle)
+    }
+  },
+  getters: {
+    subtitle: (state) => {
+      if (state.subtitles.length) {
+        return state.subtitles[state.subtitles.length - 1];
+      }
+      return undefined;
     }
   },
   actions: {

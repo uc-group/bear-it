@@ -10,7 +10,7 @@
       <ws-room-message name="message" :handler="addMessage"></ws-room-message>
       <ws-room-message name="user-list" :handler="updateUserList"></ws-room-message>
     </ws-room>
-    <div class="chat__container pa-0 pa-md-3">
+    <div class="chat__container pa-0 pa-md-3 pb-md-0">
       <div class="chat__content-container">
         <scroll-window class="chat__content col-md-10 col-12" ref="scrollWindow"
                        :scroll-to-top-boundary="300"
@@ -26,8 +26,12 @@
             </template>
           </message-grouper>
         </scroll-window>
-        <div class="hidden-sm-and-down col-2">
+        <div class="hidden-sm-and-down col-2 d-flex flex-column">
           <user-list :users="users"></user-list>
+          <div class="flex-grow-1"></div>
+          <v-btn @click="emojiDialog = true" color="secondary" x-small>Emoji 😍 (Ctrl + M)</v-btn>
+          <emoji-dialog :visible.sync="emojiDialog" @selected="emoji => message += emoji">
+          </emoji-dialog>
         </div>
       </div>
       <div class="chat__form">
@@ -36,7 +40,7 @@
             Connecting...
           </template>
           <textarea v-else class="chat__textarea" v-model="message" @keyup.enter="sendMessage"
-                    placeholder="Enter your message here..."></textarea>
+                    placeholder="Enter your message here..." ref="messageArea"></textarea>
       </div>
     </div>
   </div>
@@ -51,10 +55,11 @@ import moment from 'moment'
 import MessageGroup from '../components/MessageGroup'
 import WsRoom from '../../../components/WsRoom'
 import WsRoomMessage from '../../../components/WsRoomMessage'
+import EmojiDialog from '../../../components/EmojiDialog'
 
 export default {
   name: 'chat-room',
-  components: {MessageGroup, UserList, ScrollWindow, MessageGrouper, WsRoom, WsRoomMessage},
+  components: {EmojiDialog, MessageGroup, UserList, ScrollWindow, MessageGrouper, WsRoom, WsRoomMessage},
   props: {
     room: String
   },
@@ -68,8 +73,21 @@ export default {
       firstInit: true,
       ready: false,
       hasOlderMessages: true,
-      currentOldestMessageDate: null
+      currentOldestMessageDate: null,
+      emojiDialog: false
     }
+  },
+  created() {
+    const openEmoji = (event) => {
+      if (event.code === 'KeyM' && event.ctrlKey) {
+        this.emojiDialog = true
+      }
+    }
+
+    window.addEventListener('keypress', openEmoji, true);
+    this.$on('hook:beforeDestroy', () => {
+      window.removeEventListener('keypress', openEmoji, true);
+    })
   },
   methods: {
     async loadOlderMessages() {
@@ -103,6 +121,8 @@ export default {
 
               this.ready = true
             }
+
+            this.$refs.messageArea.focus();
           })
         }
         if (this.messages.length) {
@@ -141,6 +161,15 @@ export default {
 
       return mergedMessages
     }
+  },
+  watch: {
+    emojiDialog(to) {
+      if (!to && this.$refs.messageArea) {
+        this.$nextTick(() => {
+          this.$refs.messageArea.focus();
+        })
+      }
+    }
   }
 }
 </script>
@@ -160,7 +189,7 @@ export default {
   }
 
   &__content {
-    height: calc(100vh - 275px);
+    height: calc(100vh - 270px);
   }
 
   &__scroll-down {

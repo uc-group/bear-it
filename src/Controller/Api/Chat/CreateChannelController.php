@@ -2,9 +2,10 @@
 
 namespace App\Controller\Api\Chat;
 
-use App\Entity\Chat\Channel;
+use App\Chat\Exception\ChannelAlreadyExistsException;
+use App\Chat\Model\Channel;
+use App\Chat\Repository\ChatRepositoryInterface;
 use App\Http\Response\SuccessResponse;
-use App\Http\Response\ValidationErrorResponse;
 use App\RequestValidator\Chat\Channel\Create;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -16,15 +17,15 @@ use Yc\RequestValidationBundle\Attributes\RequestValidator;
 #[RequestValidator(Create::class)]
 class CreateChannelController extends AbstractController
 {
+    public function __construct(
+        private ChatRepositoryInterface $chatRepository
+    ) {}
+
     public function __invoke(Channel $channel)
     {
-        $repository = $this->getDoctrine()->getRepository(Channel::class);
-        $existingChannel = $repository->findOneBy([
-            'room' => $channel->room(),
-            'name' => $channel->name
-        ]);
-
-        if ($existingChannel) {
+        try {
+            $this->chatRepository->addChannel($channel);
+        } catch (ChannelAlreadyExistsException $exception) {
             return new JsonResponse([
                 'status' => 'ERROR_VALIDATION',
                 'errors' => [
@@ -33,10 +34,9 @@ class CreateChannelController extends AbstractController
             ], Response::HTTP_BAD_REQUEST);
         }
 
-        $manager = $this->getDoctrine()->getManager();
-        $manager->persist($channel);
-        $manager->flush();
-
-        return new SuccessResponse($channel->toArray());
+        return new SuccessResponse([
+            'name' => $channel->name(),
+            'room' => $channel->room()
+        ]);
     }
 }

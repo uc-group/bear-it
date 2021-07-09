@@ -1,6 +1,6 @@
 <template>
   <div class="user-list">
-    <h4 v-show="users.length">Online users</h4>
+    <h5 v-show="users.length">Online users</h5>
     <div class="user-list__element" v-for="user in userList" :key="user.id">
       <v-avatar size="24" class="user-list__avatar">
         <img :src="user.avatar" :alt="user.username" :title="user.username" />

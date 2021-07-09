@@ -2,9 +2,8 @@
 
 namespace App\RequestValidator\Chat\Channel;
 
-use App\Entity\Chat\Channel;
+use App\Chat\Model\Channel;
 use App\RequestValidator\AbstractRequestValidator;
-use Ramsey\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Constraints;
@@ -37,7 +36,7 @@ class Create extends AbstractRequestValidator implements DataTransformerInterfac
     public function transformData(mixed $data): array
     {
         return [
-            'channel' => new Channel(Uuid::uuid4(), $data['room'], $data['name'])
+            'channel' => new Channel($data['room'], $data['name'])
         ];
     }
 }

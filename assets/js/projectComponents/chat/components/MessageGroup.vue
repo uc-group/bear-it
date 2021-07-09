@@ -2,8 +2,8 @@
   <chat-message :author="author" :posted-at="postedAt">
     <div class="message-group" :class="modifierClasses">
       <div class="chat__single-message single-message" v-for="message in messages" :key="message.id">
+        <div class="single-message__date">{{ formatTimestamp(message.postedAt, 'HH:mm:ss') }}</div>
         <div v-html="parseContent(message.content)"></div>
-        <div class="single-message__date">{{ formatTimestamp(message.postedAt) }}</div>
       </div>
     </div>
   </chat-message>
@@ -58,13 +58,13 @@ export default {
     &__date {
       position: absolute;
       top: 0;
-      right: 0;
-      margin-left: 20px;
+      left: 0;
+      transform: translate(-100%, 0);
+      margin-left: -5px;
       display: none;
-      background-color: #fff;
-      border: 1px solid #eee;
       padding: 3px;
-      font-size: 12px;
+      font-size: 10px;
+      color: #ccc;
     }
 
     &:hover {

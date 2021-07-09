@@ -42,6 +42,7 @@ services:
 
     App\Project\Repository\ProjectRepositoryInterface: '@App\Doctrine\Repository\ProjectRepository'
     App\User\Service\UserFinderInterface: '@App\Doctrine\Service\UserFinder'
+    App\Chat\Repository\ChatRepositoryInterface: '@App\Doctrine\Repository\ChatRepository'
 
     App\Repository\UserRepository:
         factory: ['@doctrine.orm.entity_manager', getRepository]
