@@ -4,6 +4,7 @@ namespace App\Doctrine\Repository;
 
 use App\Entity\Project as ProjectEntity;
 use App\Entity\ProjectUser;
+use App\Entity\Task;
 use App\Entity\User;
 use App\Project\Exception\InvalidProjectIdException;
 use App\Project\Exception\ProjectNotFoundException;
@@ -69,16 +70,19 @@ class ProjectRepository implements ProjectRepositoryInterface
                 throw ProjectNotFoundException::forId($projectId);
             }
             $roles = $this->findRolesByProject(ProjectId::fromString($result['id']));
+            $tasks = $this->findTasksByProject(ProjectId::fromString($result['id']));
 
             return new Project(
                 ProjectId::fromString($result['id']),
+                $result['shortId'],
                 $result['name'],
                 $result['description'],
                 $result['color'],
                 $roles,
-                $result['components']
+                $result['components'],
+                $tasks
             );
-        } catch (NonUniqueResultException $exception) {
+        } catch (NonUniqueResultException) {
             throw ProjectNotFoundException::forId($projectId);
         }
     }
@@ -98,17 +102,14 @@ class ProjectRepository implements ProjectRepositoryInterface
     }
 
     /**
-     * @param UserId $user
-     * @param int $limit
-     * @param int $offset
      * @return Project[]
      * @throws InvalidProjectIdException
      */
-    public function findByUser(UserId $user, int $limit, int $offset)
+    public function findByUser(UserId $user, int $limit, int $offset): array
     {
         $qb = $this->entityManager->createQueryBuilder();
         $qb->from(ProjectEntity::class, 'p');
-        $qb->select('p.id', 'p.name', 'p.description', 'p.color', 'p.components');
+        $qb->select('p.id', 'p.shortId', 'p.name', 'p.description', 'p.color', 'p.components', 'p.tasks');
         $qb->leftJoin(ProjectUser::class, 'pu', Join::WITH, 'pu.project = p.id');
         $qb->where('pu.user = :user');
         $qb->setParameter('user', $user->toString());
@@ -125,11 +126,13 @@ class ProjectRepository implements ProjectRepositoryInterface
             $id = $row['id'];
             $projects[] = new Project(
                 ProjectId::fromString($id),
+                $row['shortId'],
                 $row['name'],
                 $row['description'],
                 $row['color'],
                 $roles[$id] ?? [],
-                $row['components']
+                $row['components'],
+                $row['tasks']
             );
         }
 
@@ -146,6 +149,7 @@ class ProjectRepository implements ProjectRepositoryInterface
         if (!$projectEntity) {
             $projectEntity = new ProjectEntity(
                 $project->id()->toString(),
+                $project->shortId(),
                 $project->name(),
                 $project->description(),
                 $project->color()
@@ -227,5 +231,16 @@ class ProjectRepository implements ProjectRepositoryInterface
         }
 
         return $roles;
+    }
+
+    private function findTasksByProject(ProjectId $id)
+    {
+        $qb = $this->entityManager->createQueryBuilder();
+        $qb->select('t');
+        $qb->from(Task::class, 't');
+        $qb->where('t.project = :project');
+        $qb->setParameter('project', $id->toString());
+
+        return $qb->getQuery()->getResult();
     }
 }

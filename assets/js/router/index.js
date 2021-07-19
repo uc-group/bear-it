@@ -3,6 +3,7 @@ import VueRouter from 'vue-router'
 import store, {loader} from '../store'
 import projectRoutes from './routes/project'
 import dashboardRoutes from './routes/dashboard'
+import taskRoutes from './routes/task'
 
 Vue.use(VueRouter)
 
@@ -24,11 +25,7 @@ const router = new VueRouter({
             component: () => import(/* webpackChunkName: "common" */ '@pages/login.vue'),
             meta: {auth: false, drawer: false}
         },
-        {
-            path: '/create-task',
-            name: 'task_create',
-            component: () => import('@pages/tasks/create.vue')
-        },
+        ...taskRoutes,
         ...projectRoutes,
         {
             path: '*',

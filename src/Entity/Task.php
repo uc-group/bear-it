@@ -5,7 +5,7 @@ namespace App\Entity;
 use App\Exception\InvalidIdFormatException;
 use App\Utils\DateTime;
 use App\ValueObject\Estimation;
-use App\ValueObject\Id\Task as TaskId;
+use App\Task\Model\Task\TaskId;
 use DateTime as PhpDateTime;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -20,6 +20,10 @@ class Task
     #[ORM\Id]
     #[ORM\Column(type: 'string', length: 36)]
     private string $id;
+
+    #[ORM\ManyToOne(targetEntity: Project::class, inversedBy: "tasks")]
+    #[ORM\JoinColumn(name: 'project_id', referencedColumnName: 'id', nullable: true, onDelete: 'SET NULL')]
+    private Project $project;
 
     #[ORM\ManyToOne(targetEntity: User::class)]
     #[ORM\JoinColumn(name: 'reporter_id', referencedColumnName: 'id', nullable: true, onDelete: 'SET NULL')]
@@ -45,29 +49,23 @@ class Task
     #[ORM\Column(type: 'datetime')]
     private ?PhpDateTime $createdAt;
 
-    #[ORM\Column(type: 'decimal', precision: 10, scale: 2)]
+    #[ORM\Column(type: 'decimal', precision: 10, scale: 2, nullable: true)]
     private ?string $estimation;
 
-    #[ORM\Column(type: 'string', length: 10)]
+    #[ORM\Column(type: 'string', length: 10, nullable: true)]
     private ?string $estimationUnit;
 
     #[ORM\Column(type: 'boolean')]
     private bool $resolved;
 
-    /**
-     * @param TaskId $id
-     * @param string $title
-     * @param string $status
-     * @param User $creator
-     * @param User|null $reporter
-     */
-    public function __construct(TaskId $id, string $title, string $status, User $creator, User $reporter = null)
+    public function __construct(TaskId $taskId, Project $project, string $title, string $status, User $creator)
     {
-        $this->id = $id->toString();
+        $this->id = $taskId->toString();
+        $this->project = $project;
         $this->title = $title;
         $this->createdAt = DateTime::now();
         $this->creator = $creator;
-        $this->reporter = $reporter ?? $creator;
+        $this->reporter = $creator;
         $this->status = $status;
         $this->resolved = false;
     }
@@ -76,9 +74,19 @@ class Task
     {
         try {
             return TaskId::fromString($this->id);
-        } catch (InvalidIdFormatException $exception) {
+        } catch (InvalidIdFormatException) {
             return TaskId::create(TaskId::PREFIX_INVALID, 0);
         }
+    }
+
+    public function getProject(): Project
+    {
+        return $this->project;
+    }
+
+    public function getTitle(): string
+    {
+        return $this->title;
     }
 
     public function assignTo(User $user)

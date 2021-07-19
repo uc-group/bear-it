@@ -2,6 +2,7 @@
 
 namespace App\JsonConverter;
 
+use App\Entity\Task;
 use App\Entity\User;
 use App\Project\Model\Project\Project;
 use App\Utils\KeyPrioritizedCollection;
@@ -9,25 +10,10 @@ use Doctrine\ORM\EntityManagerInterface;
 
 class ProjectJsonConverter
 {
-    /**
-     * @var EntityManagerInterface
-     */
-    private $entityManager;
+    public function __construct(private EntityManagerInterface $entityManager)
+    {}
 
-    /**
-     * ProjectJsonConverter constructor.
-     * @param EntityManagerInterface $entityManager
-     */
-    public function __construct(EntityManagerInterface $entityManager)
-    {
-        $this->entityManager = $entityManager;
-    }
-
-    /**
-     * @param Project $project
-     * @return array
-     */
-    public function full(Project $project)
+    public function full(Project $project): array
     {
         return [
             'id' => $project->id()->toString(),
@@ -35,15 +21,12 @@ class ProjectJsonConverter
             'description' => $project->description(),
             'members' => $this->members($project),
             'components' => $project->components(),
-            'color' => $project->color()
+            'color' => $project->color(),
+            'tasks' => $this->tasks($project)
         ];
     }
 
-    /**
-     * @param Project $project
-     * @return array
-     */
-    public function members(Project $project)
+    public function members(Project $project): array
     {
         $members = [];
         $userIds = [];
@@ -74,5 +57,18 @@ class ProjectJsonConverter
         unset($member);
 
         return $memberCollection->toSortedArray('name');
+    }
+
+    public function tasks(Project $project): array
+    {
+        $result = [];
+        foreach ($project->tasks() as $task) {
+            $result[] = [
+                'id' => $task->getId()->toString(),
+                'title' => $task->getTitle()
+            ];
+        }
+
+        return $result;
     }
 }

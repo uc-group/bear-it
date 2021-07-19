@@ -2,7 +2,7 @@
 
 namespace App\Project\Model\Project;
 
-use App\Project\Model\Component\ComponentId;
+use App\Entity\Task;
 use BearIt\User\Model\UserId;
 
 class Project
@@ -15,59 +15,47 @@ class Project
      */
     public function __construct(
         private ProjectId $projectId,
+        private string $shortId,
         private string $name,
         private ?string $description = null,
         private ?string $color = null,
         private array $userRoles = [],
-        private array $components = []
+        private array $components = [],
+        private array $tasks = []
     ) {
         $this->rolesHash = $this->calculateRolesHash();
     }
 
-    /**
-     * @return ProjectId
-     */
     public function id(): ProjectId
     {
         return $this->projectId;
     }
 
-    /**
-     * @return string
-     */
+    public function shortId(): string
+    {
+        return $this->shortId;
+    }
+
     public function name(): string
     {
         return $this->name;
     }
 
-    /**
-     * @return string|null
-     */
     public function description(): ?string
     {
         return $this->description;
     }
 
-    /**
-     * @return string|null
-     */
     public function color(): ?string
     {
         return $this->color;
     }
 
-    /**
-     * @param UserId $user
-     * @param Role $role
-     */
-    public function assignUserRole(UserId $user, Role $role)
+    public function assignUserRole(UserId $user, Role $role): void
     {
         $this->userRoles[$user->toString()] = $role;
     }
 
-    /**
-     * @param UserId $user
-     */
     public function addUser(UserId $user): void
     {
         if (isset($this->userRoles[$user->toString()])) {
@@ -77,63 +65,50 @@ class Project
         $this->assignUserRole($user, Role::member());
     }
 
-    /**
-     * @param UserId $user
-     */
-    public function removeUser(UserId $user)
+    public function removeUser(UserId $user): void
     {
         if (isset($this->userRoles[$user->toString()])) {
             unset($this->userRoles[$user->toString()]);
         }
     }
 
-    /**
-     * @param UserId $user
-     * @return bool
-     */
-    public function isUserAssigned(UserId $user)
+    public function isUserAssigned(UserId $user): bool
     {
         return isset($this->userRoles[$user->toString()]);
     }
 
-    /**
-     * @param UserId $user
-     * @return Role
-     */
     public function getUserRole(UserId $user): Role
     {
         return $this->userRoles[$user->toString()] ?? Role::none();
     }
 
-    /**
-     * @param UserId $userId
-     * @return bool
-     */
     public function isOwner(UserId $userId): bool
     {
         return $this->userRoles[$userId->toString()]->equals(Role::owner());
     }
 
-    /**
-     * @return array
-     */
-    public function users()
+    public function users(): array
     {
         return array_keys($this->userRoles);
     }
 
     /**
-     * @return Role[]|array
+     * @return Role[]
      */
-    public function roles()
+    public function roles(): array
     {
         return $this->userRoles;
     }
 
     /**
-     * @return bool
+     * @return Task[]
      */
-    public function rolesChanged()
+    public function tasks(): array
+    {
+        return $this->tasks;
+    }
+
+    public function rolesChanged(): bool
     {
         return $this->rolesHash !== $this->calculateRolesHash();
     }
@@ -157,10 +132,7 @@ class Project
         return $this->components;
     }
 
-    /**
-     * @return string
-     */
-    private function calculateRolesHash()
+    private function calculateRolesHash(): string
     {
         $roles = [];
         foreach ($this->userRoles as $userId => $role) {

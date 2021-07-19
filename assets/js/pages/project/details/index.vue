@@ -26,10 +26,10 @@
             document.title = 'Bear-IT';
             this.$store.unregisterModule('project')
         },
-      computed: {
-          currentProject() {
-            return this.$store.state.project
-          }
-      }
+        computed: {
+            currentProject() {
+                return this.$store.state.project
+            }
+        }
     }
 </script>
