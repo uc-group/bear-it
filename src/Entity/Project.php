@@ -30,7 +30,7 @@ class Project
     private ?string $color;
 
     #[ORM\OneToMany(mappedBy: "project", targetEntity: Task::class)]
-    private PersistentCollection $tasks;
+    private Collection $tasks;
 
     /**
      * @var string[]
@@ -45,7 +45,7 @@ class Project
         $this->name = $name;
         $this->description = $description;
         $this->color = $color;
-        $this->tasks = new PersistentCollection();
+        $this->tasks = new ArrayCollection();
     }
 
     public function id(): string

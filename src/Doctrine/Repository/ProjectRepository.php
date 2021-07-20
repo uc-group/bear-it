@@ -109,7 +109,7 @@ class ProjectRepository implements ProjectRepositoryInterface
     {
         $qb = $this->entityManager->createQueryBuilder();
         $qb->from(ProjectEntity::class, 'p');
-        $qb->select('p.id', 'p.shortId', 'p.name', 'p.description', 'p.color', 'p.components', 'p.tasks');
+        $qb->select('p.id', 'p.shortId', 'p.name', 'p.description', 'p.color', 'p.components');
         $qb->leftJoin(ProjectUser::class, 'pu', Join::WITH, 'pu.project = p.id');
         $qb->where('pu.user = :user');
         $qb->setParameter('user', $user->toString());
@@ -120,6 +120,7 @@ class ProjectRepository implements ProjectRepositoryInterface
         $projectData = $qb->getQuery()->getArrayResult();
         $projectIds = array_column($projectData, 'id');
         $roles = $this->findRolesByProjects($projectIds);
+        $tasks = $this->findTasksByProjects($projectIds);
 
         $projects = [];
         foreach ($projectData as $row) {
@@ -132,7 +133,7 @@ class ProjectRepository implements ProjectRepositoryInterface
                 $row['color'],
                 $roles[$id] ?? [],
                 $row['components'],
-                $row['tasks']
+                $tasks[$id] ?? []
             );
         }
 
@@ -241,6 +242,27 @@ class ProjectRepository implements ProjectRepositoryInterface
         $qb->where('t.project = :project');
         $qb->setParameter('project', $id->toString());
 
-        return $qb->getQuery()->getResult();
+        try {
+            return $qb->getQuery()->getOneOrNullResult();
+        } catch (NonUniqueResultException) {
+            return null;
+        }
+    }
+
+    private function findTasksByProjects(array $projectIds)
+    {
+        $qb = $this->entityManager->createQueryBuilder();
+        $qb->select('t');
+        $qb->from(Task::class, 't');
+        $qb->where($qb->expr()->in('t.project', ':projectIds'));
+        $qb->setParameter('projectIds', $projectIds);
+
+        $result = [];
+        /** @var Task $task */
+        foreach ($qb->getQuery()->getResult() as $task) {
+            $result[$task->getProject()->id()][] = $task;
+        }
+
+        return $result;
     }
 }
