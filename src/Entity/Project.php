@@ -79,9 +79,9 @@ class Project
     }
 
     /**
-     * @return Task[]|PersistentCollection
+     * @return Task[]|Collection
      */
-    public function tasks(): PersistentCollection
+    public function tasks(): Collection
     {
         return $this->tasks;
     }
