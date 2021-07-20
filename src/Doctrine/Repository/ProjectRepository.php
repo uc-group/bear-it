@@ -242,11 +242,7 @@ class ProjectRepository implements ProjectRepositoryInterface
         $qb->where('t.project = :project');
         $qb->setParameter('project', $id->toString());
 
-        try {
-            return $qb->getQuery()->getOneOrNullResult();
-        } catch (NonUniqueResultException) {
-            return null;
-        }
+        return $qb->getQuery()->getResult();
     }
 
     private function findTasksByProjects(array $projectIds)
