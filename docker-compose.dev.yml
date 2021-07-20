@@ -22,3 +22,12 @@ services:
     volumes:
       - .:/usr/node/app
     command: 'bash -c "yarn install && yarn watch"'
+
+  db:
+    image: mysql:8
+    volumes:
+      - ./docker/db:/var/lib/mysql
+    command: --default-authentication-plugin=mysql_native_password
+    environment:
+      MYSQL_DATABASE: bearit
+      MYSQL_ROOT_PASSWORD: root
