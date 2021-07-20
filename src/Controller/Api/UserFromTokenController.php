@@ -9,8 +9,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
-// TODO: add system auth and remove role public
-#[Route('/api/user-from-token')]
+#[Route('/internal/user-from-token')]
 class UserFromTokenController extends AbstractController
 {
     public function __construct(

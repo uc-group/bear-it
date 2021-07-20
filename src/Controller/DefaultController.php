@@ -8,7 +8,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 #[Route('/', name: 'homepage')]
-#[Route('/{vueRoute}', requirements: ['vueRoute' => '^(?!api|auth|logout|_).*'])]
+#[Route('/{vueRoute}', requirements: ['vueRoute' => '^(?!api|auth|logout|_|internal).*'])]
 class DefaultController extends AbstractController
 {
     public function __construct(

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Controller\Api\Chat;
+namespace App\Controller\Internal\Chat;
 
 use App\Entity\Chat\Message;
 use App\Entity\User;
@@ -11,7 +11,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
-#[Route('/api/chat/messages', methods: ['GET'])]
+#[Route('/internal/chat/messages', methods: ['GET'])]
 class ListMessageController extends AbstractController
 {
     const LIMIT = 100;

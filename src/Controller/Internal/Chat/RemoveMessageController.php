@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Controller\Api\Chat;
+namespace App\Controller\Internal\Chat;
 
 use App\Entity\Chat\Message;
 use App\Entity\User;
@@ -14,7 +14,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Yc\RequestValidationBundle\Attributes\RequestValidator;
 
-#[Route('/api/chat/remove-message', methods: ['POST'])]
+#[Route('/internal/chat/remove-message', methods: ['POST'])]
 #[RequestValidator(RemoveMessage::class)]
 class RemoveMessageController extends AbstractController
 {

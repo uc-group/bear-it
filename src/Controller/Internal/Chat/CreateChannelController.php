@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Controller\Api\Chat;
+namespace App\Controller\Internal\Chat;
 
 use App\Chat\Exception\ChannelAlreadyExistsException;
 use App\Chat\Model\Channel;
@@ -13,7 +13,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Yc\RequestValidationBundle\Attributes\RequestValidator;
 
-#[Route('/api/chat/channel/create', name: 'api_chat_channel_create')]
+#[Route('/internal/chat/channel/create', name: 'api_chat_channel_create')]
 #[RequestValidator(Create::class)]
 class CreateChannelController extends AbstractController
 {

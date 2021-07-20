@@ -220,6 +220,9 @@ export default {
 
       this.message = message.content;
       this.editing = id;
+      this.$nextTick(() => {
+        this.$refs.messageArea.focus();
+      });
     },
     deleteMessage(id) {
       this.removing = id;
