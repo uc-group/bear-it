@@ -1,7 +1,7 @@
 FROM php:8.0 AS php-build
 WORKDIR /usr/src/bear-it
 RUN DEBIAN_FRONTEND=noninteractive apt-get -y update && apt-get -y install libzip-dev zip curl
-RUN docker-php-ext-install zip
+RUN docker-php-ext-install zip pdo_mysql
 COPY composer.json composer.lock ./
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 RUN composer install  --no-scripts --no-autoloader
@@ -19,7 +19,7 @@ RUN yarn install --no-cache && yarn build
 FROM php:8.0-apache-buster
 WORKDIR /var/www/bear-it
 RUN DEBIAN_FRONTEND=noninteractive apt-get -y update && apt-get -y install libzip-dev zip curl && a2enmod rewrite
-RUN docker-php-ext-install zip
+RUN docker-php-ext-install zip pdo_mysql
 COPY config/apache2/vhost.conf /etc/apache2/sites-available/000-default.conf
 COPY --from=php-build /usr/src/bear-it/vendor vendor
 COPY --from=assets-build /home/node/app/public/build public/build
