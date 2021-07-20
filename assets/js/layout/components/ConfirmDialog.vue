@@ -1,5 +1,5 @@
 <template>
-    <v-dialog v-model="showDialog" max-width="600px">
+    <v-dialog v-model="visible" max-width="600px">
         <v-card>
             <v-card-title class="text-h5">{{ message }}</v-card-title>
             <v-card-actions>
@@ -26,6 +26,16 @@ export default {
             type: String,
             default: 'OK'
         }
+    },
+    computed: {
+      visible: {
+        get() {
+          return this.showDialog
+        },
+        set(value) {
+          this.$emit('update:showDialog', value)
+        }
+      }
     },
     methods: {
         confirm() {

@@ -9,6 +9,8 @@
     >
       <ws-room-message name="message" :handler="addMessage"></ws-room-message>
       <ws-room-message name="user-list" :handler="updateUserList"></ws-room-message>
+      <ws-room-message name="message-updated" :handler="updateMessage"></ws-room-message>
+      <ws-room-message name="message-removed" :handler="removeMessage"></ws-room-message>
     </ws-room>
     <div class="chat__container pa-0 pa-md-3 pb-md-0">
       <div class="chat__content-container">
@@ -22,7 +24,11 @@
           </template>
           <message-grouper :messages="messages">
             <template v-slot="group">
-              <message-group v-bind="group"></message-group>
+              <message-group v-bind="group"
+                :selected-for-edit="editing"
+                :toolbar-visible="connected"
+                @edit="editMessage"
+                @delete="deleteMessage"></message-group>
             </template>
           </message-grouper>
         </scroll-window>
@@ -39,10 +45,16 @@
             <v-progress-circular indeterminate color="primary"></v-progress-circular>
             Connecting...
           </template>
-          <textarea v-else class="chat__textarea" v-model="message" @keyup.enter="sendMessage"
+          <textarea v-else class="chat__textarea" :class="{'chat__textarea--edit-mode': !!editing}"
+                    v-model="message" @keypress.enter.prevent="sendMessage"
                     placeholder="Enter your message here..." ref="messageArea"></textarea>
       </div>
     </div>
+    <confirm-dialog :message="removeConfirmMessage"
+                    @cancel="confirmRemoveDialog = false"
+                    @confirm="confirmMessageRemoval"
+                    :show-dialog.sync="confirmRemoveDialog"
+    ></confirm-dialog>
   </div>
 </template>
 
@@ -56,10 +68,11 @@ import MessageGroup from '../components/MessageGroup'
 import WsRoom from '../../../components/WsRoom'
 import WsRoomMessage from '../../../components/WsRoomMessage'
 import EmojiDialog from '../../../components/EmojiDialog'
+import ConfirmDialog from '../../../layout/components/ConfirmDialog'
 
 export default {
   name: 'chat-room',
-  components: {EmojiDialog, MessageGroup, UserList, ScrollWindow, MessageGrouper, WsRoom, WsRoomMessage},
+  components: {ConfirmDialog, EmojiDialog, MessageGroup, UserList, ScrollWindow, MessageGrouper, WsRoom, WsRoomMessage},
   props: {
     room: String
   },
@@ -74,7 +87,10 @@ export default {
       ready: false,
       hasOlderMessages: true,
       currentOldestMessageDate: null,
-      emojiDialog: false
+      emojiDialog: false,
+      editing: null,
+      removing: null,
+      confirmRemoveDialog: false
     }
   },
   created() {
@@ -88,6 +104,20 @@ export default {
     this.$on('hook:beforeDestroy', () => {
       window.removeEventListener('keypress', openEmoji, true);
     })
+  },
+  computed: {
+    removeConfirmMessage() {
+      if (!this.removing) {
+        return '';
+      }
+
+      const message = this.messages.find((m) => m.id === this.removing);
+      if (!message) {
+        return '';
+      }
+
+      return `Are you sure you want to remove message "${message.content.substr(0, 200)}${message.content.length > 200 ? '...' : ''}"?`;
+    }
   },
   methods: {
     async loadOlderMessages() {
@@ -106,10 +136,10 @@ export default {
         this.$refs.scrollWindow.scrollToDiff(this.$refs.scrollWindow.getContentHeight() - height)
       })
     },
-    init({chat}) {
+    init({chat, users}) {
       this.joinedRoom = true
       if (chat) {
-        this.users = chat.users
+        this.users = users
         this.messages = this.mergeMessages(chat.messages || [])
         if (this.firstInit) {
           this.$nextTick(async () => {
@@ -132,7 +162,7 @@ export default {
       }
     },
     addMessage(message) {
-      this.messages.push(message)
+      this.messages.push({...message, deleted: false })
     },
     formatDate(timestamp) {
       return moment(timestamp).format('HH:mm:ss YYYY-MM-DD')
@@ -149,17 +179,63 @@ export default {
         return
       }
 
-      this.$refs.room.sendMessage('message', {roomId: this.room, content})
+      const room = this.$refs.room;
+      if (this.editing) {
+        const id = this.editing;
+        room.sendMessage('edit-message', {roomId: this.room, content, id})
+        this.editing = null;
+      } else {
+        room.sendMessage('message', {roomId: this.room, content})
+      }
       this.message = ''
+    },
+    confirmMessageRemoval() {
+      if (!this.removing || !this.connected) {
+        return;
+      }
+
+      const message = this.messages.find((m) => m.id === this.removing)
+      if (message) {
+        message.deleted = true;
+      }
+
+      this.$refs.room.sendMessage('remove-message', this.removing);
+      this.confirmRemoveDialog = false;
     },
     updateUserList(users) {
       this.users = users
     },
     mergeMessages(messages) {
-      const mergedMessages = [...this.messages, ...messages.filter(message => !this.messages.find((m) => m.id === message.id))]
+      const newMessages = messages.filter(message => !this.messages.find((m) => m.id === message.id));
+      const mergedMessages = [...this.messages, ...newMessages.map((message) => ({ ...message, deleted: false }))]
       mergedMessages.sort((a, b) => a.postedAt < b.postedAt ? -1 : 1)
 
       return mergedMessages
+    },
+    editMessage(id) {
+      const message = this.messages.find((m) => m.id === id)
+      if (!message) {
+        return;
+      }
+
+      this.message = message.content;
+      this.editing = id;
+    },
+    deleteMessage(id) {
+      this.removing = id;
+      this.confirmRemoveDialog = true;
+    },
+    updateMessage(message) {
+      const index = this.messages.findIndex((m) => m.id === message.id)
+      if (index !== -1) {
+        this.messages.splice(index, 1, message);
+      }
+    },
+    removeMessage(id) {
+      const index = this.messages.findIndex((m) => m.id === id)
+      if (index !== -1) {
+        this.messages.splice(index, 1);
+      }
     }
   },
   watch: {
@@ -220,6 +296,10 @@ export default {
     border: 1px solid #ccc;
     border-radius: 6px;
     padding: 15px;
+
+    &--edit-mode {
+      background-color: #eae191;
+    }
   }
 }
 </style>
