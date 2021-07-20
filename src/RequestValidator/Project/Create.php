@@ -26,6 +26,15 @@ class Create extends AbstractRequestValidator implements DataTransformerInterfac
                     'field' => 'id'
                 ])
             ],
+            'shortId' => [
+                new Constraints\Regex('/^[A-Z][A-Z0-9]*$/'),
+                new Constraints\NotBlank(),
+                new Constraints\NotNull(),
+                new UniqueField([
+                    'entityClass' => ProjectEntity::class,
+                    'field' => 'shortId'
+                ])
+            ],
             'name' => [
                 new Constraints\NotNull(),
                 new Constraints\NotBlank(),
@@ -50,7 +59,7 @@ class Create extends AbstractRequestValidator implements DataTransformerInterfac
         $id = ProjectId::fromString($data['id']);
 
         return [
-            'project' => new Project($id, $data['name'], $data['description'], $data['color'])
+            'project' => new Project($id, $data['shortId'], $data['name'], $data['description'], $data['color'])
         ];
     }
 }

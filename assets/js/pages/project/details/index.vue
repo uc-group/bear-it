@@ -30,19 +30,14 @@
             document.title = 'Bear-IT';
             this.$store.unregisterModule('project')
         },
-      computed: {
-          subtitle() {
-            return this.$store.getters.subtitle
-          },
-          currentProject() {
-            return this.$store.state.project
-          }
-      },
-      watch: {
-          'this.$store.getters.subtitle'(to) {
-            console.log(to)
-          }
-      }
+        computed: {
+            subtitle() {
+              return this.$store.getters.subtitle
+            },
+            currentProject() {
+              return this.$store.state.project
+            }
+        }
     }
 </script>
 

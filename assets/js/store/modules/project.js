@@ -7,6 +7,8 @@ export default project => {
         member.removing = false;
     })
 
+    const tasks = JSON.parse(JSON.stringify(project.tasks))
+
     return {
         namespaced: true,
         state: {
@@ -15,7 +17,8 @@ export default project => {
             description: project.description,
             members,
             components: project.components,
-            color: project.color
+            color: project.color,
+            tasks
         },
         getters: {
             currentMember: (state, getters, rootState) => project.members.find(member => member.username === rootState.user.login),

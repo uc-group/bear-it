@@ -17,6 +17,15 @@
                                 @blur="$v.project.id.$touch()"
                         ></v-text-field>
                         <v-text-field
+                                v-model="project.shortId"
+                                label="Short ID"
+                                :error-messages="shortIdErrors"
+                                :counter="12"
+                                required
+                                @input="fieldChanged('shortId')"
+                                @blur="$v.project.shortId.$touch()"
+                        ></v-text-field>
+                        <v-text-field
                                 v-model="project.name"
                                 label="Name"
                                 ref="nameField"
@@ -73,6 +82,7 @@
         validations: {
             project: {
                 id: { required, maxLength: maxLength(36), minLength: minLength(3), idValidator },
+                shortId: { required, maxLength: maxLength(12), minLength: minLength(3), idValidator },
                 name: { required, maxLength: maxLength(80), minLength: minLength(3) },
                 color: { maxLength: maxLength(7), colorValidator }
             }
@@ -81,6 +91,7 @@
             return {
                 project: {
                     id: '',
+                    shortId: '',
                     name: '',
                     description: '',
                     color: this.randomSwatch()
@@ -99,9 +110,19 @@
                 if (!this.$v.$invalid) {
                     try {
                         this.submitting = true
-                        await api.create(this.project.id, this.project.name, this.project.description, this.project.color)
-                        this.$store.dispatch('alerts/addMessage', { text: `Project "${this.project.name}" successfully created`, type: 'success' })
-                        this.$router.push({ name: 'project_details', params: { id: this.project.id } })
+                        await api.create(
+                            this.project.id,
+                            this.project.shortId,
+                            this.project.name,
+                            this.project.description,
+                            this.project.color
+                        ).then(() => {
+                            this.$store.dispatch('alerts/addMessage', {
+                                text: `Project "${this.project.name}" successfully created`,
+                                type: 'success'
+                            })
+                            this.$router.push({ name: 'project_details', params: { id: this.project.id } })
+                        })
                     } catch (error) {
                         if (error.offline) {
                             this.putOfflineEvent('project_create', {
@@ -135,7 +156,10 @@
         },
         watch: {
             'project.id': function (newValue) {
-                this.project.id = newValue.toUpperCase();
+                this.project.id = newValue.toUpperCase()
+            },
+            'project.shortId': function (newValue) {
+                this.project.shortId = newValue.toUpperCase()
             }
         },
         computed: {
@@ -149,6 +173,20 @@
 
                 if (this.serverErrors.hasOwnProperty('id') && this.serverErrors.id) {
                     errors.push(this.serverErrors.id)
+                }
+
+                return errors
+            },
+            shortIdErrors() {
+                const errors = []
+                if (!this.$v.project.shortId.$dirty) return errors
+                !this.$v.project.shortId.maxLength && errors.push('Short ID must be at most 12 characters long')
+                !this.$v.project.shortId.minLength && errors.push('Short ID must be at least 3 characters long')
+                !this.$v.project.shortId.required && errors.push('Short ID is required')
+                !this.$v.project.shortId.idValidator && errors.push('Short ID can only contain uppercase alphanumeric values')
+
+                if (this.serverErrors.hasOwnProperty('shortId') && this.serverErrors.shortId) {
+                    errors.push(this.serverErrors.shortId)
                 }
 
                 return errors
