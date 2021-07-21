@@ -4,8 +4,7 @@ export default task => {
             id: task.id,
             title: task.title,
             description: task.description,
-            projectId: task.project.id,
-            projectShortId: task.project.shortId
+            projectId: task.project.id
         }
     }
 }

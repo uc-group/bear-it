@@ -2,23 +2,15 @@
 
 namespace App\Entity;
 
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
-use Doctrine\ORM\PersistentCollection;
-use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 #[ORM\Entity]
 #[ORM\Table(name: 'bi_project')]
-#[UniqueEntity('shortId')]
 class Project
 {
     #[ORM\Id]
-    #[ORM\Column(type: 'string', length: 36)]
-    private string $id;
-
     #[ORM\Column(type: 'string', length: 12)]
-    private string $shortId;
+    private string $id;
 
     #[ORM\Column(type: 'string', length: 80)]
     private string $name;
@@ -29,8 +21,8 @@ class Project
     #[ORM\Column(type: 'text', length: 7, nullable: true)]
     private ?string $color;
 
-    #[ORM\OneToMany(mappedBy: "project", targetEntity: Task::class)]
-    private Collection $tasks;
+    #[ORM\Column(type: 'integer', options: ['unsigned' => true])]
+    public int $lastResourceId = 0;
 
     /**
      * @var string[]
@@ -38,24 +30,17 @@ class Project
     #[ORM\Column(type: 'json_array')]
     public array $components = [];
 
-    public function __construct(string $id, string $shortId, string $name, string $description = null, string $color = null)
+    public function __construct(string $id, string $name, string $description = null, string $color = null)
     {
         $this->id = $id;
-        $this->shortId = $shortId;
         $this->name = $name;
         $this->description = $description;
         $this->color = $color;
-        $this->tasks = new ArrayCollection();
     }
 
     public function id(): string
     {
         return $this->id;
-    }
-
-    public function shortId(): string
-    {
-        return $this->shortId;
     }
 
     public function name(): string
@@ -76,14 +61,6 @@ class Project
     public function rename(string $name)
     {
         $this->name = $name;
-    }
-
-    /**
-     * @return Task[]|Collection
-     */
-    public function tasks(): Collection
-    {
-        return $this->tasks;
     }
 
     public function updateDescription(string $description = null)

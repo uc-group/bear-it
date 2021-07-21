@@ -22,4 +22,6 @@ interface ProjectRepositoryInterface
     public function findByUser(UserId $userId, int $limit, int $offset): array;
 
     public function remove(ProjectId $projectId): void;
+
+    public function nextResourceId(ProjectId $projectId, int $reserveCount = 1): int;
 }

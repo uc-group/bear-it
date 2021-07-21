@@ -2,14 +2,21 @@
 
 namespace App\Doctrine\Repository;
 
-use App\Entity\Task;
-use App\Project\Model\Project\Project;
+use App\Entity\Project as ProjectEntity;
+use App\Entity\ProjectResource;
+use App\Entity\Task as TaskEntity;
+use App\Entity\User;
+use App\Task\Model\Task\Assignee;
+use App\Task\Model\Task\BoundUser;
+use App\Task\Model\Task\Creator;
+use App\Task\Model\Task\Reporter;
+use App\Task\Model\Task\Status;
+use App\Task\Model\Task\Task;
 use App\Task\Model\Task\TaskId;
 use App\Task\Repository\TaskRepositoryInterface;
-use Doctrine\Common\Collections\Criteria;
+use App\User\Model\User\UserId;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\NonUniqueResultException;
-use Doctrine\ORM\NoResultException;
 
 class TaskRepository implements TaskRepositoryInterface
 {
@@ -21,40 +28,89 @@ class TaskRepository implements TaskRepositoryInterface
     {
         $queryBuilder = $this->entityManager->createQueryBuilder();
         $queryBuilder->select('t');
-        $queryBuilder->from(Task::class, 't');
+        $queryBuilder->from(TaskEntity::class, 't');
         $queryBuilder->where('t.id = :id');
         $queryBuilder->setParameter('id', $taskId->toString());
 
         try {
-            return $queryBuilder->getQuery()->getOneOrNullResult();
+            /** @var TaskEntity $entity */
+            $entity = $queryBuilder->getQuery()->getOneOrNullResult();
         } catch (NonUniqueResultException) {
             return null;
         }
+
+        return $entity ? new Task(
+            $entity->getId(),
+            Creator::fromUserId($entity->getCreator()->getId()),
+            $entity->getTitle(),
+            $entity->getStatus(),
+            $entity->getCreatedAt(),
+            $entity->getReporter() ? Reporter::fromUserId($entity->getReporter()->getId()) : null,
+            $entity->getAssignee() ? Assignee::fromUserId($entity->getAssignee()->getId()) : null,
+            $entity->getDescription()
+        ) : null;
     }
 
     public function save(Task $task)
     {
-        $this->entityManager->persist($task);
+        $repository = $this->entityManager->getRepository(TaskEntity::class);
+        $connection = $this->entityManager->getConnection();
+        $connection->beginTransaction();
+
+        $taskId = $task->id();
+        $entity = $repository->find($taskId->toString());
+        if (!$entity) {
+            /** @var ProjectEntity $project */
+            $project = $this->entityManager->getReference(
+                ProjectEntity::class,
+                $taskId->getProjectId()->toString()
+            );
+
+            $entity = new TaskEntity(
+                $taskId,
+                $project,
+                $task->title(),
+                $task->status()->toString(),
+                $this->getUserReference($task->creator())
+            );
+
+            $projectResource = new ProjectResource(
+                $project,
+                $taskId->number(),
+                TaskId::class
+            );
+            $this->entityManager->persist($projectResource);
+        } else {
+            $entity->setStatus($task->status()->toString());
+        }
+
+        $entity->assignTo($this->getUserReference($task->assignee()));
+        $entity->setReporter($this->getUserReference($task->reporter()));
+        $entity->setDescription($task->description());
+
+        if ($task->status()->equals(Status::closed())) {
+            $entity->resolve();
+        }
+
+        $this->entityManager->persist($entity);
         $this->entityManager->flush();
+
+        $connection->commit();
     }
 
-    public function nextTaskNumber(Project $project): int
+    /**
+     * @param UserId $id
+     * @return User|object
+     */
+    private function getUserReference(?BoundUser $user): ?User
     {
-        $queryBuilder = $this->entityManager->createQueryBuilder();
-        $queryBuilder->select('t.id');
-        $queryBuilder->from(Task::class, 't');
-        $queryBuilder->where('t.project = :project');
-        $queryBuilder->setParameter('project', $project->id()->toString());
-        $queryBuilder->orderBy('t.createdAt', Criteria::DESC);
-        $queryBuilder->setMaxResults(1);
-
-        try {
-            $newestId = $queryBuilder->getQuery()->getSingleScalarResult();
-            $taskNumber = str_replace(sprintf("%s-", $project->shortId()), '', $newestId);
-
-            return (int) $taskNumber + 1;
-        } catch (NoResultException|NonUniqueResultException) {
-            return 1;
+        if (!$user) {
+            return null;
         }
+
+        return $this->entityManager->getReference(
+            User::class,
+            $user->getUserId()->toString()
+        );
     }
 }

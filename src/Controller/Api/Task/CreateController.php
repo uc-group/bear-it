@@ -3,12 +3,15 @@
 
 namespace App\Controller\Api\Task;
 
-use App\Entity\Project as ProjectEntity;
-use App\Entity\Task;
+use App\Entity\User;
 use App\Http\Response\SuccessResponse;
 use App\Project\Model\Project\ProjectId;
-use App\Project\Repository\ProjectRepositoryInterface;
+use App\Project\Service\ReferenceGeneratorFactory;
 use App\RequestValidator\Task\Create;
+use App\Task\Model\Task\Creator;
+use App\Task\Model\Task\Reporter;
+use App\Task\Model\Task\Status;
+use App\Task\Model\Task\Task;
 use App\Task\Model\Task\TaskId;
 use App\Task\Repository\TaskRepositoryInterface;
 use Doctrine\ORM\EntityManagerInterface;
@@ -22,24 +25,34 @@ use Yc\RequestValidationBundle\Attributes\RequestValidator;
 class CreateController extends AbstractController
 {
     public function __construct(
-        private ProjectRepositoryInterface $projectRepository,
+        private ReferenceGeneratorFactory $referenceGeneratorFactory,
         private TaskRepositoryInterface $taskRepository,
         private EntityManagerInterface $entityManager
     ) {}
 
     public function __invoke(string $title, string $description, ProjectId $projectId): JsonResponse
     {
-        $project = $this->projectRepository->load($projectId);
-        $taskId = TaskId::create($project->shortId(), $this->taskRepository->nextTaskNumber($project));
-        $projectEntityReference = $this->entityManager->getReference(
-            ProjectEntity::class, $project->id()->toString());
-        $task = new Task($taskId, $projectEntityReference, $title, 'new', $this->getUser());
-        $task->setDescription($description);
+        /** @var User $user */
+        $user = $this->getUser();
+        $this->entityManager->beginTransaction();
+        $referenceGenerator = $this->referenceGeneratorFactory->get($projectId);
+        $id = $referenceGenerator->generate()[0];
+        $taskId = TaskId::fromString($id->toString());
 
-        $this->taskRepository->save($task);
+        $this->taskRepository->save(new Task(
+            $taskId,
+            Creator::fromUserId($user->getId()),
+            $title,
+            Status::new(),
+            new \DateTime(),
+            Reporter::fromUserId($user->getId()),
+            null,
+            $description
+        ));
+        $this->entityManager->commit();
 
         return new SuccessResponse([
-            'id' => $task->getId()->toString()
+            'id' => $taskId->toString()
         ]);
     }
 }
