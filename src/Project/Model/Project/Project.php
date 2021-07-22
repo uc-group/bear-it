@@ -15,7 +15,6 @@ class Project
      */
     public function __construct(
         private ProjectId $projectId,
-        private string $shortId,
         private string $name,
         private ?string $description = null,
         private ?string $color = null,
@@ -29,11 +28,6 @@ class Project
     public function id(): ProjectId
     {
         return $this->projectId;
-    }
-
-    public function shortId(): string
-    {
-        return $this->shortId;
     }
 
     public function name(): string

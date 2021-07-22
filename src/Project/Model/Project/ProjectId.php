@@ -3,7 +3,6 @@
 namespace App\Project\Model\Project;
 
 use App\Project\Exception\InvalidProjectIdException;
-use App\Utils\Id;
 
 class ProjectId
 {
@@ -15,14 +14,6 @@ class ProjectId
     private function __construct(string $id)
     {
         $this->id = $id;
-    }
-
-    /**
-     * @return ProjectId
-     */
-    public static function new(): self
-    {
-        return new self(Id::generateUuid());
     }
 
     /**

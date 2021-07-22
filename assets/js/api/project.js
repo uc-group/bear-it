@@ -2,10 +2,9 @@ import {client, requestHandler} from './'
 import { OfflineEvent } from '~/lib/offlineStorage'
 
 export default {
-    create(id, shortId, name, description, color) {
+    create(id, name, description, color) {
         return client.post('/api/project/create', {
             id,
-            shortId,
             name,
             description,
             color

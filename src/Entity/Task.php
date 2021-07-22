@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use App\Exception\InvalidIdFormatException;
+use App\Task\Model\Task\Status;
 use App\Utils\DateTime;
 use App\ValueObject\Estimation;
 use App\Task\Model\Task\TaskId;
@@ -89,17 +90,17 @@ class Task
         return $this->title;
     }
 
-    public function assignTo(User $user)
+    public function assignTo(?User $user)
     {
         $this->assignee = $user;
     }
 
-    public function getAssignee(): User
+    public function getAssignee(): ?User
     {
         return $this->assignee;
     }
 
-    public function setReporter(User $reporter): void
+    public function setReporter(?User $reporter): void
     {
         $this->reporter = $reporter;
     }
@@ -107,6 +108,11 @@ class Task
     public function getReporter(): ?User
     {
         return $this->reporter;
+    }
+
+    public function getCreator(): User
+    {
+        return $this->creator;
     }
 
     public function setStatus(string $status): void
@@ -117,6 +123,16 @@ class Task
     public function hasStatus(string $status): bool
     {
         return $this->status === $status;
+    }
+
+    public function getStatus(): Status
+    {
+        return Status::fromString($this->status);
+    }
+
+    public function getCreatedAt(): PhpDateTime
+    {
+        return $this->createdAt;
     }
 
     public function estimate(Estimation $estimation): void
