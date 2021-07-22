@@ -4,7 +4,8 @@
       <div class="chat__single-message single-message"
            :class="{
               'single-message--selected-edit': selectedForEdit === message.id,
-              'single-message--deleted': message.deleted
+              'single-message--deleted': message.deleted,
+              'single-message--selected': selectedAndNotEdited(message.id),
             }"
            v-for="message in messages" :key="message.id">
         <div class="single-message__date" v-show="selectionVisible">{{ formatTimestamp(message.postedAt, 'HH:mm') }}</div>
@@ -119,6 +120,9 @@ export default {
           this._selected.push(id);
         }
       }
+    },
+    selectedAndNotEdited(id) {
+      return this.selectedForEdit !== id && this._selected.includes(id)
     }
   }
 }
@@ -148,6 +152,10 @@ export default {
 
     &--selected-edit {
       background-color: #eae191;
+    }
+
+    &--selected {
+      background-color: #d3ecfd;
     }
 
     &--deleted {

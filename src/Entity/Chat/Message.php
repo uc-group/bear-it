@@ -42,6 +42,11 @@ class Message
         $this->roomId = $roomId;
     }
 
+    public function changeRoom(string $roomId)
+    {
+        $this->roomId = $roomId;
+    }
+
     public function toArray(): array
     {
         return [

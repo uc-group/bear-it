@@ -2,10 +2,10 @@
   <v-container class="chat-page pa-0 pa-md-3">
     <v-row class="chat-page__row" v-if="channelsLoaded">
       <v-col cols="2">
-        <chat-channel name="general" @click="selectRoom(project.id)" :active="currentRoom === project.id"></chat-channel>
+        <chat-channel name="general" @click="selectChannel(null)" :active="channel === null"></chat-channel>
         <div>
-          <chat-channel v-for="channel in channels" :key="channel"
-                        :name="channel" @click="selectRoom(channel)" :active="currentRoom === channel"></chat-channel>
+          <chat-channel v-for="c in channels" :key="c"
+                        :name="c" @click="selectChannel(c)" :active="c === channel"></chat-channel>
           <v-divider class="my-2"></v-divider>
           <div class="text-center">
             <v-btn @click="openChannelModal" color="primary" x-small>Add new channel</v-btn>
@@ -15,10 +15,13 @@
             :room="`chat/${this.project.id}`"
             :visible.sync="channelModalVisible"
             @channel:created="switchToChannel"
+            close-on-create
         ></create-channel-form>
       </v-col>
       <v-col cols="10" class="pb-0">
-        <chat-room :room="currentRoom" :key="currentRoom"></chat-room>
+        <chat-room :room="project.id" :channel="channel" :key="currentRoom"
+          @channel:selected="switchToChannel"
+          :channels="channels"></chat-room>
       </v-col>
     </v-row>
     <v-row v-show="!channelsLoaded" class="chat-page__channel-loading">
@@ -43,7 +46,7 @@ export default {
   },
   data() {
     return {
-      currentRoom: this.project.id,
+      channel: null,
       channelModalVisible: false,
       channelsLoaded: false,
       channels: []
@@ -56,12 +59,12 @@ export default {
       if (window.location.hash) {
         const channelName = decodeURIComponent(window.location.hash.substr(1));
         if (this.channels.includes(channelName)) {
-          this.selectRoom(channelName);
+          this.selectChannel(channelName);
         } else {
-          this.selectRoom(this.project.id)
+          this.selectChannel(null)
         }
       } else {
-        this.selectRoom(this.project.id)
+        this.selectChannel(null)
       }
 
       this.channelsLoaded = true
@@ -70,13 +73,18 @@ export default {
   beforeDestroy() {
     this.$store.commit('POP_SUBTITLE');
   },
+  computed: {
+    currentRoom() {
+      return this.channel ? `${this.project.id}/${this.channel}` : this.project.id;
+    }
+  },
   methods: {
-    selectRoom(name) {
-      this.currentRoom = name;
-      window.location.hash = name === this.project.id ? '' : name;
+    selectChannel(name) {
+      this.channel = name;
+      window.location.hash = name || '';
       history.replaceState(null, null, window.location.href.replace(/#$/, ''))
 
-      const subtitle = name === this.project.id ? 'General' : name;
+      const subtitle = !name ? 'general' : name;
       this.$store.commit('REPLACE_SUBTITLE', `Chat #${subtitle}`)
     },
     openChannelModal() {
@@ -86,9 +94,11 @@ export default {
       this.channelModalVisible = false;
     },
     switchToChannel(name) {
-      this.channels.push(name);
-      this.channels.sort();
-      this.selectRoom(name);
+      if (name && !this.channels.includes(name)) {
+        this.channels.push(name);
+        this.channels.sort();
+      }
+      this.selectChannel(name);
     }
   }
 }

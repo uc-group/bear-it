@@ -1,9 +1,14 @@
 <template>
   <v-dialog v-model="dialogVisible" persistent max-width="600px">
     <v-card>
-      <v-card-title>New channel</v-card-title>
+      <v-card-title>{{ title }}</v-card-title>
       <v-card-text>
-        <v-form @submit.prevent="createChannel" :disabled="submitting">
+        <v-radio-group v-model="type">
+          <v-radio label="Existing channel" value="existing" />
+          <v-radio label="New channel" value="new" />
+        </v-radio-group>
+        <v-select :items="_channels" v-model="selectedChannel" v-show="type === 'existing'"></v-select>
+        <v-form @submit.prevent="createChannel" :disabled="submitting" v-show="type === 'new'">
           <v-text-field
               v-model="channel.name"
               label="Name"
@@ -20,7 +25,8 @@
       <v-card-actions>
         <v-spacer></v-spacer>
         <v-btn color="primary" text @click="dialogVisible = false">Cancel</v-btn>
-        <v-btn color="primary" @click="createChannel" :loading="submitting">Create channel</v-btn>
+        <v-btn color="primary" @click="selectChannel" :loading="submitting" v-show="type === 'existing'">Select channel</v-btn>
+        <v-btn color="primary" @click="createChannel" :loading="submitting" v-show="type === 'new'">Create and select channel</v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>
@@ -44,7 +50,17 @@ export default {
       type: String,
       required: true
     },
-    closeOnCreate: Boolean
+    channels: {
+      type: Array,
+      default() {
+        return [];
+      }
+    },
+    title: {
+      type: String,
+      default: 'Select channel'
+    },
+    currentChannel: String
   },
   data() {
     return {
@@ -53,6 +69,8 @@ export default {
       },
       serverErrors: {},
       submitting: false,
+      selectedChannel: null,
+      type: 'existing'
     };
   },
   computed: {
@@ -75,19 +93,27 @@ export default {
       }
 
       return errors;
-    }
+    },
+    _channels() {
+      if (this.currentChannel === 'general') {
+        return this.channels;
+      }
+
+      return ['general', ...this.channels.filter((c) => c !== this.currentChannel)];
+    },
   },
   methods: {
     async createChannel() {
+      if (this.type !== 'new') {
+        return;
+      }
       this.$v.$touch();
       if (!this.$v.$invalid) {
         try {
           this.submitting = true
           await api.create(this.room, this.channel.name);
-          this.$emit('channel:created', this.channel.name);
-          if (this.closeOnCreate) {
-            this.dialogVisible = false;
-          }
+          this.$emit('channel:selected', this.channel.name);
+          this.dialogVisible = false;
         } catch (error) {
           if (error.type && error.type === 'ERROR_VALIDATION') {
             this.serverErrors = error.errorMessages
@@ -98,6 +124,12 @@ export default {
           this.submitting = false
         }
       }
+    },
+    selectChannel() {
+      if (this.type !== 'existing' || !this.channel) {
+        return;
+      }
+      this.$emit('channel:selected', this.selectedChannel);
     },
     fieldChanged(field) {
       this.$v.channel[field].$touch();
@@ -113,6 +145,14 @@ export default {
           name: ''
         };
         this.$v.$reset();
+      }
+    },
+    channels: {
+      immediate: true,
+      handler(to) {
+        if ((!this.selectedChannel || !to.includes(this.selectedChannel))) {
+          this.selectedChannel = to.length > 0 ? to[0] : null
+        }
       }
     }
   }

@@ -1,7 +1,7 @@
 <template>
   <div class="chat">
     <ws-room ref="room"
-             :name="`chat/${this.room}`"
+             :name="`chat/${fullRoomName}`"
              @joined="init"
              @left="joinedRoom = false"
              @connected="connected = true"
@@ -21,14 +21,14 @@
             <transition name="fade">
               <div class="chat__selection selection" v-show="selected.length > 0">
                 <div class="d-flex align-center">
-                  <v-select :items="['Move', 'Remove']" v-model="selectedAction" class="selection__actions" dense></v-select>
+                  <v-select :items="['Move to new channel', 'Create new ticket from', 'Remove']" v-model="selectedAction" class="selection__actions" dense></v-select>
                   <span v-show="selected.length">
                     selected <strong>{{ selected.length }}</strong> {{ selected.length === 1 ? 'message' : 'messages' }}
                     (<a @click.prevent="selected = []">clear selection</a>)
                   </span>
                 </div>
                 <v-spacer></v-spacer>
-                <v-btn color="red darken-2" class="white--text">Make it so!</v-btn>
+                <v-btn color="red darken-2" class="white--text" @click="makeAction">Make it so!</v-btn>
               </div>
             </transition>
           </template>
@@ -71,6 +71,13 @@
                     @confirm="confirmMessageRemoval"
                     :show-dialog.sync="confirmRemoveDialog"
     ></confirm-dialog>
+    <channel-selector
+        :room="`chat/${this.$store.state.project.id}`"
+        :channels="channels"
+        :visible.sync="channelModalVisible"
+        @channel:selected="channelCreated"
+        :current-channel="channel ? channel : 'general'"
+    ></channel-selector>
   </div>
 </template>
 
@@ -85,12 +92,23 @@ import WsRoom from '../../../components/WsRoom'
 import WsRoomMessage from '../../../components/WsRoomMessage'
 import EmojiDialog from '../../../components/EmojiDialog'
 import ConfirmDialog from '../../../layout/components/ConfirmDialog'
+import CreateChannelForm from './ChannelSelector'
+import ChannelSelector from './ChannelSelector'
 
 export default {
   name: 'chat-room',
-  components: {ConfirmDialog, EmojiDialog, MessageGroup, UserList, ScrollWindow, MessageGrouper, WsRoom, WsRoomMessage},
+  components: {
+    ChannelSelector, ConfirmDialog, EmojiDialog, MessageGroup, UserList, ScrollWindow, MessageGrouper, WsRoom,
+    WsRoomMessage, CreateChannelForm},
   props: {
-    room: String
+    room: String,
+    channel: String,
+    channels: {
+      type: Array,
+      default() {
+        return [];
+      }
+    }
   },
   data() {
     return {
@@ -108,7 +126,8 @@ export default {
       removing: null,
       confirmRemoveDialog: false,
       selected: [],
-      selectedAction: 'Move'
+      selectedAction: 'Move to new channel',
+      channelModalVisible: false
     }
   },
   created() {
@@ -125,7 +144,7 @@ export default {
   },
   mounted() {
     this.currentOldestMessageDate = Date.now();
-    this.loadOlderMessages(this.room);
+    this.loadOlderMessages(this.fullRoomName);
   },
   computed: {
     removeConfirmMessage() {
@@ -139,6 +158,9 @@ export default {
       }
 
       return `Are you sure you want to remove message "${message.content.substr(0, 200)}${message.content.length > 200 ? '...' : ''}"?`;
+    },
+    fullRoomName() {
+      return this.channel ? `${this.room}/${this.channel}` : this.room;
     }
   },
   methods: {
@@ -148,14 +170,16 @@ export default {
       }
 
       const height = this.$refs.scrollWindow.getContentHeight()
-      const olderMessages = await api.loadOlderMessages(this.room, this.currentOldestMessageDate)
+      const olderMessages = await api.loadOlderMessages(this.fullRoomName, this.currentOldestMessageDate)
       this.hasOlderMessages = olderMessages.length < 100
       this.messages = this.mergeMessages(olderMessages)
       if (this.messages.length) {
         this.currentOldestMessageDate = this.messages[0].postedAt
       }
       this.$nextTick(() => {
-        this.$refs.scrollWindow.scrollToDiff(this.$refs.scrollWindow.getContentHeight() - height)
+        if (this.$refs.scrollWindow) {
+          this.$refs.scrollWindow.scrollToDiff(this.$refs.scrollWindow.getContentHeight() - height)
+        }
       })
     },
     init({chat, users}) {
@@ -204,10 +228,10 @@ export default {
       const room = this.$refs.room;
       if (this.editing) {
         const id = this.editing;
-        room.sendMessage('edit-message', {roomId: this.room, content, id})
+        room.sendMessage('edit-message', {roomId: this.fullRoomName, content, id})
         this.editing = null;
       } else {
-        room.sendMessage('message', {roomId: this.room, content})
+        room.sendMessage('message', {roomId: this.fullRoomName, content})
       }
       this.message = ''
     },
@@ -261,6 +285,36 @@ export default {
       if (index !== -1) {
         this.messages.splice(index, 1);
       }
+    },
+    makeAction() {
+      const idList = JSON.parse(JSON.stringify(this.selected));
+      switch (this.selectedAction) {
+        case 'Move to new channel':
+          this.moveMessages();
+          break;
+        case 'Remove':
+          this.removeMessages(idList)
+          break;
+      }
+    },
+    moveMessages() {
+      this.channelModalVisible = true;
+    },
+    removeMessages(messageIdList) {
+      this.messages = this.messages.filter((message) => !messageIdList.includes(message.id))
+      this.selected = [];
+    },
+    async channelCreated(name) {
+      const idList = JSON.parse(JSON.stringify(this.selected))
+      if (name === 'general') {
+        await api.moveMessages(`chat/${this.room}`, idList);
+      } else {
+        await api.moveMessages(`chat/${this.room}/${name}`, idList);
+      }
+      this.messages = this.messages.filter((message) => !this.selected.includes(message.id))
+      this.selected = [];
+      this.channelModalVisible = false;
+      this.$emit('channel:selected', name === 'general' ? null : name);
     }
   },
   watch: {
@@ -333,7 +387,7 @@ export default {
     bottom: 100%;
     left: 0;
     right: 0;
-    background-color: #b2dbfb;
+    background-color: #d3ecfd;
     z-index: 1;
     padding: 10px;
     border: 1px solid #1976d2;
@@ -344,8 +398,9 @@ export default {
 }
 
 .selection {
+  font-size: 0.8em;
   &__actions {
-    max-width: 100px;
+    max-width: 250px;
     margin-right: 20px;
     padding-top: 10px;
   }
