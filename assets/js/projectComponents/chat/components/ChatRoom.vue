@@ -17,8 +17,23 @@
         <scroll-window class="chat__content col-md-10 col-12" ref="scrollWindow"
                        :scroll-to-top-boundary="300"
                        @entered-top-boundary="loadOlderMessages">
+          <template v-slot:tool>
+            <transition name="fade">
+              <div class="chat__selection selection" v-show="selected.length > 0">
+                <div class="d-flex align-center">
+                  <v-select :items="['Move', 'Remove']" v-model="selectedAction" class="selection__actions" dense></v-select>
+                  <span v-show="selected.length">
+                    selected <strong>{{ selected.length }}</strong> {{ selected.length === 1 ? 'message' : 'messages' }}
+                    (<a @click.prevent="selected = []">clear selection</a>)
+                  </span>
+                </div>
+                <v-spacer></v-spacer>
+                <v-btn color="red darken-2" class="white--text">Make it so!</v-btn>
+              </div>
+            </transition>
+          </template>
           <template v-slot:scroll-down="{ scrollToBottom, autoScrolling, hasScroll }">
-            <div class="chat__scroll-down" v-show="hasScroll && !autoScrolling && ready" @click="scrollToBottom()">
+            <div class="chat__scroll-down" v-show="hasScroll && !autoScrolling" @click="scrollToBottom()">
               Scroll down
             </div>
           </template>
@@ -27,6 +42,7 @@
               <message-group v-bind="group"
                 :selected-for-edit="editing"
                 :toolbar-visible="connected"
+                :selected.sync="selected"
                 @edit="editMessage"
                 @delete="deleteMessage"></message-group>
             </template>
@@ -90,7 +106,9 @@ export default {
       emojiDialog: false,
       editing: null,
       removing: null,
-      confirmRemoveDialog: false
+      confirmRemoveDialog: false,
+      selected: [],
+      selectedAction: 'Move'
     }
   },
   created() {
@@ -104,6 +122,10 @@ export default {
     this.$on('hook:beforeDestroy', () => {
       window.removeEventListener('keypress', openEmoji, true);
     })
+  },
+  mounted() {
+    this.currentOldestMessageDate = Date.now();
+    this.loadOlderMessages(this.room);
   },
   computed: {
     removeConfirmMessage() {
@@ -256,6 +278,7 @@ export default {
 <style lang="scss" scoped>
 .chat {
   flex-grow: 1;
+  position: relative;
 
   &__container {
     display: flex;
@@ -303,6 +326,28 @@ export default {
     &--edit-mode {
       background-color: #eae191;
     }
+  }
+
+  &__selection {
+    position: absolute;
+    bottom: 100%;
+    left: 0;
+    right: 0;
+    background-color: #b2dbfb;
+    z-index: 1;
+    padding: 10px;
+    border: 1px solid #1976d2;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+  }
+}
+
+.selection {
+  &__actions {
+    max-width: 100px;
+    margin-right: 20px;
+    padding-top: 10px;
   }
 }
 </style>

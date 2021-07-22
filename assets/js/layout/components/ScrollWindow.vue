@@ -1,5 +1,6 @@
 <template>
   <div class="scroll-window">
+    <slot name="tool"></slot>
     <slot name="scroll-down" :scroll-to-bottom="scrollToBottom" :auto-scrolling="autoScrolling" :has-scroll="hasScroll"></slot>
     <div ref="viewport" class="scroll-window__viewport">
       <div ref="wrapper">

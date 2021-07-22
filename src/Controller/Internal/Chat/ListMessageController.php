@@ -12,6 +12,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
 #[Route('/internal/chat/messages', methods: ['GET'])]
+#[Route('/api/chat/messages', methods: ['GET'])]
 class ListMessageController extends AbstractController
 {
     const LIMIT = 100;
