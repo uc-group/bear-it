@@ -22,10 +22,11 @@
           </transition>
           <div @click="onClicked(message.id)" class="single-message__content" v-html="parseContent(message.content)"></div>
         </div>
-        <div class="single-message__toolbar" v-if="message.author === $store.state.user.id"
-             v-show="toolbarVisible && !message.deleted">
-          <a href="#" @click.prevent="$emit('edit', message.id)">EDIT</a>
-          <a href="#" @click.prevent="$emit('delete', message.id)">DELETE</a>
+        <div class="single-message__toolbar"
+             v-show="toolbarVisible && !message.deleted && !selectionVisible">
+          <a href="#" @click.prevent="_selected.push(message.id)">SELECT</a>
+          <a href="#" @click.prevent="$emit('edit', message.id)" v-if="isOwner(message)">EDIT</a>
+          <a href="#" @click.prevent="$emit('delete', message.id)" v-if="isOwner(message)">DELETE</a>
         </div>
       </div>
     </div>
@@ -50,30 +51,8 @@ export default {
   },
   data() {
     return {
-      ctrlPressed: false,
       touching: false
     }
-  },
-  mounted() {
-    const keyDown = debounce((e) => {
-      if (e.keyCode === 17) {
-        this.ctrlPressed = true
-      }
-    }, 100, {
-      'leading': true,
-      'trailing': false
-    })
-    const keyUp = (e) => {
-      if (e.keyCode === 17) {
-        this.ctrlPressed = false
-      }
-    }
-    window.addEventListener('keydown', keyDown);
-    window.addEventListener('keyup', keyUp);
-    this.$on('hook:beforeDestroy', () => {
-      window.removeEventListener('keydown', keyDown);
-      window.removeEventListener('keyup', keyUp);
-    })
   },
   computed: {
     modifierClasses() {
@@ -88,10 +67,13 @@ export default {
       }
     },
     selectionVisible() {
-      return this.ctrlPressed || this.selected.length > 0
+      return this.selected.length > 0
     }
   },
   methods: {
+    isOwner(message) {
+      return message.author === this.$store.state.user.id;
+    },
     formatTimestamp,
     parseContent(content) {
       return content.replace(/\n/g, '<br />');
