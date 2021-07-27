@@ -17,6 +17,12 @@ framework:
     php_errors:
         log: true
 
+    http_client:
+        scoped_clients:
+            wsClient:
+                base_uri: '%env(WS_SERVER_API)%'
+                auth_basic: '%env(WS_SERVER_API_USER)%:%env(WS_SERVER_API_PASSWORD)%'
+
 when@test:
     framework:
         test: true

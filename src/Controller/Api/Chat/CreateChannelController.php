@@ -11,6 +11,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Yc\RequestValidationBundle\Attributes\RequestValidator;
 
 #[Route('/api/chat/channel/create', name: 'api_chat_channel_create')]
@@ -18,7 +19,8 @@ use Yc\RequestValidationBundle\Attributes\RequestValidator;
 class CreateChannelController extends AbstractController
 {
     public function __construct(
-        private ChatRepositoryInterface $chatRepository
+        private ChatRepositoryInterface $chatRepository,
+        private HttpClientInterface $wsClient
     ) {}
 
     public function __invoke(Channel $channel)
@@ -34,9 +36,18 @@ class CreateChannelController extends AbstractController
             ], Response::HTTP_BAD_REQUEST);
         }
 
+        $response = $this->wsClient->request('POST', '/notify-room', [
+            'json' => [
+                'room' => $channel->room(),
+                'event' => 'channel-created',
+                'message' => $channel->name()
+            ]
+        ]);
+
         return new SuccessResponse([
             'name' => $channel->name(),
-            'room' => $channel->room()
+            'room' => $channel->room(),
+            'res' => $response->getHeaders()
         ]);
     }
 }

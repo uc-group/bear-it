@@ -21,7 +21,7 @@
             <transition name="fade">
               <div class="chat__selection selection" v-show="selected.length > 0">
                 <div class="d-flex align-center">
-                  <v-select :items="['Move to new channel', 'Create new ticket from', 'Remove']" v-model="selectedAction" class="selection__actions" dense></v-select>
+                  <v-select :items="['Move to channel']" v-model="selectedAction" class="selection__actions" dense></v-select>
                   <span v-show="selected.length">
                     selected <strong>{{ selected.length }}</strong> {{ selected.length === 1 ? 'message' : 'messages' }}
                     (<a @click.prevent="selected = []">clear selection</a>)
@@ -126,7 +126,7 @@ export default {
       removing: null,
       confirmRemoveDialog: false,
       selected: [],
-      selectedAction: 'Move to new channel',
+      selectedAction: 'Move to channel',
       channelModalVisible: false
     }
   },
@@ -289,11 +289,8 @@ export default {
     makeAction() {
       const idList = JSON.parse(JSON.stringify(this.selected));
       switch (this.selectedAction) {
-        case 'Move to new channel':
+        case 'Move to channel':
           this.moveMessages();
-          break;
-        case 'Remove':
-          this.removeMessages(idList)
           break;
       }
     },

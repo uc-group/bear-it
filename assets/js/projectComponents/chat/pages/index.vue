@@ -1,5 +1,8 @@
 <template>
   <v-container class="chat-page pa-0 pa-md-3">
+    <ws-room :name="`notification/chat/${project.id}`">
+      <ws-room-message name="channel-created" :handler="addChannel"></ws-room-message>
+    </ws-room>
     <v-row class="chat-page__row" v-if="channelsLoaded">
       <v-col cols="2">
         <chat-channel name="general" @click="selectChannel(null)" :active="channel === null"></chat-channel>
@@ -37,10 +40,13 @@ import ChatRoom from '../components/ChatRoom'
 import ChatChannel from '../components/ChatChannel'
 import CreateChannelForm from '../components/CreateChannelForm'
 import api from '@api/chat'
+import WsRoom from '../../../components/WsRoom'
+import WsRoomMessage from '../../../components/WsRoomMessage'
 
 export default {
   name: 'chat-page-index',
-  components: {CreateChannelForm, ChatRoom, ChatChannel},
+  components: {CreateChannelForm, ChatRoom, ChatChannel, WsRoom,
+    WsRoomMessage},
   props: {
     project: Object
   },
@@ -94,11 +100,16 @@ export default {
       this.channelModalVisible = false;
     },
     switchToChannel(name) {
-      if (name && !this.channels.includes(name)) {
+      if (name) {
+        this.addChannel(name);
+      }
+      this.selectChannel(name);
+    },
+    addChannel(name) {
+      if (!this.channels.includes(name)) {
         this.channels.push(name);
         this.channels.sort();
       }
-      this.selectChannel(name);
     }
   }
 }
