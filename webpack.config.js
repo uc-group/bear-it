@@ -34,6 +34,7 @@ Encore.setOutputPath('public/build/')
     '@api': path.resolve(__dirname, 'assets/js/api'),
     '@lib': path.resolve(__dirname, 'assets/js/lib'),
     '@publiclib': path.resolve(__dirname, 'public/js/lib'),
+    '@plugins': path.resolve(__dirname, 'assets/js/projectComponents')
   })
 
 module.exports = Encore.getWebpackConfig()
