@@ -102,7 +102,7 @@ export default {
     methods: {
         async createTask() {
             this.$v.$touch()
-            if (!this.$v.invalid) {
+            if (!this.$v.$invalid) {
                 try {
                     this.submitting = true
                     api.create(this.task.title, this.task.description, this.task.projectId).then((data) => {
