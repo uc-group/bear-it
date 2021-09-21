@@ -1,14 +1,10 @@
 import api from '../api/index'
-import store from '~/store'
 
 const loadPageBeforeEnter = async (to, from, next) => {
-  store.dispatch('startFetching')
   try {
     to.params.page = await api.get(to.params.page)
-    store.dispatch('stopFetching')
     next()
   } catch (e) {
-    store.dispatch('stopFetching')
     console.error(e)
   }
 }

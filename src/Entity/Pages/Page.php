@@ -3,7 +3,7 @@
 namespace App\Entity\Pages;
 
 use App\Entity\Project;
-use App\Pages\Model\PageEdit;
+use App\Pages\Command\PageEdit;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity()]

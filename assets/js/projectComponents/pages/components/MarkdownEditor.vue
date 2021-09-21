@@ -4,24 +4,22 @@
             <textarea v-model="editorContent" @input="onInput" rows="20"></textarea>
         </v-col>
         <v-col cols="6">
-            <div v-html="compiledMarkdown"></div>
+            <markdown-viewer :content="editorContent"></markdown-viewer>
         </v-col>
     </v-row>
 </template>
 
 <script>
-import marked from 'marked'
-import DOMPurify from 'dompurify'
-import { debounce } from 'lodash'
+import MarkdownViewer from './MarkdownViewer'
 
 export default {
     name: "MarkdownEditor",
+    components: { MarkdownViewer },
     props: {
         content: String
     },
     mounted() {
         this.editorContent = this.content
-        this.compileMarkdown()
     },
     data() {
         return {
@@ -30,15 +28,12 @@ export default {
         }
     },
     methods: {
-        compileMarkdown() {
-            if (this.editorContent) {
-                this.compiledMarkdown = DOMPurify.sanitize(marked(this.editorContent))
-            }
-        },
-        onInput: debounce(function() {
-            this.compileMarkdown()
-            this.$emit('input', { content: this.editorContent, compiledMarkdown: this.compiledMarkdown })
-        }, 500)
+        onInput() {
+            this.$emit('input', {
+                content: this.editorContent,
+                compiledMarkdown: this.compiledMarkdown
+            })
+        }
     }
 }
 </script>

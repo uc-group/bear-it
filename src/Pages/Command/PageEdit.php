@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Pages\Model;
+namespace App\Pages\Command;
 
 class PageEdit
 {

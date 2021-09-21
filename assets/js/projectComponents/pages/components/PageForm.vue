@@ -47,11 +47,11 @@ export default {
     },
     mounted() {
         this.$refs.nameField.focus()
-        if (this.initData.hasOwnProperty('name')) {
+        if (Object.prototype.hasOwnProperty.call(this.initData, 'name')) {
             this.page.name = this.initData.name
         }
 
-        if (this.initData.hasOwnProperty('content')) {
+        if (Object.prototype.hasOwnProperty.call(this.initData, 'content')) {
             this.page.content = this.initData.content
         }
     },
@@ -66,7 +66,7 @@ export default {
             return errors
         },
         initDataContent() {
-            return this.initData.hasOwnProperty('content') ? this.initData.content : ''
+            return Object.prototype.hasOwnProperty.call(this.initData, 'content') ? this.initData.content : ''
         }
     },
     methods: {

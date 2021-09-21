@@ -3,8 +3,8 @@
 </template>
 
 <script>
-import marked from 'marked'
-import DOMPurify from 'dompurify'
+import { debounce } from 'lodash'
+import compileMarkdown from '../../../lib/compileMarkdown'
 
 export default {
     name: "MarkdownViewer",
@@ -12,7 +12,7 @@ export default {
         content: String
     },
     created() {
-        this.compileMarkdown()
+        this.compiledMarkdown = compileMarkdown(this.content)
     },
     data() {
         return {
@@ -20,20 +20,12 @@ export default {
         }
     },
     watch: {
-        content() {
-            this.compileMarkdown()
-        }
-    },
-    methods: {
-        compileMarkdown() {
-            if (this.content) {
-                this.compiledMarkdown = DOMPurify.sanitize(marked(this.content))
-            }
+        content: {
+            immediate: true,
+            handler: debounce(function (newValue) {
+                this.compiledMarkdown = compileMarkdown(newValue)
+            }, 200)
         }
     }
 }
 </script>
-
-<style scoped>
-
-</style>

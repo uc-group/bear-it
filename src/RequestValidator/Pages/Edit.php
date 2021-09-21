@@ -2,7 +2,7 @@
 
 namespace App\RequestValidator\Pages;
 
-use App\Pages\Model\PageEdit;
+use App\Pages\Command\PageEdit;
 use App\RequestValidator\AbstractRequestValidator;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Validator\Constraint;

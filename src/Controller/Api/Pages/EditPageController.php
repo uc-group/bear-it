@@ -4,7 +4,7 @@ namespace App\Controller\Api\Pages;
 
 use App\Doctrine\Repository\PageRepository;
 use App\Http\Response\SuccessResponse;
-use App\Pages\Model\PageEdit;
+use App\Pages\Command\PageEdit;
 use App\RequestValidator\Pages\Edit;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Routing\Annotation\Route;

@@ -2,12 +2,12 @@
     <div class="dashboard__container">
         <v-row class="dashboard__top-bar" justify="end">
             <v-col cols="4" class="top-bar__actions">
-                <v-btn class="mx-2" fab dark color="indigo" @click="newPage">
+                <v-btn class="mx-2" fab dark color="indigo" :to="newPage">
                     <v-icon dark>
                         mdi-plus
                     </v-icon>
                 </v-btn>
-                <v-btn v-if="selectedPage" class="mx-2" fab dark color="cyan" @click="editPage">
+                <v-btn v-if="selectedPage" class="mx-2" fab dark color="cyan" :to="editPage">
                     <v-icon dark>
                         mdi-pencil
                     </v-icon>
@@ -44,15 +44,22 @@ export default {
             selectedPage: null
         }
     },
+    computed: {
+        editPage() {
+            return {
+                name: 'pages_edit',
+                params: { page: this.selectedPage.id }
+            }
+        },
+        newPage() {
+            return {
+                name: 'pages_create'
+            }
+        },
+    },
     methods: {
         showPage(page) {
             this.selectedPage = page
-        },
-        editPage() {
-            this.$router.push({ name: 'pages_edit', params: { page: this.selectedPage.id } })
-        },
-        newPage() {
-            this.$router.push({ name: 'pages_create' })
         },
         pageClass(page) {
             return {
