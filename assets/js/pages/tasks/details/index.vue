@@ -10,7 +10,6 @@
             <div>{{ currentTask.title }}</div>
             <div>{{ currentTask.description }}</div>
             <div>{{ currentTask.projectId }}</div>
-            <div>{{ currentTask.projectShortId }}</div>
         </v-container>
     </v-layout>
 </template>
