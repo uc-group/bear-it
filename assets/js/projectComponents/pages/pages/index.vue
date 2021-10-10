@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div class="component-pages">
         <dashboard :pages="pages"></dashboard>
     </div>
 </template>
@@ -26,3 +26,9 @@ export default {
     }
 }
 </script>
+
+<style lang="scss">
+.component-pages {
+    height: 100%;
+}
+</style>
