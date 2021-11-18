@@ -2,6 +2,7 @@ vendor/
 tests/
 var/
 node_modules/
+docker/
 Dockerfile
 public/build
 public/sw.js

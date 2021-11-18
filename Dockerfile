@@ -4,9 +4,9 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get -y update && apt-get -y install libzi
 RUN docker-php-ext-install zip pdo_mysql
 COPY composer.json composer.lock ./
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
-RUN composer install  --no-scripts --no-autoloader
+RUN composer install  --no-scripts --no-autoloader --no-ansi
 COPY . .
-RUN composer dump-autoload --optimize && composer run-script post-install-cmd
+RUN composer dump-autoload --optimize --no-ansi && composer run-script post-install-cmd
 
 FROM node:14 AS assets-build
 WORKDIR /home/node/app
@@ -14,7 +14,7 @@ RUN mkdir -p /home/node/app/public/js
 COPY assets assets
 COPY public/js public/js
 COPY package.json yarn.lock webpack.config.js ./
-RUN yarn install --no-cache && yarn build
+RUN yarn install --no-cache --silent && yarn build-ci
 
 FROM php:8.0-apache-buster
 WORKDIR /var/www/bear-it
