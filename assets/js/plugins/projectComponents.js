@@ -21,6 +21,7 @@ const configureRoutes = (r) => {
         store.dispatch('startFetching')
         try {
           const project = to.params.project || store.state.project
+          to.params.project = project;
           if (!project || !(project.components || []).includes(to.meta.moduleName)) {
             store.dispatch('stopFetching')
             next({name: 'not_found'})
