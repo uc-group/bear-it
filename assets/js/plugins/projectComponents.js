@@ -1,4 +1,5 @@
 import store from '~/store'
+import api from '@api/project'
 const components = {};
 const routes = [];
 
@@ -7,8 +8,7 @@ const configureRoutes = (r) => {
     const moduleRoutes = r(key).default
     const moduleName = key.split('/')[1]
 
-    moduleRoutes.forEach((route) => {
-      route.path = `${moduleName}${route.path}`
+    const enrichRoute = (route) => {
       if (route.name) {
         route.name = `${moduleName}_${route.name}`
       }
@@ -18,25 +18,34 @@ const configureRoutes = (r) => {
 
       const moduleBeforeEnter = route.beforeEnter;
       route.beforeEnter = async (to, from, next) => {
-        store.dispatch('startFetching')
         try {
-          const project = to.params.project || store.state.project
-          to.params.project = project;
+          if (store.state.project) {
+            to.params.project = store.state.project;
+          } else if (typeof to.params.project === 'string') {
+            to.params.project = await api.get(to.params.id)
+          }
+          const project = to.params.project;
           if (!project || !(project.components || []).includes(to.meta.moduleName)) {
-            store.dispatch('stopFetching')
             next({name: 'not_found'})
             return;
           }
           if (moduleBeforeEnter) {
             await moduleBeforeEnter(to, from, next)
           }
-          store.dispatch('stopFetching')
           next()
         } catch (e) {
-          store.dispatch('stopFetching')
           console.error(e)
         }
       }
+
+      (route.children || []).forEach((childRoute) => {
+        enrichRoute(childRoute);
+      });
+    };
+
+    moduleRoutes.forEach((route) => {
+      route.path = `${moduleName}${route.path}`
+      enrichRoute(route);
       routes.push(route)
     })
   })

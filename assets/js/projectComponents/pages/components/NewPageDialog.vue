@@ -1,11 +1,9 @@
 <template>
-  <div>
-    <v-btn color="primary" @click="dialogVisible = true">Create new book</v-btn>
-    <v-dialog v-model="dialogVisible" persistent max-width="600px">
+    <v-dialog v-bind="{...$attrs, ...$props}" v-on="$listeners" persistent max-width="600px">
       <v-card>
-        <v-card-title>New book</v-card-title>
+        <v-card-title>New page</v-card-title>
         <v-card-text>
-          <v-form @submit.prevent="createBook" :disabled="submitting">
+          <v-form @submit.prevent="createPage" :disabled="submitting">
             <v-text-field
                 v-model="name"
                 label="Name"
@@ -14,18 +12,17 @@
                 :counter="80"
                 required
                 @blur="$v.name.$touch()"
-                :autofocus="dialogVisible"
+                :autofocus="true"
             ></v-text-field>
           </v-form>
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn color="primary" text @click="dialogVisible = false">Cancel</v-btn>
-          <v-btn color="primary" @click="createBook" :loading="submitting">Create New Book</v-btn>
+          <v-btn color="primary" text @click="$emit('input', false)">Cancel</v-btn>
+          <v-btn color="primary" @click="createPage" :loading="submitting">Create New Page</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
-  </div>
 </template>
 
 <script>
@@ -39,7 +36,8 @@ export default {
     name: { required, maxLength: maxLength(80), minLength: minLength(2) }
   },
   props: {
-    projectId: String
+    projectId: String,
+    value: Boolean
   },
   data() {
     return {
@@ -60,24 +58,25 @@ export default {
     }
   },
   methods: {
-    async createBook() {
+    async createPage() {
       this.$v.$touch();
       if (!this.$v.$invalid && !this.submitting) {
         this.submitting = true;
         try {
-          const id = await api.createBook(this.projectId, this.name).then((data) => data.id);
-          this.$router.push({
-            name: 'pages_book',
-            params: {
-              bookId: id
-            }
-          });
-          this.dialogVisible = false;
-          this.name = '';
+          const name = this.name;
+          const pageId = await api.create(this.projectId, name, `# ${this.name}\n\n`);
+          this.$emit('page:created', { id: pageId, name });
         } catch (error) {
         } finally {
           this.submitting = false;
         }
+      }
+    }
+  },
+  watch: {
+    value(to) {
+      if (to) {
+        this.name = '';
       }
     }
   }

@@ -32,5 +32,10 @@ export default {
     },
     getBook(bookId) {
         return client.get(`/api/page/book/${bookId}`).then(requestHandler)
+    },
+    updateNavigation(bookId, navigation) {
+        return client.put(`/api/page/book/${bookId}/navigation`, {
+            navigation
+        }).then(requestHandler)
     }
 }

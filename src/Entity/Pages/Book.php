@@ -42,7 +42,7 @@ class Book
         return [
             'id' => $this->id,
             'name' => $this->name,
-            'navigation' => empty($this->navigation) ? (new NavigationElement())->toArray() : $this->navigation
+            'navigation' => empty($this->navigation) ? (new NavigationElement('root', null))->toArray() : $this->navigation
         ];
     }
 }

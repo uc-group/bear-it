@@ -49,13 +49,13 @@ export default {
         editPage() {
             return {
                 name: 'pages_edit',
-                params: { page: this.selectedPage.id }
+                params: { pageId: this.selectedPage.id }
             }
         },
         showPageRoute() {
             return {
               name: 'pages_show',
-              params: { page: this.selectedPage.id }
+              params: { pageId: this.selectedPage.id }
             }
         },
         newPage() {

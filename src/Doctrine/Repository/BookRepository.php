@@ -37,7 +37,7 @@ class BookRepository
             $entity->name = $book->name;
         }
 
-        $entity->navigation = $book->navigation();
+        $entity->navigation = $book->navigation()->toArray();
         $this->entityManager->persist($entity);
         $this->entityManager->flush();
     }

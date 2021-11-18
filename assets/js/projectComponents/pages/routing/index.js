@@ -1,23 +1,5 @@
 import api from '../api/index'
 
-const loadPageBeforeEnter = async (to, from, next) => {
-  try {
-    to.params.page = await api.get(to.params.page)
-    next()
-  } catch (e) {
-    console.error(e)
-  }
-}
-
-const loadBook = async (to, from, next) => {
-  try {
-    to.params.book = await api.getBook(to.params.bookId);
-    next();
-  } catch (e) {
-    console.error(e);
-  }
-}
-
 export default [
   {
     path: '/',
@@ -39,32 +21,29 @@ export default [
     component: () => import(/* webpackChunkName: "pages" */ '../pages/create.vue')
   },
   {
-    path: '/edit/:page',
+    path: '/edit/:pageId',
     name: 'edit',
-    component: () => import(/* webpackChunkName: "pages" */ '../pages/edit.vue'),
-    props: true,
-    beforeEnter: loadPageBeforeEnter
+    component: () => import(/* webpackChunkName: "pages" */ '../pages/edit.vue')
   },
   {
-    path: '/:page',
+    path: '/:pageId',
     name: 'show',
     component: () => import(/* webpackChunkName: "pages" */ '../pages/show.vue'),
-    props: true,
-    beforeEnter: loadPageBeforeEnter
   },
   {
     path: '/books/:bookId',
     name: 'book',
     component: () => import(/* webpackChunkName: "pages" */ '../pages/book.vue'),
-    props: true,
-    beforeEnter: loadBook,
     children: [
       {
-        path: '/:page',
+        path: 'page/:pageId',
         name: 'book_page',
         component: () => import(/* webpackChunkName: "pages" */ '../pages/show.vue'),
-        props: true,
-        beforeEnter: loadPageBeforeEnter
+      },
+      {
+        path: 'edit/:pageId',
+        name: 'book_edit_page',
+        component: () => import(/* webpackChunkName: "pages" */ '../pages/edit.vue'),
       },
     ]
   }

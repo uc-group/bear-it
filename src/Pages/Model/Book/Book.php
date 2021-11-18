@@ -6,12 +6,13 @@ class Book
 {
     private BookId $id;
     public string $name;
-    private array $navigation = [];
+    private NavigationElement $navigation;
 
     private function __construct(BookId $bookId, string $name)
     {
         $this->id = $bookId;
         $this->name = $name;
+        $this->navigation = new NavigationElement('root', null);
     }
 
     public static function create(BookId $bookId, string $name): self
@@ -24,16 +25,21 @@ class Book
         return $this->id;
     }
 
-    public function navigation(): array
+    public function navigation(): NavigationElement
     {
         return $this->navigation;
     }
 
-    public function fromArray(array $data): self
+    public function updateNavigation(NavigationElement $navigationElement) {
+        $this->navigation = $navigationElement;
+    }
+
+    public static function fromArray(array $data): self
     {
-        $this->id = BookId::fromString($data['id']);
-        $this->name = $data['name'];
-        $this->navigation = $data['navigation'];
+        $self = new self(BookId::fromString($data['id']),  $data['name']);
+        $self->navigation = NavigationElement::fromArray($data['navigation']);
+
+        return $self;
     }
 
     public function toArray(): array
