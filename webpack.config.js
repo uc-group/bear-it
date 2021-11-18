@@ -1,5 +1,6 @@
 var Encore = require('@symfony/webpack-encore')
 var path = require('path')
+var MonacoEditorPlugin = require('monaco-editor-webpack-plugin')
 const { InjectManifest } = require('workbox-webpack-plugin')
 
 Encore.setOutputPath('public/build/')
@@ -21,6 +22,7 @@ Encore.setOutputPath('public/build/')
       }
   })
   .enableVueLoader()
+  .addPlugin(new MonacoEditorPlugin())
   // .addPlugin(
   //   new InjectManifest({
   //     swSrc: './assets/js/sw.js',
