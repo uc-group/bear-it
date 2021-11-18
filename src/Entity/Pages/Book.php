@@ -4,6 +4,7 @@ namespace App\Entity\Pages;
 
 use App\Entity\Project;
 use App\Pages\Model\Book\BookId;
+use App\Pages\Model\Book\NavigationElement;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity()]
@@ -41,7 +42,7 @@ class Book
         return [
             'id' => $this->id,
             'name' => $this->name,
-            'navigation' => $this->navigation
+            'navigation' => empty($this->navigation) ? (new NavigationElement())->toArray() : $this->navigation
         ];
     }
 }

@@ -18,7 +18,10 @@ class ListBooksController extends AbstractController
         ]);
 
         return new SuccessResponse(array_map(function (Book $book) {
-            return $book->toArray();
+            return [
+                'id' => $book->getId()->toString(),
+                'name' => $book->name
+            ];
         }, $books));
     }
 }

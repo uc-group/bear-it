@@ -32,7 +32,7 @@ export default {
 }
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .component-pages {
     display: flex;
     flex-direction: column;
