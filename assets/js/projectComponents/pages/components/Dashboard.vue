@@ -1,26 +1,22 @@
 <template>
-    <div class="dashboard__container">
-        <v-row class="dashboard__top-bar" justify="end">
-            <v-col cols="4" class="top-bar__actions">
-                <v-btn class="mx-2" fab dark color="indigo" :to="newPage">
-                    <v-icon dark>
-                        mdi-plus
-                    </v-icon>
-                </v-btn>
-                <v-btn v-if="selectedPage" class="mx-2" fab dark color="cyan" :to="editPage">
-                    <v-icon dark>
-                        mdi-pencil
-                    </v-icon>
-                </v-btn>
-            </v-col>
-        </v-row>
-        <v-row>
-            <v-col cols="2" class="dashboard__page-list">
+    <div class="dashboard__container elevation-13">
+        <v-row class="dashboard__row">
+            <v-col cols="4" class="dashboard__page-list">
+                <div class="page-list__new-page-action">
+                    <v-btn class="mx-2" dark x-small color="indigo" :to="newPage">
+                        New page
+                    </v-btn>
+                </div>
                 <div class="page-list__file" :class="pageClass(page)" v-for="page in pages" @click="showPage(page)">
                     {{ page.name }}
                 </div>
             </v-col>
-            <v-col cols="10" class="dashboard__viewer">
+            <v-col cols="8" class="dashboard__viewer">
+                <v-btn v-if="selectedPage" class="mx-2" fab dark x-small absolute top right color="cyan" :to="editPage">
+                    <v-icon dark>
+                        mdi-pencil
+                    </v-icon>
+                </v-btn>
                 <markdown-viewer v-if="selectedPage" :content="selectedPage.content"></markdown-viewer>
             </v-col>
         </v-row>
@@ -71,20 +67,49 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.dashboard {
+    &__container {
+        height: 100%;
+    }
+
+    &__row {
+        height: 100%;
+    }
+
+    &__page-list {
+        display: flex;
+        flex-direction: column;
+
+        background-color: #e0e0e0;
+        color: #1e1e1e;
+        border-right: solid 1px #f0f0f0;
+        height: 100%;
+        padding-right: 0;
+    }
+
+    &__viewer {
+        background-color: #fafafa;
+        position: relative;
+    }
+}
+
 .page-list {
+    &__new-page-action {
+        margin-bottom: 5px;
+        font-size: 0.7rem;
+    }
+
     &__file {
-        height: 30px;
-        background-color: lightgray;
-        border-bottom: 1px black solid;
+        padding: 3px 0;
         text-align: center;
         cursor: pointer;
 
         &--active {
-            background-color: green;
+            background-color: #cecece;
         }
 
         &:hover {
-            background-color: lightblue;
+            background-color: #efefef;
         }
     }
 }
