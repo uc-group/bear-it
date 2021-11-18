@@ -15,6 +15,7 @@ services:
     environment:
       - APACHE_RUN_USER=bear-it
       - APACHE_RUN_GROUP=bear-it
+      - DATABASE_URL=mysql://root:root@db:3306/bearit?serverVersion=5.7
   assets:
     image: 'node:14.17'
     working_dir: /usr/node/app

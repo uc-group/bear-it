@@ -4,14 +4,14 @@
         "@fortawesome/free-brands-svg-icons": "^5.8.1",
         "@fortawesome/free-solid-svg-icons": "^5.8.1",
         "@fortawesome/vue-fontawesome": "^2.0.2",
-        "@mdi/font": "^5.9.55",
+        "@mdi/font": "^6.5.95",
         "@symfony/webpack-encore": "^1.5",
         "core-js": "^3.15.2",
         "deepmerge": "^4.0.0",
         "dompurify": "^2.3.1",
         "fibers": "^5.0.0",
         "idb": "^6.1.2",
-        "marked": "^3.0.2",
+        "marked": "^4.0.3",
         "node-sass": "^6.0.1",
         "regenerator-runtime": "^0.13.2",
         "sass": "^1.22.12",
@@ -36,8 +36,8 @@
     },
     "dependencies": {
         "@babel/polyfill": "^7.12.1",
-        "axios": "^0.21.2",
-        "css-loader": "^5.2.6",
+        "axios": "^0.24.0",
+        "css-loader": "^6.5.1",
         "lodash": "^4.17.21",
         "moment": "^2.29.1",
         "socket.io-client": "^4.1.2",
@@ -50,8 +50,5 @@
         "workbox-precaching": "^6.1.5",
         "workbox-routing": "^6.1.5",
         "workbox-strategies": "^6.1.5"
-    },
-    "resolutions": {
-        "ansi-html": "https://registry.yarnpkg.com/ansi-html-community/-/ansi-html-community-0.0.8.tgz#69fbc4d6ccbe383f9736934ae34c3f8290f1bf41"
     }
 }
