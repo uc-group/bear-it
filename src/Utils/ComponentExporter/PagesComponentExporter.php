@@ -82,7 +82,9 @@ class PagesComponentExporter implements ComponentExporterInterface
         foreach ($books as $book) {
             $path = sprintf('books/book_%05d.json', $book->getId()->number());
             $filePath = $this->exportDir . sprintf('/%s', $path);
-            file_put_contents($filePath, json_encode($book->toArray(), JSON_UNESCAPED_UNICODE));
+            $bookData = $book->toArray();
+            $bookData['id'] = $book->getId()->number();
+            file_put_contents($filePath, json_encode($bookData, JSON_UNESCAPED_UNICODE));
             $descriptor->addResource($book->getId(), $filePath, $path);
         }
     }
