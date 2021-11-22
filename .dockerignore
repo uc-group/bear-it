@@ -8,3 +8,4 @@ public/sw.js
 docker-compose*
 dev*
 .env.local*
+docker/
