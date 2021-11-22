@@ -8,7 +8,7 @@
             <router-link :to="{ name: 'project_details', params: {id: item.id} }">{{ item.name }}</router-link>
         </template>
         <template v-slot:item.actions="{ item }">
-            <v-btn icon :href="`/project/${item.id}/export`">
+            <v-btn icon :href="`/project-export/${item.id}.zip`">
               <v-icon>mdi-archive-arrow-down</v-icon>
             </v-btn>
             <v-btn icon @click="removeProject(item)">

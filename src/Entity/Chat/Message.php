@@ -5,6 +5,7 @@ namespace App\Entity\Chat;
 use App\Entity\User;
 use App\Repository\MessageRepository;
 use Doctrine\ORM\Mapping as ORM;
+use PharIo\Manifest\Author;
 
 #[ORM\Entity(repositoryClass: MessageRepository::class)]
 #[ORM\Table(name: 'bi_chat_message')]
@@ -56,5 +57,10 @@ class Message
             'postedAt' => $this->postedAt,
             'roomId' => $this->roomId
         ];
+    }
+
+    public function getAuthor(): User
+    {
+        return $this->author;
     }
 }

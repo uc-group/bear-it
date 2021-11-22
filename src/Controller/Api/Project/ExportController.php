@@ -9,7 +9,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\Routing\Annotation\Route;
 
-#[Route('/project/{projectId}/export')]
+#[Route('/project-export/{projectId}.zip')]
 class ExportController extends AbstractController
 {
     public function __construct(

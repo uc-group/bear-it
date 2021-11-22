@@ -45,7 +45,7 @@ class Exporter
         $projectDescriptor = new ProjectDescriptor($project);
         $this->exportComponents($projectDescriptor);
         $data = $projectDescriptor->toArray();
-        file_put_contents($descriptorPath, json_encode($data));
+        file_put_contents($descriptorPath, json_encode($data, JSON_UNESCAPED_UNICODE));
 
         if ($filesystem->exists($archivePath)) {
             $filesystem->remove($archivePath);
