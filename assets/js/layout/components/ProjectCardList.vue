@@ -14,6 +14,9 @@
                 <v-card-actions>
                     <v-btn text :to="{name: 'project_details', params: {id: project.id}}">Details</v-btn>
                     <div class="flex-grow-1"></div>
+                    <v-btn icon :href="`/project/${project.id}/export`">
+                      <v-icon>mdi-archive-arrow-down</v-icon>
+                    </v-btn>
                     <v-btn icon @click="removeProject(project)">
                         <v-icon>delete</v-icon>
                     </v-btn>
