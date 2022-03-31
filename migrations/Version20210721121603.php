@@ -19,6 +19,9 @@ final class Version20210721121603 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
+        if ($schema->getTable('bi_project')->hasColumn('last_resource_id')) {
+            return;
+        }
         // this up() migration is auto-generated, please modify it to your needs
         $this->addSQL('SET FOREIGN_KEY_CHECKS=0');
         $this->addSql('ALTER TABLE bi_project ADD last_resource_id INT UNSIGNED NOT NULL DEFAULT 0, DROP short_id, CHANGE id id VARCHAR(12) NOT NULL');

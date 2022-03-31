@@ -27,7 +27,7 @@ class Project
     /**
      * @var string[]
      */
-    #[ORM\Column(type: 'json_array')]
+    #[ORM\Column(type: 'json')]
     public array $components = [];
 
     public function __construct(string $id, string $name, string $description = null, string $color = null)
