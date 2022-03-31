@@ -1,5 +1,5 @@
 <template>
-    <div class="dashboard__container elevation-13">
+    <div class="dashboard elevation-13">
         <v-row class="dashboard__row">
             <v-col cols="4" class="dashboard__page-list">
                 <div class="page-list__new-page-action">
@@ -12,6 +12,11 @@
                 </div>
             </v-col>
             <v-col cols="8" class="dashboard__viewer">
+              <v-btn v-if="selectedPage" class="mx-2 mr-11" fab dark x-small absolute top right color="green" :to="showPageRoute">
+                <v-icon dark>
+                  mdi-eye
+                </v-icon>
+              </v-btn>
                 <v-btn v-if="selectedPage" class="mx-2" fab dark x-small absolute top right color="cyan" :to="editPage">
                     <v-icon dark>
                         mdi-pencil
@@ -44,7 +49,13 @@ export default {
         editPage() {
             return {
                 name: 'pages_edit',
-                params: { page: this.selectedPage.id }
+                params: { pageId: this.selectedPage.id }
+            }
+        },
+        showPageRoute() {
+            return {
+              name: 'pages_show',
+              params: { pageId: this.selectedPage.id }
             }
         },
         newPage() {
@@ -68,9 +79,7 @@ export default {
 
 <style lang="scss" scoped>
 .dashboard {
-    &__container {
-        height: 100%;
-    }
+    flex: 1 1 auto;
 
     &__row {
         height: 100%;

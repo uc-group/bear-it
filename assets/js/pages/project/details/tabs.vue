@@ -15,6 +15,7 @@
                         </tbody>
                     </v-simple-table>
                     <p>{{ project.description }}</p>
+                  <v-btn :href="`/project-export/${project.id}.zip`">Export project as zip archive</v-btn>
                 </v-card-text>
             </v-card>
         </v-tab-item>

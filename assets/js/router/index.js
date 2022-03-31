@@ -38,6 +38,7 @@ const router = new VueRouter({
 })
 
 router.beforeEach((to, from, next) => {
+    store.dispatch('startFetching')
     loader.then(() => {
         if (
             (!to.meta.hasOwnProperty('auth') || to.meta.auth === true) &&
@@ -51,5 +52,9 @@ router.beforeEach((to, from, next) => {
         next()
     })
 })
+
+router.afterEach((to, from, next) => {
+    store.dispatch('stopFetching')
+});
 
 export default router

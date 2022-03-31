@@ -20,5 +20,22 @@ export default {
     },
     get(page) {
         return client.get(`/api/page/details/${page}`).then(requestHandler)
+    },
+    listBooks(project) {
+        return client.get(`/api/page/${project}/book-list`).then(requestHandler)
+    },
+    createBook(project, name) {
+        return client.post(`/api/page/book`, {
+            project,
+            name
+        }).then(requestHandler)
+    },
+    getBook(bookId) {
+        return client.get(`/api/page/book/${bookId}`).then(requestHandler)
+    },
+    updateNavigation(bookId, navigation) {
+        return client.put(`/api/page/book/${bookId}/navigation`, {
+            navigation
+        }).then(requestHandler)
     }
 }
