@@ -11,7 +11,7 @@
         "dompurify": "^2.3.1",
         "fibers": "^5.0.0",
         "idb": "^6.1.2",
-        "marked": "^4.0.3",
+        "marked": "^4.0.10",
         "monaco-editor-webpack-plugin": "^4.1.1",
         "node-sass": "^6.0.1",
         "regenerator-runtime": "^0.13.2",
