@@ -40,7 +40,7 @@
         "axios": "^0.24.0",
         "css-loader": "^6.5.1",
         "lodash": "^4.17.21",
-        "mermaid": "^8.11.1",
+        "mermaid": "^8.13.8",
         "moment": "^2.29.1",
         "monaco-editor": "^0.26.1",
         "socket.io-client": "^4.1.2",
