@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Exception\InvalidIdFormatException;
+use App\Project\Exception\InvalidProjectIdException;
+use App\Project\Model\Project\ProjectId;
 use App\Task\Model\Task\Status;
 use App\Utils\DateTime;
 use App\ValueObject\Estimation;
@@ -54,7 +56,7 @@ class Task
     private ?string $estimation;
 
     #[ORM\Column(type: 'string', length: 10, nullable: true)]
-    private ?string $estimationUnit;
+    private ?string $estimationUnit = self::UNIT_STORY_POINTS;
 
     #[ORM\Column(type: 'boolean')]
     private bool $resolved;
@@ -71,13 +73,13 @@ class Task
         $this->resolved = false;
     }
 
+    /**
+     * @return TaskId|null
+     * @throws InvalidIdFormatException
+     */
     public function getId(): ?TaskId
     {
-        try {
-            return TaskId::fromString($this->id);
-        } catch (InvalidIdFormatException) {
-            return TaskId::create(TaskId::PREFIX_INVALID, 0);
-        }
+        return TaskId::fromString($this->id);
     }
 
     public function getProject(): Project
