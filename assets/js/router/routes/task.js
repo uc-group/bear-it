@@ -1,10 +1,10 @@
 import api from '@api/task'
 import store from '~/store'
 
-const loadTaskBeforeEnter = async (to, from, next) => {
+export const loadTaskBeforeEnter = async (to, from, next) => {
     store.dispatch('startFetching')
     try {
-        to.params.task = await api.get(to.params.id)
+        to.params.task = await api.get(`${to.params.id}-${to.params.taskNumber}`)
         store.dispatch('stopFetching')
         next()
     } catch (e) {
@@ -15,15 +15,9 @@ const loadTaskBeforeEnter = async (to, from, next) => {
 
 export default [
     {
-        path: '/create-task',
+        path: '/create-task/:projectId?',
         name: 'task_create',
+        props: true,
         component: () => import('@pages/tasks/create.vue')
-    },
-    {
-        path: '/task/:id',
-        name: 'task',
-        component: () => import('@pages/tasks/details/index.vue'),
-        beforeEnter: loadTaskBeforeEnter,
-        props: true
     }
 ]

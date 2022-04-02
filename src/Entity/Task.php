@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\Entity\Embeddable\Resource;
 use App\Exception\InvalidIdFormatException;
 use App\Project\Exception\InvalidProjectIdException;
 use App\Project\Model\Project\ProjectId;
@@ -11,9 +12,11 @@ use App\ValueObject\Estimation;
 use App\Task\Model\Task\TaskId;
 use DateTime as PhpDateTime;
 use Doctrine\ORM\Mapping as ORM;
+use Ramsey\Uuid\Uuid;
 
 #[ORM\Entity]
 #[ORM\Table(name: 'bi_task')]
+#[ORM\UniqueConstraint(columns: ['resource_number', 'resource_project'])]
 class Task
 {
     const UNIT_MAN_HOURS = 'mh';
@@ -24,9 +27,8 @@ class Task
     #[ORM\Column(type: 'string', length: 36)]
     private string $id;
 
-    #[ORM\ManyToOne(targetEntity: Project::class, inversedBy: "tasks")]
-    #[ORM\JoinColumn(name: 'project_id', referencedColumnName: 'id', nullable: true, onDelete: 'SET NULL')]
-    private Project $project;
+    #[ORM\Embedded(class: Resource::class)]
+    private Resource $resource;
 
     #[ORM\ManyToOne(targetEntity: User::class)]
     #[ORM\JoinColumn(name: 'reporter_id', referencedColumnName: 'id', nullable: true, onDelete: 'SET NULL')]
@@ -61,10 +63,10 @@ class Task
     #[ORM\Column(type: 'boolean')]
     private bool $resolved;
 
-    public function __construct(TaskId $taskId, Project $project, string $title, string $status, User $creator)
+    public function __construct(TaskId $taskId, string $title, string $status, User $creator)
     {
-        $this->id = $taskId->toString();
-        $this->project = $project;
+        $this->id = Uuid::uuid4();
+        $this->resource = Resource::fromId($taskId);
         $this->title = $title;
         $this->createdAt = DateTime::now();
         $this->creator = $creator;
@@ -75,16 +77,12 @@ class Task
 
     /**
      * @return TaskId|null
-     * @throws InvalidIdFormatException
+     * @throws InvalidProjectIdException
      */
     public function getId(): ?TaskId
     {
-        return TaskId::fromString($this->id);
-    }
-
-    public function getProject(): Project
-    {
-        return $this->project;
+        $resourceId = $this->resource->id();
+        return TaskId::create($resourceId->getProjectId(), $resourceId->number());
     }
 
     public function getTitle(): string
@@ -161,5 +159,10 @@ class Task
     public function resolve(): void
     {
         $this->resolved = true;
+    }
+
+    public function isResolved(): bool
+    {
+        return $this->resolved;
     }
 }

@@ -7,7 +7,7 @@
         </tr>
         </thead>
         <tbody>
-        <tr class="clickable-row" v-for="task in tasks" v-key="task.id" @click="showTask(task.id)">
+        <tr class="clickable-row" v-for="task in tasks" :key="task.id" @click="showTask(task.id)">
             <td>{{ task.id }}</td>
             <td>{{ task.title }}</td>
         </tr>
@@ -25,7 +25,8 @@ export default {
     },
     methods: {
         showTask(id) {
-            this.$router.push({ name: 'task', params: { id: id } })
+            const [ project, number ] = id.split('-');
+            this.$router.push({ name: 'project_task', params: { id: project, taskNumber: number } });
         }
     }
 }

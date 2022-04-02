@@ -2,13 +2,16 @@
 
 namespace App\Entity\Pages;
 
+use App\Entity\Embeddable\Resource;
 use App\Entity\Project;
 use App\Pages\Model\Book\BookId;
 use App\Pages\Model\Book\NavigationElement;
+use App\Project\Exception\InvalidProjectIdException;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity()]
 #[ORM\Table(name: 'bi_pages_book')]
+#[ORM\UniqueConstraint(columns: ['resource_number', 'resource_project'])]
 class Book
 {
     #[ORM\Id]
@@ -21,26 +24,29 @@ class Book
     #[ORM\Column(type: 'json', nullable: false)]
     public array $navigation = [];
 
-    #[ORM\ManyToOne(targetEntity: Project::class, inversedBy: "tasks")]
-    #[ORM\JoinColumn(name: 'project_id', referencedColumnName: 'id', nullable: true, onDelete: 'SET NULL')]
-    private Project $project;
+    #[ORM\Embedded(class: Resource::class)]
+    private Resource $resource;
 
-    public function __construct(Project $project, BookId $bookId, string $name)
+    public function __construct(BookId $bookId, string $name)
     {
         $this->id = $bookId->toString();
+        $this->resource = Resource::fromId($bookId);
         $this->name = $name;
-        $this->project = $project;
     }
 
+    /**
+     * @throws InvalidProjectIdException
+     */
     public function getId(): BookId
     {
-        return BookId::fromString($this->id);
+        $id = $this->resource->id();
+        return BookId::create($id->getProjectId(), $id->number());
     }
 
     public function toArray(): array
     {
         return [
-            'id' => $this->id,
+            'id' => $this->resource->id()->toString(),
             'name' => $this->name,
             'navigation' => empty($this->navigation) ? (new NavigationElement('root', null))->toArray() : $this->navigation
         ];

@@ -236,7 +236,7 @@ class ProjectRepository implements ProjectRepositoryInterface
         $qb = $this->entityManager->createQueryBuilder();
         $qb->select('t');
         $qb->from(Task::class, 't');
-        $qb->where('t.project = :project');
+        $qb->where('t.resource.project = :project');
         $qb->setParameter('project', $id->toString());
 
         return $qb->getQuery()->getResult();
@@ -247,13 +247,14 @@ class ProjectRepository implements ProjectRepositoryInterface
         $qb = $this->entityManager->createQueryBuilder();
         $qb->select('t');
         $qb->from(Task::class, 't');
-        $qb->where($qb->expr()->in('t.project', ':projectIds'));
+        $qb->where($qb->expr()->in('t.resource.project', ':projectIds'));
         $qb->setParameter('projectIds', $projectIds);
 
         $result = [];
         /** @var Task $task */
         foreach ($qb->getQuery()->getResult() as $task) {
-            $result[$task->getProject()->id()][] = $task;
+            $id = $task->getId();
+            $result[$id->getProjectId()->toString()][] = $task;
         }
 
         return $result;

@@ -2,15 +2,16 @@
 
 namespace App\Doctrine\Repository;
 
+use App\Doctrine\Traits\ProjectResourceTrait;
 use App\Entity\Pages\Book as BookEntity;
-use App\Entity\Project as ProjectEntity;
-use App\Entity\ProjectResource;
 use App\Pages\Model\Book\Book;
 use App\Pages\Model\Book\BookId;
 use Doctrine\ORM\EntityManagerInterface;
 
 class BookRepository
 {
+    use ProjectResourceTrait;
+
     public function __construct(
         private EntityManagerInterface $entityManager
     ) {}
@@ -20,19 +21,8 @@ class BookRepository
         $entity = $this->entityManager->getRepository(BookEntity::class)->find($book->id()->toString());
 
         if (!$entity) {
-            $project = $this->entityManager->getReference(
-                ProjectEntity::class,
-                $book->id()->getProjectId()->toString()
-            );
-
-            $entity = new BookEntity($project, $book->id(), $book->name);
-
-            $projectResource = new ProjectResource(
-                $project,
-                $book->id()->number(),
-                BookId::class
-            );
-            $this->entityManager->persist($projectResource);
+            $this->createProjectResource($book->id());
+            $entity = new BookEntity($book->id(), $book->name);
         } else {
             $entity->name = $book->name;
         }

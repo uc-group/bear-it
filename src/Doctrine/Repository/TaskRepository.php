@@ -2,24 +2,25 @@
 
 namespace App\Doctrine\Repository;
 
-use App\Entity\Project as ProjectEntity;
-use App\Entity\ProjectResource;
+use App\Doctrine\Traits\ProjectResourceTrait;
 use App\Entity\Task as TaskEntity;
 use App\Entity\User;
 use App\Task\Model\Task\Assignee;
-use App\Task\Model\Task\BoundUser;
+use App\Task\Model\Task\BoundedUser;
 use App\Task\Model\Task\Creator;
 use App\Task\Model\Task\Reporter;
 use App\Task\Model\Task\Status;
 use App\Task\Model\Task\Task;
 use App\Task\Model\Task\TaskId;
 use App\Task\Repository\TaskRepositoryInterface;
-use App\User\Model\User\UserId;
+use Doctrine\DBAL\Exception as DBALException;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\NonUniqueResultException;
 
 class TaskRepository implements TaskRepositoryInterface
 {
+    use ProjectResourceTrait;
+
     public function __construct(
         private EntityManagerInterface $entityManager
     ) {}
@@ -29,8 +30,10 @@ class TaskRepository implements TaskRepositoryInterface
         $queryBuilder = $this->entityManager->createQueryBuilder();
         $queryBuilder->select('t');
         $queryBuilder->from(TaskEntity::class, 't');
-        $queryBuilder->where('t.id = :id');
-        $queryBuilder->setParameter('id', $taskId->toString());
+        $queryBuilder->where('t.resource.number = :number');
+        $queryBuilder->andWhere('t.resource.project = :project');
+        $queryBuilder->setParameter('number', $taskId->number());
+        $queryBuilder->setParameter('project', $taskId->getProjectId()->toString());
 
         try {
             /** @var TaskEntity $entity */
@@ -51,6 +54,10 @@ class TaskRepository implements TaskRepositoryInterface
         ) : null;
     }
 
+    /**
+     * @throws ORMException
+     * @throws DBALException
+     */
     public function save(Task $task)
     {
         $repository = $this->entityManager->getRepository(TaskEntity::class);
@@ -58,28 +65,19 @@ class TaskRepository implements TaskRepositoryInterface
         $connection->beginTransaction();
 
         $taskId = $task->id();
-        $entity = $repository->find($taskId->toString());
+        $entity = $repository->findBy([
+            'resource.number' => $taskId->number(),
+            'resource.project' => $taskId->getProjectId()->toString(),
+        ]);
         if (!$entity) {
-            /** @var ProjectEntity $project */
-            $project = $this->entityManager->getReference(
-                ProjectEntity::class,
-                $taskId->getProjectId()->toString()
-            );
+            $this->createProjectResource($taskId);
 
             $entity = new TaskEntity(
                 $taskId,
-                $project,
                 $task->title(),
                 $task->status()->toString(),
                 $this->getUserReference($task->creator())
             );
-
-            $projectResource = new ProjectResource(
-                $project,
-                $taskId->number(),
-                TaskId::class
-            );
-            $this->entityManager->persist($projectResource);
         } else {
             $entity->setStatus($task->status()->toString());
         }
@@ -99,10 +97,11 @@ class TaskRepository implements TaskRepositoryInterface
     }
 
     /**
-     * @param UserId $id
+     * @param BoundedUser|null $user
      * @return User|object
+     * @throws ORMException
      */
-    private function getUserReference(?BoundUser $user): ?User
+    private function getUserReference(?BoundedUser $user): ?User
     {
         if (!$user) {
             return null;

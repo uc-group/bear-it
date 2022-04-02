@@ -2,14 +2,30 @@
     <v-layout>
         <v-container class="pa-0 pa-md-3">
             <v-row>
-                <v-col>
-                    <h2>{{ currentTask.title }}</h2>
-                </v-col>
+              <v-card :elevation="2" class="flex-grow-1">
+                <v-card-title>
+                  <h2>
+                    <v-icon>mdi-format-list-checks</v-icon>
+                    #{{ taskNumber }} - {{ currentTask.title }}
+                  </h2>
+                </v-card-title>
+                <v-card-text>
+                  <v-container class="pa-0 pa-md-3">
+                    <v-row class="flex-wrap-reverse">
+                      <v-col cols="12" md="8">
+                        <div>{{ currentTask.description }}</div>
+                      </v-col>
+                      <v-col cols="12" md="4">
+                        INFO column
+                      </v-col>
+                    </v-row>
+                  </v-container>
+                </v-card-text>
+                <v-card-actions>
+                  @todo
+                </v-card-actions>
+              </v-card>
             </v-row>
-            <div>{{ currentTask.id }}</div>
-            <div>{{ currentTask.title }}</div>
-            <div>{{ currentTask.description }}</div>
-            <div>{{ currentTask.projectId }}</div>
         </v-container>
     </v-layout>
 </template>
@@ -32,6 +48,9 @@ export default {
     computed: {
         currentTask() {
             return this.$store.state.task
+        },
+        taskNumber() {
+          return this.currentTask?.id.split('-')[1]
         }
     }
 }

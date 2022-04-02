@@ -34,15 +34,16 @@ import clone from '@lib/clone';
 
 export default {
   name: 'Book',
-  components: {NewPageDialog, NavigationElement },
+  components: { NewPageDialog, NavigationElement },
   async beforeRouteEnter(to, from, next) {
-    const book = to.params.book || await api.getBook(to.params.bookId);
+    const book = to.params.book || await api.getBook(`${to.params.project.id}-${to.params.bookNumber}`);
     if (!to.params.pageId && book.navigation.children.length) {
       next({
         name: 'pages_book_page',
         params: {
+          id: to.params.project.id,
           project: to.params.project,
-          bookId: to.params.bookId,
+          bookNumber: to.params.bookNumber,
           pageId: book.navigation.children[0].page,
           book: book
         }
@@ -54,8 +55,8 @@ export default {
     }
   },
   async beforeRouteUpdate(to, from, next) {
-    if (this.book.id !== to.params.bookId) {
-      this.setBook(await api.getBook(to.params.bookId));
+    if (this.book.id !== to.params.bookNumber) {
+      this.setBook(await api.getBook(`${to.params.project.id}-${to.params.bookNumber}`));
     }
     next();
   },
@@ -102,10 +103,10 @@ export default {
       this.newPageDialog = false;
       await api.updateNavigation(this.book.id, clone(newNavigation));
       this.$router.push({
-        name: 'book_page',
+        name: 'pages_book_page',
         params: {
           project: this.project,
-          bookId: this.book.id,
+          bookNumber: this.book.number,
           pageId: page.id
         }
       })

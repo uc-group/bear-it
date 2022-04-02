@@ -10,7 +10,13 @@ export default [
         api.list(to.params.project.id),
         api.listBooks(to.params.project.id)
       ]);
-      to.params.books = books;
+      to.params.books = books.map((book) => {
+        const [project, number] = book.id.split('-');
+        book.number = number;
+        book.project = project;
+
+        return book;
+      });
       to.params.pages = pages;
       next()
     }
@@ -31,7 +37,7 @@ export default [
     component: () => import(/* webpackChunkName: "pages" */ '../pages/show.vue'),
   },
   {
-    path: '/books/:bookId',
+    path: '/books/:bookNumber',
     name: 'book',
     component: () => import(/* webpackChunkName: "pages" */ '../pages/book.vue'),
     children: [

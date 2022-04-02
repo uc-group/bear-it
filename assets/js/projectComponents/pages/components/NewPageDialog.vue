@@ -76,6 +76,7 @@ export default {
   watch: {
     value(to) {
       if (to) {
+        this.$v.$reset();
         this.name = '';
       }
     }

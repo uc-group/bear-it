@@ -2,6 +2,6 @@
 
 namespace App\Task\Model\Task;
 
-class Assignee extends BoundUser
+class Assignee extends BoundedUser
 {
 }

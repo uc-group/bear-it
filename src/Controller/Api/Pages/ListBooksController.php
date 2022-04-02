@@ -14,7 +14,7 @@ class ListBooksController extends AbstractController
     {
         $bookRepository = $this->getDoctrine()->getRepository(Book::class);
         $books = $bookRepository->findBy([
-            'project' => $projectId
+            'resource.project' => $projectId
         ]);
 
         return new SuccessResponse(array_map(function (Book $book) {

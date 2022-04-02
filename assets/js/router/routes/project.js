@@ -1,5 +1,6 @@
 import api from '@api/project'
 import store from '~/store'
+import { loadTaskBeforeEnter } from './task'
 import { getRoutes, getComponentConfig } from '~/plugins/projectComponents'
 
 const loadProjectBeforeEnter = async (to, from, next) => {
@@ -32,6 +33,13 @@ export default [
                 name: 'project_settings',
                 props: true,
                 component: () => import(/* webpackChunkName: "project" */ '@pages/project/details/settings/index.vue'),
+            },
+            {
+                path: 'task/:taskNumber',
+                name: 'project_task',
+                props: true,
+                component: () => import('@pages/tasks/details/index.vue'),
+                beforeEnter: loadTaskBeforeEnter
             },
             ...getRoutes(),
             {

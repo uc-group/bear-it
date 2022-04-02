@@ -2,6 +2,6 @@
 
 namespace App\Task\Model\Task;
 
-class Reporter extends BoundUser
+class Reporter extends BoundedUser
 {
 }

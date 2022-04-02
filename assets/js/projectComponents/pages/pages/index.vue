@@ -6,7 +6,7 @@
           </div>
           <div class="component-pages__bookshelf">
             <template  v-for="book in books">
-              <router-link :to="{ name: 'pages_book', params: { project: project.id, bookId: book.id } }">
+              <router-link :to="{ name: 'pages_book', params: { project: project.id, bookNumber: book.number } }">
                 <div class="book elevation-2">{{ book.name }}</div>
               </router-link>
             </template>

@@ -20,6 +20,14 @@
         <v-list-item-title>General</v-list-item-title>
       </v-list-item-content>
     </v-list-item>
+    <v-list-item link :to="{ name: 'project_details', params: { id: project.id, tab: 'tasks' } }">
+      <v-list-item-icon>
+        <v-icon>mdi-format-list-checks</v-icon>
+      </v-list-item-icon>
+      <v-list-item-content>
+        <v-list-item-title>Tasks</v-list-item-title>
+      </v-list-item-content>
+    </v-list-item>
 
     <v-list-item link :to="menuItem.link"
                  v-for="menuItem in menuList" :key="`${menuItem.label}_${menuItem.link}`">

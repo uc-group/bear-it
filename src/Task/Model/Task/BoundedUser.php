@@ -4,7 +4,7 @@ namespace App\Task\Model\Task;
 
 use BearIt\User\Model\UserId;
 
-class BoundUser
+class BoundedUser
 {
     protected function __construct(
         private UserId $userId

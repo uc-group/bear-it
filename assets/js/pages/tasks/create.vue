@@ -52,12 +52,15 @@ export default {
             projectId: { required, maxLength: maxLength(36), minLength: minLength(3) }
         }
     },
+    props: {
+      projectId: String
+    },
     data() {
         return {
             task: {
                 title: '',
                 description: '',
-                projectId: ''
+                projectId: this.projectId
             },
             serverErrors: {},
             submitting: false
@@ -110,7 +113,8 @@ export default {
                             text: `Task "${this.task.title}" successfully created`,
                             type: 'success'
                         })
-                        this.$router.push({ name: 'task', params: { id: data.id }})
+                        const [project, number] = data.id.split('-')
+                        this.$router.push({ name: 'project_task', params: { id: project, taskNumber: number }})
                     })
                 } catch (error) {
                     if (error.offline) {
